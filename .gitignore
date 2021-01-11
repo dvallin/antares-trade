@@ -1,6 +1,3 @@
-.vscode
-size-plugin.json
 node_modules
-coverage
-/build
-/*.log
+dist
+.envrc
