@@ -1,5 +1,5 @@
 import { Component } from 'inferno'
-import { collectEntities } from '../star-system'
+import { collectEntities } from '../dynamics'
 import { State, connect } from '../store'
 
 export interface Props {
@@ -19,8 +19,7 @@ export class ObjectList extends Component<Props> {
 }
 
 export default connect((state: State) => {
-  const system = state.starSystems.systems[state.starSystems.currentSystem]
   return {
-    objects: collectEntities(system),
+    objects: collectEntities(state.dynamics, state.starSystems.currentSystem),
   }
 })(ObjectList)

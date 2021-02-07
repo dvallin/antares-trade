@@ -14,6 +14,4 @@ export class InformationPanel extends Component<Props> {
   }
 }
 
-export default connect((state: State) => {
-  return { isSelected: state.map.selected !== '' }
-})(InformationPanel)
+export default connect((state: State) => ({ isSelected: state.map.selected !== '' }))(InformationPanel)

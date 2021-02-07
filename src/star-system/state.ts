@@ -14,25 +14,25 @@ const antares: StarSystem = {
   },
   planet1: {
     radius: 40,
-    speed: 0.005,
+    speed: 0.00005,
   },
   planet2: {
     radius: 30,
-    speed: 0.01,
+    speed: 0.0001,
     sub: {
       moon1: {
         radius: 5,
-        speed: 0.1,
+        speed: 0.001,
       },
     },
   },
   planet3: {
     radius: 80,
-    speed: 0.005,
+    speed: 0.00005,
     sub: {
       moon2: {
         radius: 5,
-        speed: 0.1,
+        speed: 0.0001,
       },
     },
   },

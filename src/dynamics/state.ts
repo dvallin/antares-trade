@@ -1,13 +1,14 @@
-import { Draft } from 'immer'
+import produce, { Draft } from 'immer'
+import { MapAction } from '../map/state'
 import { isBand, StarSystem } from '../star-system'
 import { State, Storage } from '../store'
 
-export interface Controlable {
+export interface Controllable {
   by: string
 }
 
 export interface Movement {
-  to: string
+  to: string | Position
 }
 
 export interface Position {
@@ -18,14 +19,14 @@ export interface Position {
 
 export interface DynamicsState {
   lastUpdate: number
-  controlable: Storage<Controlable>
+  controllable: Storage<Controllable>
   movements: Storage<Movement>
   positions: Storage<Position>
 }
 
 export const initialState = (): DynamicsState => ({
   lastUpdate: Date.now(),
-  controlable: {
+  controllable: {
     ship1: { by: 'ai' },
     ship2: { by: 'player' },
     ship3: { by: 'player' },
@@ -71,8 +72,8 @@ export const initialState = (): DynamicsState => ({
     },
     ship2: {
       system: 'antares',
-      x: 34,
-      y: 0,
+      x: -14,
+      y: -20,
     },
     ship3: {
       system: 'antares',
@@ -82,8 +83,27 @@ export const initialState = (): DynamicsState => ({
   },
 })
 
-export const dynamics = (state: DynamicsState = initialState()): DynamicsState => {
-  return state
+export const dynamics = (state: DynamicsState = initialState(), action: MapAction): DynamicsState => {
+  return produce(state, (d) => {
+    switch (action.type) {
+      case 'SELECT_NAVIGABLE_LOCATION': {
+        d.movements[action.id] = {
+          to: {
+            system: action.system,
+            x: action.location[0],
+            y: action.location[1],
+          },
+        }
+        break
+      }
+      case 'SELECT_DOCKABLE_LOCATION': {
+        d.movements[action.id] = {
+          to: action.location,
+        }
+        break
+      }
+    }
+  })
 }
 
 export const translateChildren = (state: Draft<State>, system: StarSystem, dx = 0, dy = 0): void => {
@@ -107,8 +127,8 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
     if (!isBand(part)) {
       const p = state.dynamics.positions[id]
 
-      let rx = p.x - cx
-      let ry = p.y - cy
+      const rx = p.x - cx
+      const ry = p.y - cy
       const radius = Math.sqrt(rx * rx + ry * ry)
       const phi = Math.atan2(ry, rx) + part.speed
 
@@ -124,16 +144,20 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
   })
 }
 
-export const applyMovement = (state: Draft<State>, dt: number, id: string, to: string): void => {
+export const applyMovement = (state: Draft<State>, dt: number, id: string, to: string | Position): void => {
+  if (dt <= 0) {
+    return
+  }
+
   const p1 = state.dynamics.positions[id]
-  const p2 = state.dynamics.positions[to]
+  const p2 = typeof to === 'string' ? state.dynamics.positions[to] : to
 
   const dx = p2.x - p1.x
   const dy = p2.y - p1.y
   const dist = Math.sqrt(dx * dx + dy * dy)
 
-  const stepLength = 0.2 * dt
-  if (dist < stepLength || dt <= 0) {
+  const stepLength = 1 * dt
+  if (dist < stepLength) {
     state.dynamics.positions[id] = p2
     delete state.dynamics.movements[id]
   } else {

@@ -12,7 +12,7 @@ const star: Body = { radius: 8 }
 const smallPlanet: Body = { radius: 1 }
 const gasGiant: Body = { radius: 3 }
 const moon: Body = { radius: 1 }
-const ship: Body = { radius: 0.1 }
+const ship: Body = { radius: 1 }
 
 export const initialState = (): BodyState => ({
   bodies: {
