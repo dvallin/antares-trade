@@ -1,4 +1,4 @@
-import { render, version } from 'inferno'
+import { render } from 'inferno'
 import { Provider } from 'inferno-redux'
 import { createStore } from './store'
 import './main.css'
@@ -9,7 +9,6 @@ import InformationPanel from './map/information-panel'
 const store = createStore()
 const App = () => (
   <Provider store={store}>
-    <h1>{`Welcome to Inferno ${version} TSX ${version}`}</h1>
     <Map />
     <InformationPanel />
   </Provider>
