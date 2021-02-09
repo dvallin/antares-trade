@@ -12,10 +12,16 @@ const name: (n: string) => Name = (name) => ({ name })
 
 export const initialState = (): NameState => ({
   names: {
-    antaresA: name('Antares A'),
-    planet1: name('Planet 1'),
-    planet2: name('Planet 2'),
-    planet3: name('Planet 3'),
+    sol: name('Sol'),
+    mercury: name('Mercury'),
+    venus: name('Mercury'),
+    earth: name('Earth'),
+    mars: name('Mars'),
+    jupiter: name('Jupiter'),
+    saturn: name('Saturn'),
+    uranus: name('Uranus'),
+    neptune: name('Neptune'),
+    pluto: name('Pluto'),
     moon1: name('Moon 1'),
     moon2: name('Moon 2'),
     ship1: name('Ship 1'),
