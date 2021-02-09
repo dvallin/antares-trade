@@ -7,6 +7,7 @@ module.exports = {
   output: {
     path: __dirname + '/dist',
     filename: 'bundle.js',
+    publicPath: 'antares-trade',
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
