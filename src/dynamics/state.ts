@@ -9,12 +9,26 @@ export interface Controllable {
 
 export interface Movement {
   to: string | Position
+  eta: number
 }
 
 export interface Position {
   system: string
   x: number
   y: number
+}
+
+export interface Polar {
+  radius: number
+  phi: number
+}
+
+export function toPolar(p: Position, cx: number, cy: number): Polar {
+  const rx = p.x - cx
+  const ry = p.y - cy
+  const radius = Math.sqrt(rx * rx + ry * ry)
+  const phi = Math.atan2(ry, rx)
+  return { radius, phi }
 }
 
 export interface DynamicsState {
@@ -32,52 +46,77 @@ export const initialState = (): DynamicsState => ({
     ship3: { by: 'player' },
   },
   movements: {
-    ship2: { to: 'planet3' },
+    ship2: { to: 'earth', eta: 0 },
   },
   positions: {
-    antaresA: {
-      system: 'antares',
+    sol: {
+      system: 'sol',
       x: 0,
       y: 0,
     },
-    planet1: {
-      system: 'antares',
-      x: 40,
+    mercury: {
+      system: 'sol',
+      x: 192,
       y: 0,
     },
-    planet2: {
-      system: 'antares',
-      x: 30,
+    venus: {
+      system: 'sol',
+      x: 360,
       y: 0,
     },
-    planet3: {
-      system: 'antares',
-      x: 80,
+    earth: {
+      system: 'sol',
+      x: 498,
       y: 0,
     },
-    moon1: {
-      system: 'antares',
-      x: 35,
+    moon: {
+      system: 'sol',
+      x: 499.3,
       y: 0,
     },
-    moon2: {
-      system: 'antares',
-      x: 85,
+    mars: {
+      system: 'sol',
+      x: 756,
+      y: 0,
+    },
+    jupiter: {
+      system: 'sol',
+      x: 2592,
+      y: 0,
+    },
+    saturn: {
+      system: 'sol',
+      x: 4680,
+      y: 0,
+    },
+    uranus: {
+      system: 'sol',
+      x: 9720,
+      y: 0,
+    },
+    neptune: {
+      system: 'sol',
+      x: 14760,
+      y: 0,
+    },
+    pluto: {
+      system: 'sol',
+      x: 19800,
       y: 0,
     },
     ship1: {
-      system: 'antares',
-      x: 65,
+      system: 'sol',
+      x: 398,
       y: 0,
     },
     ship2: {
-      system: 'antares',
-      x: -14,
+      system: 'sol',
+      x: -2680,
       y: -20,
     },
     ship3: {
-      system: 'antares',
-      x: 86,
+      system: 'sol',
+      x: 3680,
       y: 0,
     },
   },
@@ -93,12 +132,14 @@ export const dynamics = (state: DynamicsState = initialState(), action: MapActio
             x: action.location[0],
             y: action.location[1],
           },
+          eta: 0,
         }
         break
       }
       case 'SELECT_DOCKABLE_LOCATION': {
         d.movements[action.id] = {
           to: action.location,
+          eta: 0,
         }
         break
       }
@@ -127,13 +168,11 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
     if (!isBand(part)) {
       const p = state.dynamics.positions[id]
 
-      const rx = p.x - cx
-      const ry = p.y - cy
-      const radius = Math.sqrt(rx * rx + ry * ry)
-      const phi = Math.atan2(ry, rx) + part.speed
+      const { radius, phi } = toPolar(p, cx, cy)
+      const phi2 = phi + part.speed
 
-      const x = radius * Math.cos(phi) + cx
-      const y = radius * Math.sin(phi) + cy
+      const x = radius * Math.cos(phi2) + cx
+      const y = radius * Math.sin(phi2) + cy
       state.dynamics.positions[id] = { system: p.system, x, y }
 
       if (part.sub) {
@@ -149,6 +188,8 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
     return
   }
 
+  const v = 1
+
   const p1 = state.dynamics.positions[id]
   const p2 = typeof to === 'string' ? state.dynamics.positions[to] : to
 
@@ -156,7 +197,7 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
   const dy = p2.y - p1.y
   const dist = Math.sqrt(dx * dx + dy * dy)
 
-  const stepLength = 1 * dt
+  const stepLength = v * dt
   if (dist < stepLength) {
     state.dynamics.positions[id] = p2
     delete state.dynamics.movements[id]
@@ -166,6 +207,7 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
       x: p1.x + (dx / dist) * stepLength,
       y: p1.y + (dy / dist) * stepLength,
     }
+    state.dynamics.movements[id].eta = dist / v
   }
 }
 

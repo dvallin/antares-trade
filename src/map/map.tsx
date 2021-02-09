@@ -40,10 +40,10 @@ export class Map extends Component<Props, ComponentState> {
   readonly state: ComponentState = {
     drag: false,
     box: {
-      x: -Math.floor(this.w / 8),
-      y: -Math.floor(this.h / 8),
-      w: this.w / 4,
-      h: this.h / 4,
+      x: -1000,
+      y: -1000,
+      w: 2000,
+      h: 2000,
     },
   }
 

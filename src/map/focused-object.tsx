@@ -1,20 +1,85 @@
 import { Component } from 'inferno'
 import { Name } from '../name/state'
-import { Controllable } from '../dynamics/state'
+import { Controllable, Movement, Position } from '../dynamics/state'
 import { State, connect } from '../store'
 import { MapState } from './state'
+import Location from './location'
 
 export interface Props {
   name: Name | undefined
   controllable: Controllable | undefined
+  position: Position | undefined
+  movement: Movement | undefined
+  destination: string | undefined
   state: MapState['state']
   moveTo: () => void
   dockAt: () => void
 }
 
+interface Time {
+  seconds: number
+  minutes: number
+  hours: number
+  days: number
+}
+
+function simplifyTime(time: Partial<Time>): Time {
+  const t: Time = {
+    seconds: time.seconds || 0,
+    minutes: time.minutes || 0,
+    hours: time.hours || 0,
+    days: time.days || 0,
+  }
+  if (t.seconds >= 60) {
+    t.minutes += t.seconds / 60
+    t.seconds %= 60
+  }
+  if (t.minutes >= 60) {
+    t.hours += time.hours / 60
+    t.minutes %= 60
+  }
+  if (t.hours >= 24) {
+    t.days += time.days / 24
+    t.days %= 24
+  }
+  return t
+}
+
+function printTime(time: Partial<Time>): string {
+  const t = simplifyTime(time)
+  let result = ''
+  if (t.days > 0) {
+    result += t.days.toFixed(0) + 'd'
+  }
+  if (t.hours > 0) {
+    result += t.hours.toFixed(0) + 'h'
+  }
+  if (t.minutes > 0) {
+    result += t.minutes.toFixed(0) + 'm'
+  }
+  if (t.seconds > 0) {
+    result += t.seconds.toFixed(0) + 's'
+  }
+  return result
+}
+
 export class FocusedObject extends Component<Props> {
   renderName(): JSX.Element {
     return this.props.name ? <div>{this.props.name.name}</div> : <></>
+  }
+
+  renderLocation(): JSX.Element {
+    return this.props.position ? <Location location={this.props.position} /> : <></>
+  }
+
+  renderTravelInfo(): JSX.Element {
+    return this.props.movement ? (
+      <div>
+        travelling to <Location location={this.props.movement.to} /> ETA {printTime({ seconds: this.props.movement.eta })}
+      </div>
+    ) : (
+      <></>
+    )
   }
 
   renderControls(): JSX.Element {
@@ -48,6 +113,8 @@ export class FocusedObject extends Component<Props> {
         return (
           <div>
             {this.renderName()}
+            {this.renderLocation()}
+            {this.renderTravelInfo()}
             {this.renderControls()}
           </div>
         )
@@ -59,6 +126,8 @@ export default connect(
   (state: State) => ({
     name: state.names.names[state.map.selected],
     controllable: state.dynamics.controllable[state.map.selected],
+    position: state.dynamics.positions[state.map.selected],
+    movement: state.dynamics.movements[state.map.selected],
     state: state.map.state,
   }),
   (d) => ({

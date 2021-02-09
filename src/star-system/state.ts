@@ -7,44 +7,62 @@ export interface StarSystemState {
   }
 }
 
-const antares: StarSystem = {
-  antaresA: {
+const sol: StarSystem = {
+  sol: {
     radius: 0,
     speed: 0,
   },
-  planet1: {
-    radius: 40,
+  mercury: {
+    radius: 192,
     speed: 0.00005,
   },
-  planet2: {
-    radius: 30,
+  venus: {
+    radius: 360,
+    speed: 0.0001,
+  },
+  earth: {
+    radius: 498,
     speed: 0.0001,
     sub: {
-      moon1: {
-        radius: 5,
+      moon: {
+        radius: 1.3,
         speed: 0.001,
       },
     },
   },
-  planet3: {
-    radius: 80,
+  mars: {
+    radius: 756,
     speed: 0.00005,
-    sub: {
-      moon2: {
-        radius: 5,
-        speed: 0.0001,
-      },
-    },
   },
   asteroidBelt1: {
-    innerRadius: 50,
-    outerRadius: 60,
+    innerRadius: 850,
+    outerRadius: 2200,
+  },
+  jupiter: {
+    radius: 2592,
+    speed: 0.00005,
+  },
+  saturn: {
+    radius: 4680,
+    speed: 0.00005,
+  },
+  uranus: {
+    radius: 9720,
+    speed: 0.00005,
+  },
+  neptune: {
+    radius: 14760,
+    speed: 0.00005,
+  },
+  pluto: {
+    radius: 19800,
+    speed: 0.00005,
   },
 }
 
 export const initialState = (): StarSystemState => ({
-  currentSystem: 'antares',
-  systems: { antares },
+  currentSystem: 'sol',
+  systems: { sol },
 })
 
 export const starSystems = (state: StarSystemState = initialState()): StarSystemState => {

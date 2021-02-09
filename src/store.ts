@@ -39,8 +39,9 @@ export function createStore(): redux.Store<State> {
   return redux.createStore(reducer)
 }
 
-export function connect<T extends Function>(
-  stateToProps?: (state: State) => any,
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function connect<T extends Function, P = {}>(
+  stateToProps?: (state: State, props?: P) => any,
   dispatchToProps?: (dispatch: redux.Dispatch) => any
 ): (c: T) => typeof Component {
   return (c) => (infernoRedux.connect(stateToProps, dispatchToProps)(c) as unknown) as typeof Component

@@ -8,20 +8,26 @@ export interface BodyState {
   bodies: Storage<Body>
 }
 
-const star: Body = { radius: 8 }
-const smallPlanet: Body = { radius: 1 }
-const gasGiant: Body = { radius: 3 }
-const moon: Body = { radius: 1 }
-const ship: Body = { radius: 1 }
+const star: Body = { radius: 2.3 }
+const smallPlanet: Body = { radius: 0.008 }
+const planet: Body = { radius: 0.008 }
+const gasGiant: Body = { radius: 0.23 }
+const moon: Body = { radius: 0.006 }
+const ship: Body = { radius: 0.2 }
 
 export const initialState = (): BodyState => ({
   bodies: {
-    antaresA: star,
-    planet1: smallPlanet,
-    planet2: smallPlanet,
-    planet3: gasGiant,
-    moon1: moon,
-    moon2: moon,
+    sol: star,
+    mercury: smallPlanet,
+    venus: planet,
+    earth: planet,
+    moon: moon,
+    mars: planet,
+    jupiter: gasGiant,
+    saturn: gasGiant,
+    uranus: gasGiant,
+    neptune: gasGiant,
+    pluto: smallPlanet,
     ship1: ship,
     ship2: ship,
     ship3: ship,
