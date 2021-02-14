@@ -34,9 +34,6 @@ export interface Props {
 }
 
 export class Map extends Component<Props, ComponentState> {
-  private readonly w = 800
-  private readonly h = 800
-
   readonly state: ComponentState = {
     drag: false,
     box: {
@@ -51,10 +48,9 @@ export class Map extends Component<Props, ComponentState> {
     const box = this.state.box
     const svg: Ref<SVGSVGElement> = createRef()
 
+    const viewScale = this.state.box.w / (svg.current?.width.animVal.value || 800)
     return (
       <svg
-        height={this.h}
-        width={this.w}
         viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
         ref={svg}
         onWheel={(e) => {
@@ -62,8 +58,8 @@ export class Map extends Component<Props, ComponentState> {
           const box = this.state.box
           const dw = box.w * Math.sign(e.deltaY) * 0.05
           const dh = box.h * Math.sign(e.deltaY) * 0.05
-          const dx = (dw * e.offsetX) / this.w
-          const dy = (dh * e.offsetY) / this.h
+          const dx = (dw * e.offsetX) / svg.current?.width.animVal.value
+          const dy = (dh * e.offsetY) / svg.current?.height.animVal.value
           this.setState({ box: { x: box.x + dx, y: box.y + dy, w: box.w - dw, h: box.h - dh } })
         }}
         onClick={(e) => {
@@ -79,13 +75,16 @@ export class Map extends Component<Props, ComponentState> {
         onMouseUp={() => this.setState({ drag: false })}
         onMouseLeave={() => this.setState({ drag: false })}
         onMouseMove={(e) => {
-          const dx = e.movementX * (this.state.box.w / this.w)
-          const dy = e.movementY * (this.state.box.h / this.h)
+          const dx = e.movementX * (this.state.box.w / svg.current?.width.animVal.value)
+          const dy = e.movementY * (this.state.box.h / svg.current?.height.animVal.value)
           if (this.state.drag) {
             this.setState({ box: { x: box.x - dx, y: box.y - dy, w: box.w, h: box.h } })
           }
         }}
       >
+        <pattern id="asteroids" x="0" y="0" width={10 * viewScale} height={10 * viewScale} patternUnits="userSpaceOnUse">
+          <rect x={6 * viewScale} y={-5 * viewScale} width={2 * viewScale} height={2 * viewScale} transform="rotate(45)" />
+        </pattern>
         {this.renderMap()}
       </svg>
     )
@@ -164,12 +163,8 @@ export class Map extends Component<Props, ComponentState> {
   }
 
   private renderMap(): JSX.Element {
-    const viewScale = this.state.box.w / this.w
     return (
       <g>
-        <pattern id="asteroids" x="0" y="0" width={20 * viewScale} height={20 * viewScale} patternUnits="userSpaceOnUse">
-          <rect x={12 * viewScale} y={-10 * viewScale} width={4 * viewScale} height={4 * viewScale} transform="rotate(45)" />
-        </pattern>
         {this.renderStarSystem(this.props.system)}
         {this.renderObjects()}
       </g>

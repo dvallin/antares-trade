@@ -14,6 +14,7 @@ export interface Props {
   state: MapState['state']
   moveTo: () => void
   dockAt: () => void
+  deselect: () => void
 }
 
 interface Time {
@@ -65,16 +66,30 @@ function printTime(time: Partial<Time>): string {
 
 export class FocusedObject extends Component<Props> {
   renderName(): JSX.Element {
-    return this.props.name ? <div>{this.props.name.name}</div> : <></>
+    return this.props.name ? <div className="column">{this.props.name.name}</div> : <></>
+  }
+
+  renderDeselect(): JSX.Element {
+    return (
+      <div className="column is-narrow" onClick={() => this.props.deselect()} style={{ cursor: 'pointer' }}>
+        {'<<'}
+      </div>
+    )
   }
 
   renderLocation(): JSX.Element {
-    return this.props.position ? <Location location={this.props.position} /> : <></>
+    return this.props.position ? (
+      <div className="column is-full">
+        <Location location={this.props.position} />
+      </div>
+    ) : (
+      <></>
+    )
   }
 
   renderTravelInfo(): JSX.Element {
     return this.props.movement ? (
-      <div>
+      <div className="column is-full">
         travelling to <Location location={this.props.movement.to} /> ETA {printTime({ seconds: this.props.movement.eta })}
       </div>
     ) : (
@@ -84,17 +99,17 @@ export class FocusedObject extends Component<Props> {
 
   renderControls(): JSX.Element {
     return this.props.controllable !== undefined && this.props.controllable.by === 'player' ? (
-      <div>
+      <div className="column is-full">
         <button onClick={() => this.props.moveTo()}>move to</button>
         <button onClick={() => this.props.dockAt()}>dock at</button>
       </div>
     ) : (
-      <div>not controllable</div>
+      <div className="column is-full">not controllable</div>
     )
   }
 
   renderDockableLocationsSelector(): JSX.Element {
-    return <div>dockable lcoations</div>
+    return <div>dockable locations</div>
   }
 
   renderMoveToInstructions(): JSX.Element {
@@ -111,7 +126,8 @@ export class FocusedObject extends Component<Props> {
       }
       default:
         return (
-          <div>
+          <div className="columns is-multiline">
+            {this.renderDeselect()}
             {this.renderName()}
             {this.renderLocation()}
             {this.renderTravelInfo()}
@@ -133,5 +149,6 @@ export default connect(
   (d) => ({
     moveTo: () => d({ type: 'MOVE_TO' }),
     dockAt: () => d({ type: 'DOCK_AT' }),
+    deselect: () => d({ type: 'DESELECT_ENTITY' }),
   })
 )(FocusedObject)

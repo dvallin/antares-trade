@@ -1,13 +1,15 @@
 const CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
+const publicPath = '/antares-trade'
+
 module.exports = {
   mode: 'development',
   entry: './src/index.tsx', // Point to main file
   output: {
     path: __dirname + '/dist',
     filename: 'bundle.js',
-    publicPath: 'antares-trade',
+    publicPath: `${publicPath}/`
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
@@ -40,8 +42,10 @@ module.exports = {
     ],
   },
   devServer: {
-    contentBase: 'src/',
-    historyApiFallback: true,
+    historyApiFallback: {
+      index: publicPath,
+    },
+    publicPath
   },
   plugins: [
     new HtmlWebpackPlugin({

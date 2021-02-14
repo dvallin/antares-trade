@@ -9,8 +9,16 @@ import InformationPanel from './map/information-panel'
 const store = createStore()
 const App = () => (
   <Provider store={store}>
-    <Map />
-    <InformationPanel />
+    <div className="columns">
+      <div className="column is-10">
+        <Map />
+      </div>
+      <div className="column is-2">
+        <div className="box">
+          <InformationPanel />
+        </div>
+      </div>
+    </div>
   </Provider>
 )
 

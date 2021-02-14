@@ -4,6 +4,7 @@ import { State, connect } from '../store'
 
 export interface Props {
   objects: string[]
+  select: (id: string) => void
 }
 
 export class ObjectList extends Component<Props> {
@@ -11,15 +12,20 @@ export class ObjectList extends Component<Props> {
     return (
       <div>
         {this.props.objects.map((id) => (
-          <div key={id}>{id}</div>
+          <div key={id} onClick={() => this.props.select(id)} style={{ cursor: 'pointer' }}>
+            {id}
+          </div>
         ))}
       </div>
     )
   }
 }
 
-export default connect((state: State) => {
-  return {
+export default connect(
+  (state: State) => ({
     objects: collectEntities(state.dynamics, state.starSystems.currentSystem),
-  }
-})(ObjectList)
+  }),
+  (d) => ({
+    select: (id: string) => d({ type: 'SELECT_ENTITY', id }),
+  })
+)(ObjectList)

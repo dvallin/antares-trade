@@ -14,6 +14,7 @@ export const initialState = (): MapState => ({
 
 export type MapAction =
   | { type: 'SELECT_ENTITY'; id: string }
+  | { type: 'DESELECT_ENTITY' }
   | { type: 'MOVE_TO' }
   | { type: 'DOCK_AT' }
   | { type: 'SELECT_NAVIGABLE_LOCATION'; id: string; location: [number, number]; system: string }
@@ -24,6 +25,10 @@ export const map = (state: MapState = initialState(), action: MapAction): MapSta
     switch (action.type) {
       case 'SELECT_ENTITY': {
         d.selected = action.id
+        break
+      }
+      case 'DESELECT_ENTITY': {
+        delete d.selected
         break
       }
       case 'MOVE_TO': {

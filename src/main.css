@@ -17,3 +17,19 @@ h1 {
   font-size: 30px;
   font-weight: normal;
 }
+
+#app {
+  width: 100%;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+}
+
+.column {
+  padding-right: 0;
+  padding-left: 0.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0;
+}
