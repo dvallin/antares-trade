@@ -39,7 +39,8 @@ export class Map extends Component<Props, ComponentState> {
     const svg: Ref<SVGSVGElement> = createRef()
     const box = this.props.viewBox
 
-    const viewScale = box.w / (svg.current?.width.animVal.value || 800)
+    const viewScaleX = box.w / 800
+    const viewScaleY = box.h / 800
     return (
       <svg
         viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
@@ -48,8 +49,8 @@ export class Map extends Component<Props, ComponentState> {
           e.preventDefault()
           const dw = box.w * Math.sign(e.deltaY) * 0.05
           const dh = box.h * Math.sign(e.deltaY) * 0.05
-          const dx = (dw * e.offsetX) / svg.current?.width.animVal.value
-          const dy = (dh * e.offsetY) / svg.current?.height.animVal.value
+          const dx = (dw * e.offsetX) / svg.current.clientWidth
+          const dy = (dh * e.offsetY) / svg.current.clientHeight
           this.props.setViewBox({ x: box.x + dx, y: box.y + dy, w: box.w - dw, h: box.h - dh })
         }}
         onClick={(e) => {
@@ -65,15 +66,15 @@ export class Map extends Component<Props, ComponentState> {
         onMouseUp={() => this.setState({ drag: false })}
         onMouseLeave={() => this.setState({ drag: false })}
         onMouseMove={(e) => {
-          const dx = e.movementX * (box.w / svg.current?.width.animVal.value)
-          const dy = e.movementY * (box.h / svg.current?.height.animVal.value)
+          const dx = e.movementX * (box.w / 800)
+          const dy = e.movementY * (box.h / 800)
           if (this.state.drag) {
             this.props.setViewBox({ x: box.x - dx, y: box.y - dy, w: box.w, h: box.h })
           }
         }}
       >
-        <pattern id="asteroids" x="0" y="0" width={10 * viewScale} height={10 * viewScale} patternUnits="userSpaceOnUse">
-          <rect x={6 * viewScale} y={-5 * viewScale} width={2 * viewScale} height={2 * viewScale} transform="rotate(45)" />
+        <pattern id="asteroids" x="0" y="0" width={10 * viewScaleX} height={10 * viewScaleY} patternUnits="userSpaceOnUse">
+          <rect x={6 * viewScaleX} y={-5 * viewScaleY} width={2 * viewScaleX} height={2 * viewScaleY} transform="rotate(45)" />
         </pattern>
         {this.renderMap()}
       </svg>
