@@ -14,9 +14,8 @@ export class Location extends Component<Props> {
       const polar = toPolar(this.props.location, 0, 0)
       return (
         <>
-          {this.props.location.system} (
-          <span style={{ display: 'inline-block', width: '40px', textAlign: 'right' }}>{polar.radius.toFixed(1)}</span>ls,
-          <span style={{ display: 'inline-block', width: '40px', textAlign: 'right' }}>{polar.phi.toFixed(2)}</span>θ)
+          {this.props.location.system} (<span>{polar.radius.toFixed(1)}</span>ls,
+          <span>{polar.phi.toFixed(2)}</span>θ)
         </>
       )
     }

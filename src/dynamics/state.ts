@@ -211,7 +211,7 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
   }
 }
 
-export const updateSystem = (state: Draft<State>): void => {
+export const updateDynamics = (state: Draft<State>): void => {
   const now = Date.now()
   const dt = (now - state.dynamics.lastUpdate) / 1000
   state.dynamics.lastUpdate = now

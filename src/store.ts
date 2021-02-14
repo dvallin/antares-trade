@@ -1,10 +1,10 @@
 import * as redux from 'redux'
 import * as infernoRedux from 'inferno-redux'
 import { starSystems, StarSystemState } from './star-system/state'
-import { map, MapState } from './map/state'
+import { map, MapState, updateMap } from './map/state'
 import { names, NameState } from './name/state'
 import { bodies, BodyState } from './body/state'
-import { dynamics, DynamicsState, updateSystem } from './dynamics/state'
+import { dynamics, DynamicsState, updateDynamics } from './dynamics/state'
 
 import { Component } from 'inferno'
 import produce from 'immer'
@@ -29,7 +29,10 @@ const combinedReducer = redux.combineReducers({ starSystems, map, names, bodies,
 const reducer = (state: State, action: TickAction): State => {
   switch (action.type) {
     case 'TICK':
-      return produce(state, (s) => updateSystem(s))
+      return produce(state, (s) => {
+        updateDynamics(s)
+        updateMap(s)
+      })
     default:
       return combinedReducer(state, action)
   }

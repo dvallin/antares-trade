@@ -5,16 +5,10 @@ import { Name } from '../name/state'
 import { Body } from '../body/state'
 import { Position } from '../dynamics/state'
 import { collectEntities } from '../dynamics'
-import { MapState } from './state'
+import { MapState, ViewBox } from './state'
 
 export interface ComponentState {
   drag: boolean
-  box: {
-    x: number
-    y: number
-    w: number
-    h: number
-  }
 }
 
 export interface Props {
@@ -26,41 +20,37 @@ export interface Props {
   positions: Storage<Position>
   state: MapState['state']
   subState: MapState['subState']
+  viewBox: ViewBox
 
   selected: string
   select: (id: string) => void
   selectNavigableLocation: (location: [number, number], system: string, selected: string) => void
   selectDockableLocation: (location: string, selected: string) => void
+
+  setViewBox: (viewBox: ViewBox) => void
 }
 
 export class Map extends Component<Props, ComponentState> {
   readonly state: ComponentState = {
     drag: false,
-    box: {
-      x: -1000,
-      y: -1000,
-      w: 2000,
-      h: 2000,
-    },
   }
 
   render(): JSX.Element {
-    const box = this.state.box
     const svg: Ref<SVGSVGElement> = createRef()
+    const box = this.props.viewBox
 
-    const viewScale = this.state.box.w / (svg.current?.width.animVal.value || 800)
+    const viewScale = box.w / (svg.current?.width.animVal.value || 800)
     return (
       <svg
         viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
         ref={svg}
         onWheel={(e) => {
           e.preventDefault()
-          const box = this.state.box
           const dw = box.w * Math.sign(e.deltaY) * 0.05
           const dh = box.h * Math.sign(e.deltaY) * 0.05
           const dx = (dw * e.offsetX) / svg.current?.width.animVal.value
           const dy = (dh * e.offsetY) / svg.current?.height.animVal.value
-          this.setState({ box: { x: box.x + dx, y: box.y + dy, w: box.w - dw, h: box.h - dh } })
+          this.props.setViewBox({ x: box.x + dx, y: box.y + dy, w: box.w - dw, h: box.h - dh })
         }}
         onClick={(e) => {
           if (this.props.subState !== undefined && this.props.subState === 'select_navigable_location') {
@@ -75,10 +65,10 @@ export class Map extends Component<Props, ComponentState> {
         onMouseUp={() => this.setState({ drag: false })}
         onMouseLeave={() => this.setState({ drag: false })}
         onMouseMove={(e) => {
-          const dx = e.movementX * (this.state.box.w / svg.current?.width.animVal.value)
-          const dy = e.movementY * (this.state.box.h / svg.current?.height.animVal.value)
+          const dx = e.movementX * (box.w / svg.current?.width.animVal.value)
+          const dy = e.movementY * (box.h / svg.current?.height.animVal.value)
           if (this.state.drag) {
-            this.setState({ box: { x: box.x - dx, y: box.y - dy, w: box.w, h: box.h } })
+            this.props.setViewBox({ x: box.x - dx, y: box.y - dy, w: box.w, h: box.h })
           }
         }}
       >
@@ -202,11 +192,13 @@ export default connect(
     entities: collectEntities(s.dynamics, s.starSystems.currentSystem),
     state: s.map.state,
     subState: s.map.subState,
+    viewBox: s.map.viewBox,
   }),
   (d) => ({
     select: (id: string) => d({ type: 'SELECT_ENTITY', id }),
     selectNavigableLocation: (location: [string, string], system: string, id: string) =>
       d({ type: 'SELECT_NAVIGABLE_LOCATION', location, system, id }),
     selectDockableLocation: (location: string, id: string) => d({ type: 'SELECT_DOCKABLE_LOCATION', location, id }),
+    setViewBox: (viewBox: ViewBox) => d({ type: 'SET_VIEW_BOX', viewBox }),
   })
 )(Map)
