@@ -90,7 +90,7 @@ export class FocusedObject extends Component<Props> {
   renderTravelInfo(): JSX.Element {
     return this.props.movement ? (
       <div className="column is-full">
-        travelling to <Location location={this.props.movement.to} /> ETA {printTime({ seconds: this.props.movement.eta })}
+        traveling to <Location location={this.props.movement.to} /> ETA {printTime({ seconds: this.props.movement.eta })}
       </div>
     ) : (
       <></>
