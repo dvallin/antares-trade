@@ -1,28 +1,26 @@
-import { Component } from 'inferno'
+import { Fragment, h } from 'preact'
+
 import { Position, toPolar } from '../dynamics/state'
 import { Name } from '../name/state'
-import { connect, State } from '../store'
+import { useApplicationState } from '../state'
 
 export interface Props {
   location: string | Position
-  name: Name | undefined
+  name?: Name
 }
 
-export class Location extends Component<Props> {
-  render(): JSX.Element {
-    if (typeof this.props.location !== 'string') {
-      const polar = toPolar(this.props.location, 0, 0)
-      return (
-        <>
-          {this.props.location.system} (<span>{polar.radius.toFixed(1)}</span>ls,
-          <span>{polar.phi.toFixed(2)}</span>θ)
-        </>
-      )
-    }
-    return <span>{this.props.name !== undefined ? this.props.name.name : 'unkown location'}</span>
+export default (props: Props) => {
+  if (typeof props.location !== 'string') {
+    const polar = toPolar(props.location, 0, 0)
+    return (
+      <Fragment>
+        {props.location.system} (<span>{polar.radius.toFixed(1)}</span>ls,
+        <span>{polar.phi.toFixed(2)}</span>θ)
+      </Fragment>
+    )
+  } else {
+    const [state] = useApplicationState()
+    const name = typeof props.location === 'string' ? state.names.names[props.location] : undefined
+    return <span>{name !== undefined ? name.name : 'unkown location'}</span>
   }
 }
-
-export default connect((state: State, props: Props) => ({
-  name: typeof props.location === 'string' ? state.names.names[props.location] : undefined,
-}))(Location)

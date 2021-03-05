@@ -1,5 +1,12 @@
-import { Band } from './band'
-import { Orbit } from './orbit'
+export interface Band {
+  outerRadius: number
+  innerRadius: number
+}
+
+export interface Orbit {
+  radius: number
+  speed: number
+}
 
 export type StarSystemPart = ({ sub?: StarSystem } & Orbit) | Band
 
@@ -8,5 +15,5 @@ export interface StarSystem {
 }
 
 export function isBand(part: StarSystemPart): part is Band {
-  return part['innerRadius'] !== undefined
+  return 'innerRadius' in part
 }

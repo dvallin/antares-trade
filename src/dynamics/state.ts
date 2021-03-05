@@ -1,6 +1,7 @@
-import produce, { Draft } from 'immer'
+import { Draft } from 'immer'
 import { isBand, StarSystem } from '../star-system'
-import { State, Storage } from '../store'
+import { Mutation } from '../state'
+import { State, Storage } from '../state'
 
 export interface Movement {
   to: string | Position
@@ -33,7 +34,7 @@ export interface DynamicsState {
   positions: Storage<Position>
 }
 
-export const initialState = (): DynamicsState => ({
+export const dynamics: DynamicsState = {
   lastUpdate: Date.now(),
   movements: {
     ship2: { to: 'earth', eta: 0, v: 0.7 },
@@ -110,23 +111,10 @@ export const initialState = (): DynamicsState => ({
       y: 0,
     },
   },
-})
+}
 
-export type DynamicsAction = { type: 'SET_MOVEMENT'; id: string; to: Movement['to']; v: Movement['v'] }
-
-export const dynamics = (state: DynamicsState = initialState(), action: DynamicsAction): DynamicsState => {
-  return produce(state, (d) => {
-    switch (action.type) {
-      case 'SET_MOVEMENT': {
-        d.movements[action.id] = {
-          to: action.to,
-          v: action.v,
-          eta: 0,
-        }
-        break
-      }
-    }
-  })
+export const setMovement = (id: string, to: Movement['to'], v: Movement['v']): Mutation<State> => (d) => {
+  d.dynamics.movements[id] = { to, v, eta: 0 }
 }
 
 export const translateChildren = (state: Draft<State>, system: StarSystem, dx = 0, dy = 0): void => {

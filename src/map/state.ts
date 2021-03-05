@@ -1,5 +1,6 @@
-import { Draft, produce } from 'immer'
-import { State } from '../store'
+import { Draft } from 'immer'
+import { Movement, setMovement } from '../dynamics/state'
+import { all, Mutation, State } from '../state'
 
 export interface ViewBox {
   x: number
@@ -16,7 +17,7 @@ export interface MapState {
   viewBox: ViewBox
 }
 
-export const initialState = (): MapState => ({
+export const map: MapState = {
   selected: undefined,
   state: undefined,
   subState: undefined,
@@ -27,56 +28,39 @@ export const initialState = (): MapState => ({
     w: 2000,
     h: 2000,
   },
-})
-
-export type MapAction =
-  | { type: 'SELECT_ENTITY'; id: string }
-  | { type: 'DESELECT_ENTITY' }
-  | { type: 'MOVE_TO' }
-  | { type: 'DOCK_AT' }
-  | { type: 'SELECT_NAVIGABLE_LOCATION'; id: string; location: [number, number]; system: string }
-  | { type: 'SELECT_DOCKABLE_LOCATION'; id: string; location: string }
-  | { type: 'SET_VIEW_BOX'; viewBox: ViewBox }
-
-export const map = (state: MapState = initialState(), action: MapAction): MapState => {
-  return produce(state, (d) => {
-    switch (action.type) {
-      case 'SELECT_ENTITY': {
-        d.selected = action.id
-        d.focused = action.id
-        break
-      }
-      case 'SET_VIEW_BOX': {
-        d.viewBox = action.viewBox
-        break
-      }
-      case 'DESELECT_ENTITY': {
-        delete d.selected
-        delete d.focused
-        break
-      }
-      case 'MOVE_TO': {
-        d.state = 'move_to'
-        d.subState = 'select_navigable_location'
-        delete d.focused
-        break
-      }
-      case 'DOCK_AT': {
-        d.state = 'dock_at'
-        d.subState = 'select_dockable_location'
-        delete d.focused
-        break
-      }
-      case 'SELECT_DOCKABLE_LOCATION':
-      case 'SELECT_NAVIGABLE_LOCATION': {
-        delete d.state
-        delete d.subState
-        d.focused = d.selected
-        break
-      }
-    }
-  })
 }
+
+export const selectEntity = (id: string): Mutation<State> => (d) => {
+  d.map.selected = id
+  d.map.focused = id
+}
+
+export const finishedSelection = (): Mutation<State> => (d) => {
+  delete d.map.state
+  delete d.map.subState
+  d.map.focused = d.map.selected
+}
+
+export const deselect = (): Mutation<State> => (d) => {
+  delete d.map.selected
+  delete d.map.focused
+}
+export const moveTo = (): Mutation<State> => (d) => {
+  d.map.state = 'move_to'
+  d.map.subState = 'select_navigable_location'
+  delete d.map.focused
+}
+export const dockAt = (): Mutation<State> => (d) => {
+  d.map.state = 'dock_at'
+  d.map.subState = 'select_dockable_location'
+  delete d.map.focused
+}
+export const setViewBox = (viewBox: ViewBox): Mutation<State> => (d) => {
+  d.map.viewBox = viewBox
+}
+
+export const moveSelectedShip = (selected: string, to: Movement['to'], v: number): Mutation<State> =>
+  all(finishedSelection(), setMovement(selected, to, v))
 
 export const updateMap = (state: Draft<State>): void => {
   if (state.map.focused !== undefined) {

@@ -1,156 +1,70 @@
-import { Component } from 'inferno'
-import { Name } from '../name/state'
-import { Movement, Position } from '../dynamics/state'
-import { State, connect, Action } from '../store'
-import { MapState } from './state'
+import { Fragment, h } from 'preact'
+
+import { moveSelectedShip, deselect, dockAt, moveTo } from './state'
+import { NearObjectsSelector } from './object-selector/selectors'
+import { useApplicationState } from '../state'
+
 import Location from './location'
-import { Controllable } from '../ships/state'
-import { Dispatch } from 'redux'
+import { printTime } from '../time'
 
-export interface Props {
-  name: Name | undefined
-  controllable: Controllable | undefined
-  position: Position | undefined
-  movement: Movement | undefined
-  destination: string | undefined
-  state: MapState['state']
-  moveTo: () => void
-  dockAt: () => void
-  deselect: () => void
-}
-
-interface Time {
-  seconds: number
-  minutes: number
-  hours: number
-  days: number
-}
-
-function simplifyTime(time: Partial<Time>): Time {
-  const t: Time = {
-    seconds: time.seconds || 0,
-    minutes: time.minutes || 0,
-    hours: time.hours || 0,
-    days: time.days || 0,
-  }
-  if (t.seconds >= 60) {
-    t.minutes += t.seconds / 60
-    t.seconds %= 60
-  }
-  if (t.minutes >= 60) {
-    t.hours += time.hours / 60
-    t.minutes %= 60
-  }
-  if (t.hours >= 24) {
-    t.days += time.days / 24
-    t.days %= 24
-  }
-  return t
-}
-
-function printTime(time: Partial<Time>): string {
-  const t = simplifyTime(time)
-  let result = ''
-  if (t.days > 0) {
-    result += t.days.toFixed(0) + 'd'
-  }
-  if (t.hours > 0) {
-    result += t.hours.toFixed(0) + 'h'
-  }
-  if (t.minutes > 0) {
-    result += t.minutes.toFixed(0) + 'm'
-  }
-  if (t.seconds > 0) {
-    result += t.seconds.toFixed(0) + 's'
-  }
-  return result
-}
-
-export class FocusedObject extends Component<Props> {
-  renderName(): JSX.Element {
-    return this.props.name ? <div className="column">{this.props.name.name}</div> : <></>
-  }
-
-  renderDeselect(): JSX.Element {
-    return (
-      <div className="column is-narrow" onClick={() => this.props.deselect()} style={{ cursor: 'pointer' }}>
-        {'<<'}
-      </div>
-    )
-  }
-
-  renderLocation(): JSX.Element {
-    return this.props.position ? (
-      <div className="column is-full">
-        <Location location={this.props.position} />
-      </div>
-    ) : (
-      <></>
-    )
-  }
-
-  renderTravelInfo(): JSX.Element {
-    return this.props.movement ? (
-      <div className="column is-full">
-        traveling to <Location location={this.props.movement.to} /> ETA {printTime({ seconds: this.props.movement.eta })}
-      </div>
-    ) : (
-      <></>
-    )
-  }
-
-  renderControls(): JSX.Element {
-    return this.props.controllable !== undefined && this.props.controllable.by === 'player' ? (
-      <div className="column is-full">
-        <button onClick={() => this.props.moveTo()}>move to</button>
-        <button onClick={() => this.props.dockAt()}>dock at</button>
-      </div>
-    ) : (
-      <div className="column is-full">not controllable</div>
-    )
-  }
-
-  renderDockableLocationsSelector(): JSX.Element {
-    return <div>dockable locations</div>
-  }
-
-  renderMoveToInstructions(): JSX.Element {
-    return <div>select a navigable location from the map</div>
-  }
-
-  render(): JSX.Element {
-    switch (this.props.state) {
+export default () => {
+  const [state, mutate] = useApplicationState()
+  const selected = state.map.selected
+  if (selected) {
+    switch (state.map.state) {
       case 'dock_at': {
-        return <div>{this.renderDockableLocationsSelector()}</div>
-      }
-      case 'move_to': {
-        return <div>{this.renderMoveToInstructions()}</div>
-      }
-      default:
         return (
-          <div className="columns is-multiline">
-            {this.renderDeselect()}
-            {this.renderName()}
-            {this.renderLocation()}
-            {this.renderTravelInfo()}
-            {this.renderControls()}
+          <div>
+            <NearObjectsSelector
+              onSelect={(id) => {
+                mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
+              }}
+            />
           </div>
         )
+      }
+      case 'move_to': {
+        return <div>select a navigable location from the map</div>
+      }
+      default: {
+        const name = state.names.names[selected]
+        const position = state.dynamics.positions[selected]
+        const movement = state.dynamics.movements[selected]
+        const controllable = state.ships.controllable[selected]
+        console.log(name, position, movement, controllable)
+        return (
+          <div className="columns is-multiline">
+            <div className="column is-narrow" onClick={() => mutate(deselect())} style={{ cursor: 'pointer' }}>
+              {'<<'}
+            </div>
+            {name ? <div className="column">{name.name}</div> : <Fragment />}
+            {position ? (
+              <div className="column is-full">
+                <Location location={position} />
+              </div>
+            ) : (
+              <Fragment />
+            )}
+            {movement ? (
+              <div className="column is-full">
+                traveling to <Location location={movement.to} /> ETA {printTime({ seconds: movement.eta })}
+              </div>
+            ) : (
+              <Fragment />
+            )}
+            {controllable !== undefined && controllable.by === 'player' ? (
+              <div className="column is-full">
+                <button onClick={() => mutate(moveTo())}>move to</button>
+                <button onClick={() => mutate(dockAt())}>dock at</button>
+              </div>
+            ) : (
+              <div className="column is-full">not controllable</div>
+            )}
+          </div>
+        )
+      }
     }
+  } else {
+    return <span>Nothing selected</span>
   }
 }
-
-export default connect(
-  (state: State) => ({
-    name: state.names.names[state.map.selected],
-    controllable: state.ships.controllable[state.map.selected],
-    position: state.dynamics.positions[state.map.selected],
-    movement: state.dynamics.movements[state.map.selected],
-    state: state.map.state,
-  }),
-  (d: Dispatch<Action>) => ({
-    moveTo: () => d({ type: 'MOVE_TO' }),
-    dockAt: () => d({ type: 'DOCK_AT' }),
-    deselect: () => d({ type: 'DESELECT_ENTITY' }),
-  })
-)(FocusedObject)

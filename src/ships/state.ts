@@ -1,4 +1,4 @@
-import { Storage } from '../store'
+import { Storage } from '../state'
 
 export interface Specs {
   speed: number
@@ -13,7 +13,7 @@ export interface ShipsState {
   specs: Storage<Specs>
 }
 
-export const initialState = (): ShipsState => ({
+export const ships: ShipsState = {
   controllable: {
     ship1: { by: 'ai' },
     ship2: { by: 'player' },
@@ -24,8 +24,4 @@ export const initialState = (): ShipsState => ({
     ship2: { speed: 0.7 },
     ship3: { speed: 0.7 },
   },
-})
-
-export const ships = (state: ShipsState = initialState()): ShipsState => {
-  return state
 }

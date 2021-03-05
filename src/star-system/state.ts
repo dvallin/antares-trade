@@ -1,4 +1,4 @@
-import { StarSystem } from 'star-system'
+import { StarSystem } from '.'
 
 export interface StarSystemState {
   currentSystem: string
@@ -60,11 +60,7 @@ const sol: StarSystem = {
   },
 }
 
-export const initialState = (): StarSystemState => ({
+export const starSystems: StarSystemState = {
   currentSystem: 'sol',
   systems: { sol },
-})
-
-export const starSystems = (state: StarSystemState = initialState()): StarSystemState => {
-  return state
 }

@@ -1,4 +1,4 @@
-import { Storage } from '../store'
+import { Storage } from '../state'
 
 export interface Body {
   radius: number
@@ -15,7 +15,7 @@ const gasGiant: Body = { radius: 0.23 }
 const moon: Body = { radius: 0.006 }
 const ship: Body = { radius: 0.02 }
 
-export const initialState = (): BodyState => ({
+export const bodies: BodyState = {
   bodies: {
     sol: star,
     mercury: smallPlanet,
@@ -32,8 +32,4 @@ export const initialState = (): BodyState => ({
     ship2: ship,
     ship3: ship,
   },
-})
-
-export const bodies = (state: BodyState = initialState()): BodyState => {
-  return state
 }

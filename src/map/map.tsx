@@ -1,233 +1,175 @@
-import { Component, createRef, Ref } from 'inferno'
-import { Action, connect, Storage } from '../store'
+import { h } from 'preact'
 import { isBand, StarSystem } from '../star-system'
-import { Name } from '../name/state'
-import { Body } from '../body/state'
-import { Position } from '../dynamics/state'
 import { collectEntities } from '../dynamics'
-import { MapState, ViewBox } from './state'
-import { Specs } from '../ships/state'
-import { Dispatch } from 'redux'
+import { moveSelectedShip, selectEntity, setViewBox } from './state'
+import { useApplicationState } from '../state'
+import { useRef, useState } from 'preact/hooks'
 
-export interface ComponentState {
-  drag: boolean
-}
+export const RingSvg = (props: { innerRadius: number; outerRadius: number; cx: number; cy: number }) => (
+  <path
+    className="belt"
+    fill="url(#asteroids)"
+    stroke="black"
+    d={`
+M ${props.cx}, ${props.cy} 
+m 0 -${props.outerRadius}
+a ${props.outerRadius} ${props.outerRadius} 0 1 0 1 0
+z
+m -1 ${props.outerRadius - props.innerRadius}    
+a ${props.innerRadius} ${props.innerRadius} 0 1 1 -1 0     
+Z`}
+    vectorEffect="non-scaling-stroke"
+  />
+)
 
-export interface Props {
-  currentSystem: string
-  system: StarSystem
-  entities: string[]
-  names: Storage<Name>
-  specs: Storage<Specs>
-  bodies: Storage<Body>
-  positions: Storage<Position>
-  state: MapState['state']
-  subState: MapState['subState']
-  viewBox: ViewBox
-
-  selected: string
-  select: (id: string) => void
-  selectNavigableLocation: (location: [number, number], system: string, selected: string, specs: Specs) => void
-  selectDockableLocation: (location: string, selected: string, specs: Specs) => void
-
-  setViewBox: (viewBox: ViewBox) => void
-}
-
-export class Map extends Component<Props, ComponentState> {
-  readonly state: ComponentState = {
-    drag: false,
-  }
-
-  render(): JSX.Element {
-    const svg: Ref<SVGSVGElement> = createRef()
-    const box = this.props.viewBox
-
-    const viewScaleX = box.w / 800
-    const viewScaleY = box.h / 800
-    return (
-      <svg
-        viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
-        ref={svg}
-        onWheel={(e) => {
-          e.preventDefault()
-          const dw = box.w * Math.sign(e.deltaY) * 0.05
-          const dh = box.h * Math.sign(e.deltaY) * 0.05
-          const dx = (dw * e.offsetX) / svg.current.clientWidth
-          const dy = (dh * e.offsetY) / svg.current.clientHeight
-          this.props.setViewBox({ x: box.x + dx, y: box.y + dy, w: box.w - dw, h: box.h - dh })
-        }}
-        onClick={(e) => {
-          if (this.props.subState !== undefined && this.props.subState === 'select_navigable_location') {
-            const pt = svg.current.createSVGPoint()
-            pt.x = e.x
-            pt.y = e.y
-            const target = pt.matrixTransform(svg.current.getScreenCTM().inverse())
-            this.props.selectNavigableLocation(
-              [target.x, target.y],
-              this.props.currentSystem,
-              this.props.selected,
-              this.props.specs[this.props.selected]
-            )
-          }
-        }}
-        onMouseDown={() => this.setState({ drag: true })}
-        onMouseUp={() => this.setState({ drag: false })}
-        onMouseLeave={() => this.setState({ drag: false })}
-        onMouseMove={(e) => {
-          const dx = e.movementX * (box.w / 800)
-          const dy = e.movementY * (box.h / 800)
-          if (this.state.drag) {
-            this.props.setViewBox({ x: box.x - dx, y: box.y - dy, w: box.w, h: box.h })
-          }
-        }}
-      >
-        <pattern id="asteroids" x="0" y="0" width={10 * viewScaleX} height={10 * viewScaleY} patternUnits="userSpaceOnUse">
-          <rect x={6 * viewScaleX} y={-5 * viewScaleY} width={2 * viewScaleX} height={2 * viewScaleY} transform="rotate(45)" />
-        </pattern>
-        {this.renderMap()}
-      </svg>
-    )
-  }
-
-  private renderStarSystem(system: StarSystem, cx = 0, cy = 0): JSX.Element {
-    return (
-      <g>
-        {Object.entries(system).map(([id, part]) => {
-          if (isBand(part)) {
-            return <g id={id}>{this.renderRing(cx, cy, part.innerRadius, part.outerRadius)}</g>
-          } else {
-            const p = this.props.positions[id]
-            return (
-              <g id={id}>
-                <circle
-                  key="orbit"
-                  cx={cx}
-                  cy={cy}
-                  r={part.radius}
-                  stroke="black"
-                  strokeWidth="1"
-                  fill="none"
-                  vectorEffect="non-scaling-stroke"
-                />
-                {part.sub && this.renderStarSystem(part.sub, p.x, p.y)}
-              </g>
-            )
-          }
-        })}
-      </g>
-    )
-  }
-
-  private renderObjects(): JSX.Element {
-    return (
-      <g>
-        {this.props.entities.map((id) => {
-          const p = this.props.positions[id]
-          const body = this.props.bodies[id]
+export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: number }) => {
+  const [state] = useApplicationState()
+  return (
+    <g>
+      {Object.entries(props.system).map(([id, part]) => {
+        if (isBand(part)) {
           return (
-            <g key={id} id={id}>
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r={body.radius}
-                stroke="black"
-                strokeWidth={id === this.props.selected ? 2 : 1}
-                fill="white"
-                vectorEffect="non-scaling-stroke"
-              />
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r={body.radius * 1.5}
-                onClick={(e) => {
-                  if (this.props.state === undefined) {
-                    e.stopPropagation()
-                    this.props.select(id)
-                  } else if (this.props.subState === 'select_dockable_location') {
-                    if (id !== this.props.selected) {
-                      e.stopPropagation()
-                      this.props.selectDockableLocation(id, this.props.selected, this.props.specs[this.props.selected])
-                    }
-                  }
-                }}
-                fill="none"
-                stroke="none"
-                pointerEvents="visible"
-              />
+            <g id={id}>
+              <RingSvg innerRadius={part.innerRadius} outerRadius={part.outerRadius} cx={props.cx} cy={props.cy} />
             </g>
           )
-        })}
-      </g>
-    )
-  }
-
-  private renderMap(): JSX.Element {
-    return (
-      <g>
-        {this.renderStarSystem(this.props.system)}
-        {this.renderObjects()}
-      </g>
-    )
-  }
-
-  private renderRing(cx: number, cy: number, innerRadius: number, outerRadius: number): JSX.Element {
-    return (
-      <path
-        className="belt"
-        fill="url(#asteroids)"
-        stroke="black"
-        d={`
-      M ${cx}, ${cy} 
-      m 0 -${outerRadius}
-      a ${outerRadius} ${outerRadius} 0 1 0 1 0
-      z
-      m -1 ${outerRadius - innerRadius}    
-      a ${innerRadius} ${innerRadius} 0 1 1 -1 0     
-      Z`}
-        vectorEffect="non-scaling-stroke"
-      />
-    )
-  }
+        } else {
+          const p = state.dynamics.positions[id]
+          return (
+            <g id={id}>
+              <circle
+                key="orbit"
+                cx={props.cx}
+                cy={props.cy}
+                r={part.radius}
+                stroke="black"
+                strokeWidth="1"
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+              />
+              {part.sub && <StarSystemSvg system={part.sub} cx={p.x} cy={p.y} />}
+            </g>
+          )
+        }
+      })}
+    </g>
+  )
 }
 
-export default connect(
-  (s) => ({
-    selected: s.map.selected,
-    currentSystem: s.starSystems.currentSystem,
-    system: s.starSystems.systems[s.starSystems.currentSystem],
-    names: s.names.names,
-    bodies: s.bodies.bodies,
-    positions: s.dynamics.positions,
-    entities: collectEntities(s.dynamics, s.starSystems.currentSystem),
-    state: s.map.state,
-    subState: s.map.subState,
-    viewBox: s.map.viewBox,
-    specs: s.ships.specs,
-  }),
-  (d: Dispatch<Action>) => ({
-    select: (id: string) => d({ type: 'SELECT_ENTITY', id }),
-    selectNavigableLocation: (location: [number, number], system: string, id: string, specs: Specs) => {
-      d({ type: 'SELECT_NAVIGABLE_LOCATION', location, system, id })
-      d({
-        type: 'SET_MOVEMENT',
-        to: {
-          system,
-          x: location[0],
-          y: location[1],
-        },
-        id,
-        v: specs.speed,
-      })
-    },
-    selectDockableLocation: (location: string, id: string, specs: Specs) => {
-      d({ type: 'SELECT_DOCKABLE_LOCATION', location, id })
-      d({
-        type: 'SET_MOVEMENT',
-        to: location,
-        id,
-        v: specs.speed,
-      })
-    },
-    setViewBox: (viewBox: ViewBox) => d({ type: 'SET_VIEW_BOX', viewBox }),
-  })
-)(Map)
+export const ObjectsSvg = () => {
+  const [state, mutate] = useApplicationState()
+  const entities = collectEntities(state.dynamics, state.starSystems.currentSystem)
+  return (
+    <g>
+      {entities.map((id) => {
+        const p = state.dynamics.positions[id]
+        const body = state.bodies.bodies[id]
+        return (
+          <g key={id} id={id}>
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={body.radius}
+              stroke="black"
+              strokeWidth={id === state.map.selected ? 2 : 1}
+              fill="white"
+              vectorEffect="non-scaling-stroke"
+            />
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={body.radius * 1.5}
+              onClick={(e) => {
+                if (state.map.state === undefined) {
+                  e.stopPropagation()
+                  mutate(selectEntity(id))
+                } else if (state.map.subState === 'select_dockable_location') {
+                  const selected = state.map.selected
+                  if (selected !== undefined && id !== selected) {
+                    mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
+                    e.stopPropagation()
+                  }
+                }
+              }}
+              fill="none"
+              stroke="none"
+              pointerEvents="visible"
+            />
+          </g>
+        )
+      })}
+    </g>
+  )
+}
+
+export default () => {
+  const [state, mutate] = useApplicationState()
+  const [drag, setDrag] = useState(false)
+
+  const svg = useRef<SVGSVGElement>(null)
+  const box = state.map.viewBox
+
+  const viewScaleX = box.w / 800
+  const viewScaleY = box.h / 800
+  return (
+    <svg
+      viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
+      ref={svg}
+      onWheel={(e) => {
+        e.preventDefault()
+        const dw = box.w * Math.sign(e.deltaY) * 0.05
+        const dh = box.h * Math.sign(e.deltaY) * 0.05
+        const dx = (dw * e.offsetX) / svg.current.clientWidth
+        const dy = (dh * e.offsetY) / svg.current.clientHeight
+        mutate(
+          setViewBox({
+            x: box.x + dx,
+            y: box.y + dy,
+            w: box.w - dw,
+            h: box.h - dh,
+          })
+        )
+      }}
+      onClick={(e) => {
+        if (state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
+          const pt = svg.current.createSVGPoint()
+          pt.x = e.x
+          pt.y = e.y
+          const target = pt.matrixTransform(svg.current.getScreenCTM()?.inverse())
+          const selected = state.map.selected
+          if (selected !== undefined) {
+            mutate(
+              moveSelectedShip(
+                selected,
+                {
+                  system: state.starSystems.currentSystem,
+                  x: target.x,
+                  y: target.y,
+                },
+                state.ships.specs[selected].speed
+              )
+            )
+          }
+        }
+      }}
+      onMouseDown={() => setDrag(true)}
+      onMouseUp={() => setDrag(false)}
+      onMouseLeave={() => setDrag(false)}
+      onMouseMove={(e) => {
+        const dx = e.movementX * (box.w / 800)
+        const dy = e.movementY * (box.h / 800)
+        if (drag) {
+          mutate(setViewBox({ x: box.x - dx, y: box.y - dy, w: box.w, h: box.h }))
+        }
+      }}
+    >
+      <pattern id="asteroids" x="0" y="0" width={10 * viewScaleX} height={10 * viewScaleY} patternUnits="userSpaceOnUse">
+        <rect x={6 * viewScaleX} y={-5 * viewScaleY} width={2 * viewScaleX} height={2 * viewScaleY} transform="rotate(45)" />
+      </pattern>
+      <g>
+        <StarSystemSvg system={state.starSystems.systems[state.starSystems.currentSystem]} cx={0} cy={0} />
+        <ObjectsSvg />
+      </g>
+    </svg>
+  )
+}

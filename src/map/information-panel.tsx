@@ -1,17 +1,17 @@
-import { Component } from 'inferno'
-import { State, connect } from '../store'
+import { h } from 'preact'
+
+import { useApplicationState } from '../state'
 
 import FocusedObject from './focused-object'
-import ObjectList from './object-list'
+import { AllObjectsSelector } from './object-selector/selectors'
+import { selectEntity } from './state'
 
 export interface Props {
   isSelected: boolean
+  onSelect: (id: string) => void
 }
 
-export class InformationPanel extends Component<Props> {
-  render(): JSX.Element {
-    return this.props.isSelected ? <FocusedObject /> : <ObjectList />
-  }
+export default () => {
+  const [state, mutate] = useApplicationState()
+  return state.map.selected ? <FocusedObject /> : <AllObjectsSelector onSelect={(id) => mutate(selectEntity(id))} />
 }
-
-export default connect((state: State) => ({ isSelected: !!state.map.selected }))(InformationPanel)
