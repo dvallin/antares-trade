@@ -1,31 +1,22 @@
 import { Draft } from 'immer'
+import { toPolar, rotatePolar, fromPolar } from '../polar'
 import { isBand, StarSystem } from '../star-system'
 import { Mutation } from '../state'
 import { State, Storage } from '../state'
 
 export interface Movement {
-  to: string | Position
+  to: Location
   v: number
   eta: number
 }
+
+export type Location = string | Position
+export const isNamedLocation = (l: Location): l is string => typeof l === 'string'
 
 export interface Position {
   system: string
   x: number
   y: number
-}
-
-export interface Polar {
-  radius: number
-  phi: number
-}
-
-export function toPolar(p: Position, cx: number, cy: number): Polar {
-  const rx = p.x - cx
-  const ry = p.y - cy
-  const radius = Math.sqrt(rx * rx + ry * ry)
-  const phi = Math.atan2(ry, rx)
-  return { radius, phi }
 }
 
 export interface DynamicsState {
@@ -138,11 +129,9 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
     if (!isBand(part)) {
       const p = state.dynamics.positions[id]
 
-      const { radius, phi } = toPolar(p, cx, cy)
-      const phi2 = phi + part.speed
+      const polar = toPolar(p.x, p.y, cx, cy)
+      const [x, y] = fromPolar(rotatePolar(polar, part.speed), cx, cy)
 
-      const x = radius * Math.cos(phi2) + cx
-      const y = radius * Math.sin(phi2) + cy
       state.dynamics.positions[id] = { system: p.system, x, y }
 
       if (part.sub) {
@@ -159,7 +148,7 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
   }
 
   const p1 = state.dynamics.positions[id]
-  const p2 = typeof to === 'string' ? state.dynamics.positions[to] : to
+  const p2 = isNamedLocation(to) ? state.dynamics.positions[to] : to
 
   const dx = p2.x - p1.x
   const dy = p2.y - p1.y

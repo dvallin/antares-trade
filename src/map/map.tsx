@@ -58,7 +58,7 @@ export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: numbe
 
 export const ObjectsSvg = () => {
   const [state, mutate] = useApplicationState()
-  const entities = collectEntities(state.dynamics, state.starSystems.currentSystem)
+  const entities = collectEntities(state, state.starSystems.currentSystem)
   return (
     <g>
       {entities.map((id) => {
@@ -86,8 +86,8 @@ export const ObjectsSvg = () => {
                 } else if (state.map.subState === 'select_dockable_location') {
                   const selected = state.map.selected
                   if (selected !== undefined && id !== selected) {
-                    mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
                     e.stopPropagation()
+                    mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
                   }
                 }
               }}

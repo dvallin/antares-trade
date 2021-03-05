@@ -8,7 +8,7 @@
     "dev": "preact watch",
     "type-check": "tsc",
     "start": "webpack serve",
-    "lint": "eslint '{src,test}/**/*.{js,jsx,ts,tsx}' --quiet",
+    "lint": "eslint '{src,test}/**/*.{js,jsx,ts,tsx}'",
     "format": "npm run lint -- --fix",
     "test": "jest --detectOpenHandles --coverage"
   },

@@ -1,26 +1,26 @@
 import { Fragment, h } from 'preact'
 
-import { Position, toPolar } from '../dynamics/state'
+import { isNamedLocation, Location } from '../dynamics/state'
 import { Name } from '../name/state'
+import { toPolar } from '../polar'
 import { useApplicationState } from '../state'
 
 export interface Props {
-  location: string | Position
+  location: Location
   name?: Name
 }
 
 export default (props: Props) => {
-  if (typeof props.location !== 'string') {
-    const polar = toPolar(props.location, 0, 0)
+  if (isNamedLocation(props.location)) {
+    const [state] = useApplicationState()
+    return <span>{state.names.names[props.location]?.name || 'unkown location'}</span>
+  } else {
+    const polar = toPolar(props.location.x, props.location.y, 0, 0)
     return (
       <Fragment>
         {props.location.system} (<span>{polar.radius.toFixed(1)}</span>ls,
         <span>{polar.phi.toFixed(2)}</span>θ)
       </Fragment>
     )
-  } else {
-    const [state] = useApplicationState()
-    const name = typeof props.location === 'string' ? state.names.names[props.location] : undefined
-    return <span>{name !== undefined ? name.name : 'unkown location'}</span>
   }
 }
