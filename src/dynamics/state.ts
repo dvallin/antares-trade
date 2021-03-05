@@ -1,14 +1,10 @@
 import produce, { Draft } from 'immer'
-import { MapAction } from '../map/state'
 import { isBand, StarSystem } from '../star-system'
 import { State, Storage } from '../store'
 
-export interface Controllable {
-  by: string
-}
-
 export interface Movement {
   to: string | Position
+  v: number
   eta: number
 }
 
@@ -33,20 +29,14 @@ export function toPolar(p: Position, cx: number, cy: number): Polar {
 
 export interface DynamicsState {
   lastUpdate: number
-  controllable: Storage<Controllable>
   movements: Storage<Movement>
   positions: Storage<Position>
 }
 
 export const initialState = (): DynamicsState => ({
   lastUpdate: Date.now(),
-  controllable: {
-    ship1: { by: 'ai' },
-    ship2: { by: 'player' },
-    ship3: { by: 'player' },
-  },
   movements: {
-    ship2: { to: 'earth', eta: 0 },
+    ship2: { to: 'earth', eta: 0, v: 0.7 },
   },
   positions: {
     sol: {
@@ -122,23 +112,15 @@ export const initialState = (): DynamicsState => ({
   },
 })
 
-export const dynamics = (state: DynamicsState = initialState(), action: MapAction): DynamicsState => {
+export type DynamicsAction = { type: 'SET_MOVEMENT'; id: string; to: Movement['to']; v: Movement['v'] }
+
+export const dynamics = (state: DynamicsState = initialState(), action: DynamicsAction): DynamicsState => {
   return produce(state, (d) => {
     switch (action.type) {
-      case 'SELECT_NAVIGABLE_LOCATION': {
+      case 'SET_MOVEMENT': {
         d.movements[action.id] = {
-          to: {
-            system: action.system,
-            x: action.location[0],
-            y: action.location[1],
-          },
-          eta: 0,
-        }
-        break
-      }
-      case 'SELECT_DOCKABLE_LOCATION': {
-        d.movements[action.id] = {
-          to: action.location,
+          to: action.to,
+          v: action.v,
           eta: 0,
         }
         break
@@ -183,12 +165,10 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
   })
 }
 
-export const applyMovement = (state: Draft<State>, dt: number, id: string, to: string | Position): void => {
+export const applyMovement = (state: Draft<State>, dt: number, id: string, to: string | Position, v: number): void => {
   if (dt <= 0) {
     return
   }
-
-  const v = 1
 
   const p1 = state.dynamics.positions[id]
   const p2 = typeof to === 'string' ? state.dynamics.positions[to] : to
@@ -216,6 +196,6 @@ export const updateDynamics = (state: Draft<State>): void => {
   const dt = (now - state.dynamics.lastUpdate) / 1000
   state.dynamics.lastUpdate = now
 
-  Object.entries(state.dynamics.movements).forEach(([id, { to }]) => applyMovement(state, dt, id, to))
+  Object.entries(state.dynamics.movements).forEach(([id, movement]) => applyMovement(state, dt, id, movement.to, movement.v))
   Object.values(state.starSystems.systems).forEach((system) => applyStarSystem(state, dt, system))
 }

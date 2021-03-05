@@ -1,10 +1,11 @@
 import * as redux from 'redux'
 import * as infernoRedux from 'inferno-redux'
 import { starSystems, StarSystemState } from './star-system/state'
-import { map, MapState, updateMap } from './map/state'
+import { map, MapAction, MapState, updateMap } from './map/state'
 import { names, NameState } from './name/state'
 import { bodies, BodyState } from './body/state'
-import { dynamics, DynamicsState, updateDynamics } from './dynamics/state'
+import { ships, ShipsState } from './ships/state'
+import { dynamics, DynamicsAction, DynamicsState, updateDynamics } from './dynamics/state'
 
 import { Component } from 'inferno'
 import produce from 'immer'
@@ -19,13 +20,16 @@ export interface State {
   names: NameState
   bodies: BodyState
   dynamics: DynamicsState
+  ships: ShipsState
 }
+
+export type Action = MapAction | DynamicsAction
 
 export interface TickAction {
   type: 'TICK'
 }
 
-const combinedReducer = redux.combineReducers({ starSystems, map, names, bodies, dynamics })
+const combinedReducer = redux.combineReducers({ starSystems, map, names, bodies, dynamics, ships })
 const reducer = (state: State, action: TickAction): State => {
   switch (action.type) {
     case 'TICK':

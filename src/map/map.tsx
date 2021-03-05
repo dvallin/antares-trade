@@ -1,11 +1,13 @@
 import { Component, createRef, Ref } from 'inferno'
-import { connect, Storage } from '../store'
+import { Action, connect, Storage } from '../store'
 import { isBand, StarSystem } from '../star-system'
 import { Name } from '../name/state'
 import { Body } from '../body/state'
 import { Position } from '../dynamics/state'
 import { collectEntities } from '../dynamics'
 import { MapState, ViewBox } from './state'
+import { Specs } from '../ships/state'
+import { Dispatch } from 'redux'
 
 export interface ComponentState {
   drag: boolean
@@ -16,6 +18,7 @@ export interface Props {
   system: StarSystem
   entities: string[]
   names: Storage<Name>
+  specs: Storage<Specs>
   bodies: Storage<Body>
   positions: Storage<Position>
   state: MapState['state']
@@ -24,8 +27,8 @@ export interface Props {
 
   selected: string
   select: (id: string) => void
-  selectNavigableLocation: (location: [number, number], system: string, selected: string) => void
-  selectDockableLocation: (location: string, selected: string) => void
+  selectNavigableLocation: (location: [number, number], system: string, selected: string, specs: Specs) => void
+  selectDockableLocation: (location: string, selected: string, specs: Specs) => void
 
   setViewBox: (viewBox: ViewBox) => void
 }
@@ -59,7 +62,12 @@ export class Map extends Component<Props, ComponentState> {
             pt.x = e.x
             pt.y = e.y
             const target = pt.matrixTransform(svg.current.getScreenCTM().inverse())
-            this.props.selectNavigableLocation([target.x, target.y], this.props.currentSystem, this.props.selected)
+            this.props.selectNavigableLocation(
+              [target.x, target.y],
+              this.props.currentSystem,
+              this.props.selected,
+              this.props.specs[this.props.selected]
+            )
           }
         }}
         onMouseDown={() => this.setState({ drag: true })}
@@ -138,7 +146,7 @@ export class Map extends Component<Props, ComponentState> {
                   } else if (this.props.subState === 'select_dockable_location') {
                     if (id !== this.props.selected) {
                       e.stopPropagation()
-                      this.props.selectDockableLocation(id, this.props.selected)
+                      this.props.selectDockableLocation(id, this.props.selected, this.props.specs[this.props.selected])
                     }
                   }
                 }}
@@ -194,12 +202,32 @@ export default connect(
     state: s.map.state,
     subState: s.map.subState,
     viewBox: s.map.viewBox,
+    specs: s.ships.specs,
   }),
-  (d) => ({
+  (d: Dispatch<Action>) => ({
     select: (id: string) => d({ type: 'SELECT_ENTITY', id }),
-    selectNavigableLocation: (location: [string, string], system: string, id: string) =>
-      d({ type: 'SELECT_NAVIGABLE_LOCATION', location, system, id }),
-    selectDockableLocation: (location: string, id: string) => d({ type: 'SELECT_DOCKABLE_LOCATION', location, id }),
+    selectNavigableLocation: (location: [number, number], system: string, id: string, specs: Specs) => {
+      d({ type: 'SELECT_NAVIGABLE_LOCATION', location, system, id })
+      d({
+        type: 'SET_MOVEMENT',
+        to: {
+          system,
+          x: location[0],
+          y: location[1],
+        },
+        id,
+        v: specs.speed,
+      })
+    },
+    selectDockableLocation: (location: string, id: string, specs: Specs) => {
+      d({ type: 'SELECT_DOCKABLE_LOCATION', location, id })
+      d({
+        type: 'SET_MOVEMENT',
+        to: location,
+        id,
+        v: specs.speed,
+      })
+    },
     setViewBox: (viewBox: ViewBox) => d({ type: 'SET_VIEW_BOX', viewBox }),
   })
 )(Map)

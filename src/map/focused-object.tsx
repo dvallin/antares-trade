@@ -1,9 +1,11 @@
 import { Component } from 'inferno'
 import { Name } from '../name/state'
-import { Controllable, Movement, Position } from '../dynamics/state'
-import { State, connect } from '../store'
+import { Movement, Position } from '../dynamics/state'
+import { State, connect, Action } from '../store'
 import { MapState } from './state'
 import Location from './location'
+import { Controllable } from '../ships/state'
+import { Dispatch } from 'redux'
 
 export interface Props {
   name: Name | undefined
@@ -141,12 +143,12 @@ export class FocusedObject extends Component<Props> {
 export default connect(
   (state: State) => ({
     name: state.names.names[state.map.selected],
-    controllable: state.dynamics.controllable[state.map.selected],
+    controllable: state.ships.controllable[state.map.selected],
     position: state.dynamics.positions[state.map.selected],
     movement: state.dynamics.movements[state.map.selected],
     state: state.map.state,
   }),
-  (d) => ({
+  (d: Dispatch<Action>) => ({
     moveTo: () => d({ type: 'MOVE_TO' }),
     dockAt: () => d({ type: 'DOCK_AT' }),
     deselect: () => d({ type: 'DESELECT_ENTITY' }),
