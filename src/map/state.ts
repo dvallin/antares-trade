@@ -1,5 +1,5 @@
 import { Draft } from 'immer'
-import { Movement, setMovement } from '../dynamics/state'
+import { getPosition, Movement, setMovement } from '../dynamics/state'
 import { all, Mutation, State } from '../state'
 import { focusViewBox, ViewBox } from '../view-box'
 
@@ -58,7 +58,7 @@ export const moveSelectedShip = (selected: string, to: Movement['to'], v: number
 
 export const updateMap = (state: Draft<State>): void => {
   if (state.map.focused !== undefined) {
-    const position = state.dynamics.positions[state.map.focused]
+    const position = getPosition(state, state.map.focused)
     if (position !== undefined) {
       state.map.viewBox = focusViewBox(state.map.viewBox, position.x, position.y)
     }

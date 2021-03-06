@@ -22,7 +22,7 @@ export interface Position {
 export interface DynamicsState {
   lastUpdate: number
   movements: Storage<Movement>
-  positions: Storage<Position>
+  positions: Storage<Location>
 }
 
 export const dynamics: DynamicsState = {
@@ -98,8 +98,8 @@ export const dynamics: DynamicsState = {
     },
     ship3: {
       system: 'sol',
-      x: 3680,
-      y: 0,
+      x: 498,
+      y: 20,
     },
   },
 }
@@ -111,7 +111,7 @@ export const setMovement = (id: string, to: Movement['to'], v: Movement['v']): M
 export const translateChildren = (state: Draft<State>, system: StarSystem, dx = 0, dy = 0): void => {
   Object.entries(system).map(([id, part]) => {
     if (!isBand(part)) {
-      const p = state.dynamics.positions[id]
+      const p = getPosition(state, id)
 
       const x = p.x + dx
       const y = p.y + dy
@@ -127,7 +127,7 @@ export const translateChildren = (state: Draft<State>, system: StarSystem, dx = 
 export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSystem, cx = 0, cy = 0): void => {
   Object.entries(system).map(([id, part]) => {
     if (!isBand(part)) {
-      const p = state.dynamics.positions[id]
+      const p = getPosition(state, id)
 
       if (part.sub) {
         applyStarSystem(state, dt, part.sub, p.x, p.y)
@@ -144,13 +144,16 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
   })
 }
 
+export const getPosition = (state: State, location: Location): Position =>
+  isNamedLocation(location) ? getPosition(state, state.dynamics.positions[location]) : location
+
 export const applyMovement = (state: Draft<State>, dt: number, id: string, to: string | Position, v: number): void => {
   if (dt <= 0) {
     return
   }
 
-  const p1 = state.dynamics.positions[id]
-  const p2 = isNamedLocation(to) ? state.dynamics.positions[to] : to
+  const p1 = getPosition(state, id)
+  const p2 = getPosition(state, to)
 
   const dx = p2.x - p1.x
   const dy = p2.y - p1.y
@@ -158,7 +161,7 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
 
   const stepLength = v * dt
   if (dist < stepLength) {
-    state.dynamics.positions[id] = p2
+    state.dynamics.positions[id] = to
     delete state.dynamics.movements[id]
   } else {
     state.dynamics.positions[id] = {

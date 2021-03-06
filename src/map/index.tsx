@@ -5,6 +5,7 @@ import { moveSelectedShip, selectEntity, setViewBox } from './state'
 import { useApplicationState } from '../state'
 import { useRef, useState } from 'preact/hooks'
 import { dragViewBox, zoomViewBox } from '../view-box'
+import { getPosition } from '../dynamics/state'
 
 const regularStyle: h.JSX.CSSProperties = { vectorEffect: 'non-scaling-stroke', stroke: 'black' }
 
@@ -36,7 +37,7 @@ export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: numbe
             </g>
           )
         } else {
-          const p = state.dynamics.positions[id]
+          const p = getPosition(state, id)
           return (
             <g id={id}>
               <circle cx={props.cx} cy={props.cy} r={part.radius} fill="none" style={regularStyle} />
@@ -55,7 +56,7 @@ export const ObjectsSvg = () => {
   return (
     <g>
       {entities.map((id) => {
-        const p = state.dynamics.positions[id]
+        const p = getPosition(state, id)
         const body = state.bodies.bodies[id]
         return (
           <g
