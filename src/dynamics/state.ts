@@ -129,14 +129,16 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
     if (!isBand(part)) {
       const p = state.dynamics.positions[id]
 
+      if (part.sub) {
+        applyStarSystem(state, dt, part.sub, p.x, p.y)
+      }
+
       const polar = toPolar(p.x, p.y, cx, cy)
       const [x, y] = fromPolar(rotatePolar(polar, part.speed), cx, cy)
-
       state.dynamics.positions[id] = { system: p.system, x, y }
 
       if (part.sub) {
         translateChildren(state, part.sub, x - p.x, y - p.y)
-        applyStarSystem(state, dt, part.sub, p.x, p.y)
       }
     }
   })
