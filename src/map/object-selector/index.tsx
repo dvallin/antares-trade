@@ -10,11 +10,17 @@ export interface Props {
 export default (props: Props) => {
   const [state] = useApplicationState()
   return (
-    <div>
+    <div class="list-group">
       {props.objects.map((id) => (
-        <div key={id} onClick={() => props.onSelect(id)} style={{ cursor: 'pointer' }}>
+        <a
+          href="#"
+          class="list-group-item list-group-item-action"
+          key={id}
+          onClick={() => props.onSelect(id)}
+          style={{ cursor: 'pointer' }}
+        >
           {state.names.names[id]?.name || id}
-        </div>
+        </a>
       ))}
     </div>
   )

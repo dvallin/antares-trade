@@ -25,33 +25,48 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
   const movement = state.dynamics.movements[selected]
   const controllable = state.ships.controllable[selected]
   return (
-    <div className="columns is-multiline">
-      <div className="column is-narrow" onClick={() => mutate(deselect())} style={{ cursor: 'pointer' }}>
-        {'<<'}
+    <div className="container">
+      <div className="row">
+        <h1 className="col-sm-auto" onClick={() => mutate(deselect())} style={{ cursor: 'pointer' }}>
+          {'<<'}
+        </h1>
+        {name ? <h1 className="col-sm">{name.name}</h1> : <Fragment />}
       </div>
-      {name ? <div className="column">{name.name}</div> : <Fragment />}
-      {position ? (
-        <div className="column is-full">
-          <Location location={position} />
-        </div>
-      ) : (
-        <Fragment />
-      )}
-      {movement ? (
-        <div className="column is-full">
-          traveling to <Location location={movement.to} /> ETA {printTime({ seconds: movement.eta })}
-        </div>
-      ) : (
-        <Fragment />
-      )}
-      {controllable !== undefined && controllable.by === 'player' ? (
-        <div className="column is-full">
-          <button onClick={() => mutate(moveTo())}>move to</button>
-          <button onClick={() => mutate(dockAt())}>dock at</button>
-        </div>
-      ) : (
-        <div className="column is-full">not controllable</div>
-      )}
+      <div className="row">
+        {position ? (
+          <p class="lead col-sm">
+            <Location location={position} />
+          </p>
+        ) : (
+          <Fragment />
+        )}
+      </div>
+      <div className="row">
+        {movement ? (
+          <p className="col-sm">
+            traveling to <Location location={movement.to} /> ETA {printTime({ seconds: movement.eta })}
+          </p>
+        ) : (
+          <Fragment />
+        )}
+      </div>
+      <div className="row">
+        {controllable !== undefined && controllable.by === 'player' ? (
+          <div className="col-sm">
+            <div>you own this ship</div>
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button class="btn btn-primary" onClick={() => mutate(moveTo())}>
+                move to
+              </button>
+              <button class="btn btn-primary" onClick={() => mutate(dockAt())}>
+                dock at
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="col-sm">owned by {controllable?.by || 'noone'}</div>
+        )}
+      </div>
     </div>
   )
 }

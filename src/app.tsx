@@ -1,6 +1,6 @@
 import { h } from 'preact'
 
-import Map from './map/map'
+import Map from './map'
 import InformationPanel from './map/information-panel'
 
 import { all, Provider as StateProvider, useApplicationState } from './state'
@@ -18,12 +18,12 @@ export const App = () => {
   }, [mutate])
 
   return (
-    <div className="columns">
-      <div className="column is-10">
-        <Map />
-      </div>
-      <div className="column is-2">
-        <div className="box">
+    <div className="container-fluid">
+      <div className="row">
+        <div className="col-md-9">
+          <Map />
+        </div>
+        <div className="col-md-3">
           <InformationPanel />
         </div>
       </div>

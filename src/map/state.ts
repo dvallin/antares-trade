@@ -1,13 +1,7 @@
 import { Draft } from 'immer'
 import { Movement, setMovement } from '../dynamics/state'
 import { all, Mutation, State } from '../state'
-
-export interface ViewBox {
-  x: number
-  y: number
-  w: number
-  h: number
-}
+import { focusViewBox, ViewBox } from '../view-box'
 
 export interface MapState {
   selected: string | undefined
@@ -66,11 +60,7 @@ export const updateMap = (state: Draft<State>): void => {
   if (state.map.focused !== undefined) {
     const position = state.dynamics.positions[state.map.focused]
     if (position !== undefined) {
-      state.map.viewBox = {
-        ...state.map.viewBox,
-        x: position.x - state.map.viewBox.w / 2,
-        y: position.y - state.map.viewBox.h / 2,
-      }
+      state.map.viewBox = focusViewBox(state.map.viewBox, position.x, position.y)
     }
   }
 }

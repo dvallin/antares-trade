@@ -4,12 +4,14 @@ import { collectEntities } from '../dynamics'
 import { moveSelectedShip, selectEntity, setViewBox } from './state'
 import { useApplicationState } from '../state'
 import { useRef, useState } from 'preact/hooks'
+import { dragViewBox, zoomViewBox } from '../view-box'
+
+const regularStyle: h.JSX.CSSProperties = { vectorEffect: 'non-scaling-stroke', stroke: 'black' }
 
 export const RingSvg = (props: { innerRadius: number; outerRadius: number; cx: number; cy: number }) => (
   <path
     className="belt"
     fill="url(#asteroids)"
-    stroke="black"
     d={`
 M ${props.cx}, ${props.cy} 
 m 0 -${props.outerRadius}
@@ -18,7 +20,7 @@ z
 m -1 ${props.outerRadius - props.innerRadius}    
 a ${props.innerRadius} ${props.innerRadius} 0 1 1 -1 0     
 Z`}
-    vectorEffect="non-scaling-stroke"
+    style={regularStyle}
   />
 )
 
@@ -37,16 +39,7 @@ export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: numbe
           const p = state.dynamics.positions[id]
           return (
             <g id={id}>
-              <circle
-                key="orbit"
-                cx={props.cx}
-                cy={props.cy}
-                r={part.radius}
-                stroke="black"
-                strokeWidth="1"
-                fill="none"
-                vectorEffect="non-scaling-stroke"
-              />
+              <circle cx={props.cx} cy={props.cy} r={part.radius} fill="none" style={regularStyle} />
               {part.sub && <StarSystemSvg system={part.sub} cx={p.x} cy={p.y} />}
             </g>
           )
@@ -65,36 +58,25 @@ export const ObjectsSvg = () => {
         const p = state.dynamics.positions[id]
         const body = state.bodies.bodies[id]
         return (
-          <g key={id} id={id}>
-            <circle
-              cx={p.x}
-              cy={p.y}
-              r={body.radius}
-              stroke="black"
-              strokeWidth={id === state.map.selected ? 2 : 1}
-              fill="white"
-              vectorEffect="non-scaling-stroke"
-            />
-            <circle
-              cx={p.x}
-              cy={p.y}
-              r={body.radius * 1.5}
-              onClick={(e) => {
-                if (state.map.state === undefined) {
+          <g
+            key={id}
+            id={id}
+            onClick={(e) => {
+              console.log(e)
+              if (state.map.state === undefined) {
+                e.stopPropagation()
+                mutate(selectEntity(id))
+              } else if (state.map.subState === 'select_dockable_location') {
+                const selected = state.map.selected
+                if (selected !== undefined && id !== selected) {
                   e.stopPropagation()
-                  mutate(selectEntity(id))
-                } else if (state.map.subState === 'select_dockable_location') {
-                  const selected = state.map.selected
-                  if (selected !== undefined && id !== selected) {
-                    e.stopPropagation()
-                    mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
-                  }
+                  mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
                 }
-              }}
-              fill="none"
-              stroke="none"
-              pointerEvents="visible"
-            />
+              }
+            }}
+          >
+            <circle cx={p.x} cy={p.y} r={body.radius} strokeWidth={id === state.map.selected ? 2 : 1} fill="white" style={regularStyle} />
+            <circle cx={p.x} cy={p.y} r={body.radius * 1.5} fill="none" stroke="none" pointerEvents="visible" />
           </g>
         )
       })}
@@ -117,18 +99,7 @@ export default () => {
       ref={svg}
       onWheel={(e) => {
         e.preventDefault()
-        const dw = box.w * Math.sign(e.deltaY) * 0.05
-        const dh = box.h * Math.sign(e.deltaY) * 0.05
-        const dx = (dw * e.offsetX) / svg.current.clientWidth
-        const dy = (dh * e.offsetY) / svg.current.clientHeight
-        mutate(
-          setViewBox({
-            x: box.x + dx,
-            y: box.y + dy,
-            w: box.w - dw,
-            h: box.h - dh,
-          })
-        )
+        mutate(setViewBox(zoomViewBox(box, e.deltaY, e.offsetX, e.offsetY, svg.current.clientWidth, svg.current.clientHeight)))
       }}
       onClick={(e) => {
         if (state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
@@ -156,10 +127,8 @@ export default () => {
       onMouseUp={() => setDrag(false)}
       onMouseLeave={() => setDrag(false)}
       onMouseMove={(e) => {
-        const dx = e.movementX * (box.w / 800)
-        const dy = e.movementY * (box.h / 800)
         if (drag) {
-          mutate(setViewBox({ x: box.x - dx, y: box.y - dy, w: box.w, h: box.h }))
+          mutate(setViewBox(dragViewBox(box, e.movementX, e.movementY)))
         }
       }}
     >

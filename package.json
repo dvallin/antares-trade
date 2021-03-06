@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/dvallin/antares-trade#readme",
   "dependencies": {
+    "bootstrap": "^4.6.0",
     "immer": "^8.0.0",
     "preact": "^10.5.12"
   },
