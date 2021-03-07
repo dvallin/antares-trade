@@ -61,7 +61,7 @@ export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: numbe
           const p = getPosition(state, id)
           return (
             <g id={id}>
-              <circle cx={props.cx} cy={props.cy} r={part.radius} fill="none" style={regularStyle} />
+              <circle id={`${id}-orbit`} cx={props.cx} cy={props.cy} r={part.radius} fill="none" style={regularStyle} />
               {part.sub && <StarSystemSvg system={part.sub} cx={p.x} cy={p.y} />}
             </g>
           )
@@ -79,26 +79,18 @@ export const TrajectoriesSvg = () => {
       {trajectories.map(({ id, from, to }) => (
         <g key={id}>
           <line
-            x1={from.x}
-            y1={from.y}
-            x2={to.x}
-            y2={to.y}
-            style={{ ...regularStyle, stroke: colorScheme.color2, strokeDasharray: '4', strokeWidth: 2 }}
-          />
-          <line
             onClick={(e) => {
               if (state.map.state === undefined) {
                 e.stopPropagation()
                 mutate(selectEntity(id))
               }
             }}
+            id={`${id}-trajectory`}
             x1={from.x}
             y1={from.y}
             x2={to.x}
             y2={to.y}
-            fill="none"
-            stroke="none"
-            style={{ pointerEvents: 'visible', strokeWidth: 20 }}
+            style={{ ...regularStyle, stroke: colorScheme.color2, strokeDasharray: '4', strokeWidth: 3, pointerEvents: 'auto' }}
           />
         </g>
       ))}
@@ -117,6 +109,7 @@ export const ObjectsSvg = () => {
         return (
           <g key={id} id={id}>
             <circle
+              id={`${id}-body`}
               cx={p.x}
               cy={p.y}
               r={body.radius}
@@ -125,6 +118,7 @@ export const ObjectsSvg = () => {
               style={{ ...regularStyle, strokeWidth: state.map.selected ? 2 : 0 }}
             />
             <circle
+              id={`${id}-body-bounding-box`}
               onClick={(e) => {
                 if (state.map.state === undefined) {
                   e.stopPropagation()
