@@ -148,7 +148,7 @@ export const ObjectsSvg = () => {
 export default () => {
   const [state, mutate] = useApplicationState()
   const [drag, setDrag] = useState(false)
-  const [didDrag, setDidDrag] = useState(false)
+  const [lastDragPosition, setLastDragPosition] = useState<[number, number] | undefined>(undefined)
 
   const svg = useRef<SVGSVGElement>(null)
   const box = state.map.viewBox
@@ -160,11 +160,11 @@ export default () => {
       viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
       ref={svg}
       onWheel={(e) => {
-        e.preventDefault()
         mutate(setViewBox(zoomViewBox(box, e.deltaY, e.offsetX, e.offsetY, svg.current.clientWidth, svg.current.clientHeight)))
+        e.preventDefault()
       }}
       onClick={(e) => {
-        if (!didDrag && state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
+        if (!lastDragPosition && state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
           const pt = svg.current.createSVGPoint()
           pt.x = e.x
           pt.y = e.y
@@ -183,8 +183,40 @@ export default () => {
             )
           }
         }
-        setDidDrag(false)
+        setLastDragPosition(undefined)
       }}
+      onTouchStart={() => {
+        setDrag(true)
+      }}
+      onTouchMove={(e) => {
+        if (drag) {
+          if (e.touches.length > 0) {
+            const touch = e.touches[0]
+            if (lastDragPosition) {
+              if (e.touches.length === 1) {
+                mutate(setViewBox(dragViewBox(box, touch.clientX - lastDragPosition[0], touch.clientY - lastDragPosition[1])))
+              } else {
+                mutate(
+                  setViewBox(
+                    zoomViewBox(
+                      box,
+                      touch.clientY - lastDragPosition[1],
+                      touch.clientX,
+                      touch.clientY,
+                      svg.current.clientWidth,
+                      svg.current.clientHeight
+                    )
+                  )
+                )
+              }
+            }
+            setLastDragPosition([touch.clientX, touch.clientY])
+          }
+          e.preventDefault()
+        }
+      }}
+      onTouchCancel={() => setDrag(false)}
+      onTouchEnd={() => setDrag(false)}
       onMouseDown={() => {
         setDrag(true)
         if (state.map.state === undefined) {
@@ -197,7 +229,7 @@ export default () => {
       onMouseLeave={() => setDrag(false)}
       onMouseMove={(e) => {
         if (drag) {
-          setDidDrag(true)
+          setLastDragPosition([e.clientX, e.clientY])
           mutate(setViewBox(dragViewBox(box, e.movementX, e.movementY)))
         }
       }}
