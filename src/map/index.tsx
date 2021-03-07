@@ -72,13 +72,34 @@ export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: numbe
 }
 
 export const TrajectoriesSvg = () => {
-  const [state] = useApplicationState()
+  const [state, mutate] = useApplicationState()
   const trajectories = collectTrajectories(state, state.starSystems.currentSystem)
   return (
     <g>
       {trajectories.map(({ id, from, to }) => (
         <g key={id}>
-          <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} style={{ ...regularStyle, stroke: colorScheme.color2, strokeDasharray: '4' }} />
+          <line
+            x1={from.x}
+            y1={from.y}
+            x2={to.x}
+            y2={to.y}
+            style={{ ...regularStyle, stroke: colorScheme.color2, strokeDasharray: '4', strokeWidth: 2 }}
+          />
+          <line
+            onClick={(e) => {
+              if (state.map.state === undefined) {
+                e.stopPropagation()
+                mutate(selectEntity(id))
+              }
+            }}
+            x1={from.x}
+            y1={from.y}
+            x2={to.x}
+            y2={to.y}
+            fill="none"
+            stroke="none"
+            style={{ pointerEvents: 'visible', strokeWidth: 20 }}
+          />
         </g>
       ))}
     </g>
@@ -133,6 +154,7 @@ export const ObjectsSvg = () => {
 export default () => {
   const [state, mutate] = useApplicationState()
   const [drag, setDrag] = useState(false)
+  const [didDrag, setDidDrag] = useState(false)
 
   const svg = useRef<SVGSVGElement>(null)
   const box = state.map.viewBox
@@ -148,7 +170,7 @@ export default () => {
         mutate(setViewBox(zoomViewBox(box, e.deltaY, e.offsetX, e.offsetY, svg.current.clientWidth, svg.current.clientHeight)))
       }}
       onClick={(e) => {
-        if (state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
+        if (!didDrag && state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
           const pt = svg.current.createSVGPoint()
           pt.x = e.x
           pt.y = e.y
@@ -167,15 +189,21 @@ export default () => {
             )
           }
         }
+        setDidDrag(false)
       }}
       onMouseDown={() => {
         setDrag(true)
-        mutate(deselect())
+        if (state.map.state === undefined) {
+          mutate(deselect())
+        }
       }}
-      onMouseUp={() => setDrag(false)}
+      onMouseUp={() => {
+        setDrag(false)
+      }}
       onMouseLeave={() => setDrag(false)}
       onMouseMove={(e) => {
         if (drag) {
+          setDidDrag(true)
           mutate(setViewBox(dragViewBox(box, e.movementX, e.movementY)))
         }
       }}
