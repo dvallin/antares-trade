@@ -4,7 +4,7 @@ import ObjectSelector from '.'
 
 import { collectEntities, collectNearEntities } from '../../dynamics'
 import { getPosition } from '../../dynamics/state'
-import { useApplicationState } from '../../state'
+import { useApplicationState } from '../../application-state'
 
 export interface Props {
   onSelect: (id: string) => void

@@ -4,12 +4,13 @@ import Map from './map'
 import InformationPanel from './map/information-panel'
 import CurrentSystem from './map/current-system'
 
-import { chain, Provider as StateProvider, useApplicationState } from './state'
+import { Provider as StateProvider, useApplicationState } from './application-state'
 import { useEffect } from 'preact/hooks'
+
+import { chain } from './state'
 import { updateStarSystems } from './star-system/state'
 import { updateDynamics } from './dynamics/state'
 import { updateMap } from './map/state'
-
 import { moveShip } from './ships/state'
 
 export const App = () => {

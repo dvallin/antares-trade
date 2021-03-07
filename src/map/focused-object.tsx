@@ -2,7 +2,8 @@ import { Fragment, h } from 'preact'
 
 import { moveSelectedShip, deselect, dockAt, moveTo } from './state'
 import { NearObjectsSelector } from './object-selector/selectors'
-import { Mutate, State, useApplicationState } from '../state'
+import { Mutate, State } from '../state'
+import { useApplicationState } from '../application-state'
 
 import Location from './location'
 import { printTime } from '../time'

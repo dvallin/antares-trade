@@ -1,7 +1,6 @@
 import { h } from 'preact'
-import { toPolar } from '../polar'
 
-import { useApplicationState } from '../state'
+import { useApplicationState } from '../application-state'
 import { centerOfViewBox } from '../view-box'
 import Location from './location'
 

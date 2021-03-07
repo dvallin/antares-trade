@@ -1,6 +1,6 @@
 import { h } from 'preact'
 
-import { useApplicationState } from '../state'
+import { useApplicationState } from '../application-state'
 
 import FocusedObject from './focused-object'
 import { AllObjectsSelector } from './object-selector/selectors'
