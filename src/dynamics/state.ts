@@ -1,6 +1,7 @@
 import { Draft } from 'immer'
-import { toPolar, rotatePolar, fromPolar } from '../polar'
+import { fromPolar } from '../polar'
 import { isBand, StarSystem } from '../star-system'
+import { attachOrbit } from '../star-system/state'
 import { Mutation } from '../state'
 import { State, Storage } from '../state'
 
@@ -9,6 +10,7 @@ export interface Movement {
   v: number
   eta: number
 }
+export type Trajectory = { id: string; from: Position; to: Position }
 
 export type Location = string | Position
 export const isNamedLocation = (l: Location): l is string => typeof l === 'string'
@@ -128,13 +130,12 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
   Object.entries(system).map(([id, part]) => {
     if (!isBand(part)) {
       const p = getPosition(state, id)
+      const [x, y] = fromPolar(part, cx, cy)
 
       if (part.sub) {
         applyStarSystem(state, dt, part.sub, p.x, p.y)
       }
 
-      const polar = toPolar(p.x, p.y, cx, cy)
-      const [x, y] = fromPolar(rotatePolar(polar, part.speed), cx, cy)
       state.dynamics.positions[id] = { system: p.system, x, y }
 
       if (part.sub) {
@@ -161,6 +162,9 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
 
   const stepLength = v * dt
   if (dist < stepLength) {
+    if (!isNamedLocation(to)) {
+      attachOrbit(id, to.system, 0.00005, undefined)(state)
+    }
     state.dynamics.positions[id] = to
     delete state.dynamics.movements[id]
   } else {

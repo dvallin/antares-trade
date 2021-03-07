@@ -5,6 +5,7 @@ import InformationPanel from './map/information-panel'
 
 import { all, Provider as StateProvider, useApplicationState } from './state'
 import { useEffect } from 'preact/hooks'
+import { updateStarSystems } from './star-system/state'
 import { updateDynamics } from './dynamics/state'
 import { updateMap } from './map/state'
 
@@ -12,7 +13,7 @@ export const App = () => {
   const [, mutate] = useApplicationState()
   useEffect(() => {
     const interval = setInterval(() => {
-      mutate(all(updateDynamics, updateMap))
+      mutate(all(updateStarSystems, updateDynamics, updateMap))
     }, 10)
     return () => clearInterval(interval)
   }, [mutate])

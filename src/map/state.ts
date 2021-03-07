@@ -1,5 +1,6 @@
 import { Draft } from 'immer'
 import { getPosition, Movement, setMovement } from '../dynamics/state'
+import { detachOrbit } from '../star-system/state'
 import { all, Mutation, State } from '../state'
 import { focusViewBox, ViewBox } from '../view-box'
 
@@ -54,7 +55,7 @@ export const setViewBox = (viewBox: ViewBox): Mutation<State> => (d) => {
 }
 
 export const moveSelectedShip = (selected: string, to: Movement['to'], v: number): Mutation<State> =>
-  all(finishedSelection(), setMovement(selected, to, v))
+  all((d) => detachOrbit(selected, d.starSystems.currentSystem)(d), finishedSelection(), setMovement(selected, to, v))
 
 export const updateMap = (state: Draft<State>): void => {
   if (state.map.focused !== undefined) {

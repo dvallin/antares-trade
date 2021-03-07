@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import { isBand, StarSystem } from '../star-system'
-import { collectEntities } from '../dynamics'
+import { collectEntities, collectTrajectories } from '../dynamics'
 import { moveSelectedShip, selectEntity, setViewBox } from './state'
 import { useApplicationState } from '../state'
 import { useRef, useState } from 'preact/hooks'
@@ -46,6 +46,20 @@ export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: numbe
           )
         }
       })}
+    </g>
+  )
+}
+
+export const TrajectoriesSvg = () => {
+  const [state] = useApplicationState()
+  const trajectories = collectTrajectories(state, state.starSystems.currentSystem)
+  return (
+    <g>
+      {trajectories.map(({ id, from, to }) => (
+        <g key={id}>
+          <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} style={regularStyle} />
+        </g>
+      ))}
     </g>
   )
 }
@@ -139,6 +153,7 @@ export default () => {
       <g>
         <StarSystemSvg system={state.starSystems.systems[state.starSystems.currentSystem]} cx={0} cy={0} />
         <ObjectsSvg />
+        <TrajectoriesSvg />
       </g>
     </svg>
   )

@@ -5,6 +5,7 @@ export interface Band {
 
 export interface Orbit {
   radius: number
+  phi: number
   speed: number
 }
 

@@ -22,6 +22,6 @@ export const ships: ShipsState = {
   specs: {
     ship1: { speed: 0.7 },
     ship2: { speed: 0.7 },
-    ship3: { speed: 10 },
+    ship3: { speed: 0.7 },
   },
 }

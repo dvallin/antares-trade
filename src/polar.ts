@@ -11,13 +11,6 @@ export function toPolar(x: number, y: number, cx: number, cy: number): Polar {
   return { radius, phi }
 }
 
-export function rotatePolar(polar: Polar, dPhi: number): Polar {
-  return {
-    radius: polar.radius,
-    phi: polar.phi + dPhi,
-  }
-}
-
 export function fromPolar(polar: Polar, cx: number, cy: number): [number, number] {
   return [polar.radius * Math.cos(polar.phi) + cx, polar.radius * Math.sin(polar.phi) + cy]
 }
