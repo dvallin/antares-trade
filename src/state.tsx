@@ -57,7 +57,7 @@ export function useApplicationState(): [State, Mutate<State>] {
   return useContext(ApplicationState)
 }
 
-export function all(...mutations: Mutation<State>[]): Mutation<State> {
+export function chain(...mutations: Mutation<State>[]): Mutation<State> {
   return (d) => {
     mutations.forEach((m) => m(d))
   }

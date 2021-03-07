@@ -1,13 +1,34 @@
 import { h } from 'preact'
 import { isBand, StarSystem } from '../star-system'
 import { collectEntities, collectTrajectories } from '../dynamics'
-import { moveSelectedShip, selectEntity, setViewBox } from './state'
+import { deselect, moveSelectedShip, selectEntity, setViewBox } from './state'
 import { useApplicationState } from '../state'
 import { useRef, useState } from 'preact/hooks'
 import { dragViewBox, zoomViewBox } from '../view-box'
 import { getPosition } from '../dynamics/state'
 
-const regularStyle: h.JSX.CSSProperties = { vectorEffect: 'non-scaling-stroke', stroke: 'black' }
+const colorScheme = {
+  foreground: '#f1f1f1',
+  background: '#261f39',
+  color0: '#1b1d1e',
+  color1: '#f1f1f1',
+  color2: '#98de00',
+  color3: '#fd5d77',
+  color4: '#03cbca',
+  color5: '#473b6b',
+  color6: '#fecf87',
+  color7: '#ccccc6',
+  color8: '#505354',
+  color9: '#fe207b',
+  color10: '#b6e354',
+  color11: '#fea182',
+  color12: '#2dfcde',
+  color13: '#6e719c',
+  color14: '#fef184',
+  color15: '#f8f8f2',
+}
+
+const regularStyle: h.JSX.CSSProperties = { vectorEffect: 'non-scaling-stroke' }
 
 export const RingSvg = (props: { innerRadius: number; outerRadius: number; cx: number; cy: number }) => (
   <path
@@ -57,7 +78,7 @@ export const TrajectoriesSvg = () => {
     <g>
       {trajectories.map(({ id, from, to }) => (
         <g key={id}>
-          <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} style={regularStyle} />
+          <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} style={{ ...regularStyle, stroke: colorScheme.color2, strokeDasharray: '4' }} />
         </g>
       ))}
     </g>
@@ -73,25 +94,35 @@ export const ObjectsSvg = () => {
         const p = getPosition(state, id)
         const body = state.bodies.bodies[id]
         return (
-          <g
-            key={id}
-            id={id}
-            onClick={(e) => {
-              console.log(e)
-              if (state.map.state === undefined) {
-                e.stopPropagation()
-                mutate(selectEntity(id))
-              } else if (state.map.subState === 'select_dockable_location') {
-                const selected = state.map.selected
-                if (selected !== undefined && id !== selected) {
+          <g key={id} id={id}>
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={body.radius}
+              fill={colorScheme.color3}
+              stroke={colorScheme.color1}
+              style={{ ...regularStyle, strokeWidth: state.map.selected ? 2 : 0 }}
+            />
+            <circle
+              onClick={(e) => {
+                if (state.map.state === undefined) {
                   e.stopPropagation()
-                  mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
+                  mutate(selectEntity(id))
+                } else if (state.map.subState === 'select_dockable_location') {
+                  const selected = state.map.selected
+                  if (selected !== undefined && id !== selected) {
+                    e.stopPropagation()
+                    mutate(moveSelectedShip(id, state.ships.specs[selected].speed))
+                  }
                 }
-              }
-            }}
-          >
-            <circle cx={p.x} cy={p.y} r={body.radius} strokeWidth={id === state.map.selected ? 2 : 1} fill="white" style={regularStyle} />
-            <circle cx={p.x} cy={p.y} r={body.radius * 1.5} fill="none" stroke="none" pointerEvents="visible" />
+              }}
+              cx={p.x}
+              cy={p.y}
+              r={body.radius * 2}
+              fill="none"
+              stroke="none"
+              style={{ pointerEvents: 'visible' }}
+            />
           </g>
         )
       })}
@@ -126,7 +157,6 @@ export default () => {
           if (selected !== undefined) {
             mutate(
               moveSelectedShip(
-                selected,
                 {
                   system: state.starSystems.currentSystem,
                   x: target.x,
@@ -138,7 +168,10 @@ export default () => {
           }
         }
       }}
-      onMouseDown={() => setDrag(true)}
+      onMouseDown={() => {
+        setDrag(true)
+        mutate(deselect())
+      }}
       onMouseUp={() => setDrag(false)}
       onMouseLeave={() => setDrag(false)}
       onMouseMove={(e) => {
@@ -148,7 +181,16 @@ export default () => {
       }}
     >
       <pattern id="asteroids" x="0" y="0" width={10 * viewScaleX} height={10 * viewScaleY} patternUnits="userSpaceOnUse">
-        <rect x={6 * viewScaleX} y={-5 * viewScaleY} width={2 * viewScaleX} height={2 * viewScaleY} transform="rotate(45)" />
+        <rect
+          x={6 * viewScaleX}
+          y={-5 * viewScaleY}
+          width={2 * viewScaleX}
+          height={2 * viewScaleY}
+          transform="rotate(45)"
+          style={regularStyle}
+          fill={colorScheme.color5}
+          stroke={colorScheme.color5}
+        />
       </pattern>
       <g>
         <StarSystemSvg system={state.starSystems.systems[state.starSystems.currentSystem]} cx={0} cy={0} />

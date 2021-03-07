@@ -5,13 +5,13 @@ body {
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-color: #fff;
+  background-color: #261f39;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: black;
+  color: #f1f1f1;
 }
 
 h1 {
@@ -27,11 +27,15 @@ svg {
   width: 100%;
   height: auto;
   max-height: 80vh;
+  stroke: #f1f1f1;
 }
 
-.column {
-  padding-right: 0;
-  padding-left: 0.75rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0;
+.list-group-item {
+  background-color: #261f39;
+  color: #f1f1f1;
+  border-color: #473b6b;
+}
+.list-group-item-action:hover {
+  background-color: #473b6b;
+  color: #f1f1f1;
 }

@@ -13,7 +13,8 @@ const smallPlanet: Body = { radius: 0.008 }
 const planet: Body = { radius: 0.008 }
 const gasGiant: Body = { radius: 0.23 }
 const moon: Body = { radius: 0.006 }
-const ship: Body = { radius: 0.02 }
+const ship: Body = { radius: 0.00001 }
+const spaceStation: Body = { radius: 0.0001 }
 
 export const bodies: BodyState = {
   bodies: {
@@ -31,5 +32,6 @@ export const bodies: BodyState = {
     ship1: ship,
     ship2: ship,
     ship3: ship,
+    spaceStation1: spaceStation,
   },
 }

@@ -15,7 +15,7 @@ export default (props: Props) => {
     const [state] = useApplicationState()
     return <span>{state.names.names[props.location]?.name || 'unkown location'}</span>
   } else {
-    const polar = toPolar(props.location.x, props.location.y, 0, 0)
+    const polar = toPolar(props.location.x, props.location.y)
     return (
       <Fragment>
         {props.location.system} (<span>{polar.radius.toFixed(1)}</span>ls,

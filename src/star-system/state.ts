@@ -33,6 +33,11 @@ const sol: StarSystem = {
     phi: 0,
     speed: 0.0001,
     sub: {
+      spaceStation1: {
+        radius: 0.3,
+        phi: 0,
+        speed: 0.01,
+      },
       moon: {
         radius: 1.3,
         phi: 0,

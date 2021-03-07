@@ -27,6 +27,10 @@ export function zoomViewBox(box: ViewBox, delta: number, x: number, y: number, w
   }
 }
 
+export function centerOfViewBox(box: ViewBox): [number, number] {
+  return [box.x + box.w / 2, box.y + box.h / 2]
+}
+
 export function dragViewBox(box: ViewBox, dx: number, dy: number, speed = 0.002): ViewBox {
   return { x: box.x - dx * box.w * speed, y: box.y - dy * box.h * speed, w: box.w, h: box.h }
 }

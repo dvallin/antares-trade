@@ -29,9 +29,7 @@ export interface DynamicsState {
 
 export const dynamics: DynamicsState = {
   lastUpdate: Date.now(),
-  movements: {
-    ship2: { to: 'earth', eta: 0, v: 0.7 },
-  },
+  movements: {},
   positions: {
     sol: {
       system: 'sol',
@@ -56,6 +54,11 @@ export const dynamics: DynamicsState = {
     moon: {
       system: 'sol',
       x: 499.3,
+      y: 0,
+    },
+    spaceStation1: {
+      system: 'sol',
+      x: 498.3,
       y: 0,
     },
     mars: {
@@ -95,8 +98,8 @@ export const dynamics: DynamicsState = {
     },
     ship2: {
       system: 'sol',
-      x: -2680,
-      y: -20,
+      x: 756,
+      y: 50,
     },
     ship3: {
       system: 'sol',

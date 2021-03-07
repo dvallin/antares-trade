@@ -23,8 +23,9 @@ export const names: NameState = {
     neptune: name('Neptune'),
     pluto: name('Pluto'),
     moon: name('Moon'),
-    ship1: name('Ship 1'),
-    ship2: name('Ship 2'),
-    ship3: name('Ship 3'),
+    ship1: name('Pirate Interceptor'),
+    ship2: name('Frigate Mk1'),
+    ship3: name('Heavy Freighter Mk2'),
+    spaceStation1: name('Earth Trading Station'),
   },
 }

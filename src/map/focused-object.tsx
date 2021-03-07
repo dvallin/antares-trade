@@ -11,7 +11,7 @@ const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => 
   <div>
     <NearObjectsSelector
       onSelect={(id) => {
-        mutate(moveSelectedShip(selected, id, state.ships.specs[selected].speed))
+        mutate(moveSelectedShip(id, state.ships.specs[selected].speed))
       }}
     />
   </div>
