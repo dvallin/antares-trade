@@ -3,6 +3,7 @@ import { detachOrbit } from '../star-system/state'
 import { chain, Mutation, State, Storage } from '../state'
 
 export interface Specs {
+  type: 'freighter' | 'station' | 'fighter'
   speed: number
 }
 
@@ -23,10 +24,10 @@ export const ships: ShipsState = {
     spaceStation1: { by: 'ai' },
   },
   specs: {
-    ship1: { speed: 0.7 },
-    ship2: { speed: 0.6 },
-    ship3: { speed: 0.2 },
-    spaceStation1: { speed: 0.01 },
+    ship1: { type: 'fighter', speed: 0.7 },
+    ship2: { type: 'fighter', speed: 0.6 },
+    ship3: { type: 'freighter', speed: 0.2 },
+    spaceStation1: { type: 'station', speed: 0.01 },
   },
 }
 

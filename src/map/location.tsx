@@ -18,7 +18,7 @@ export default (props: Props) => {
     const polar = toPolar(props.location.x, props.location.y)
     return (
       <Fragment>
-        {props.location.system} (<span>{polar.radius.toFixed(1)}</span>ls,
+        {props.location.system} (<span>{polar.radius.toFixed(0)}</span>ls,
         <span>{polar.phi.toFixed(2)}</span>θ)
       </Fragment>
     )

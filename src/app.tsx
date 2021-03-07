@@ -33,11 +33,11 @@ export const App = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-md-3">
-          <InformationPanel />
-        </div>
-        <div className="col-md-9">
+        <div className="col-lg-9 order-first order-lg-last">
           <Map />
+        </div>
+        <div className="col-lg-3 ">
+          <InformationPanel />
         </div>
       </div>
     </div>

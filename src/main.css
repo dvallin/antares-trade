@@ -39,3 +39,14 @@ svg {
   background-color: #473b6b;
   color: #f1f1f1;
 }
+
+.btn-primary {
+  background-color: #261f39;
+  color: #f1f1f1;
+  border-color: #473b6b;
+}
+.btn-primary:hover {
+  background-color: #473b6b;
+  color: #f1f1f1;
+  border-color: #fea182;
+}
