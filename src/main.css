@@ -50,3 +50,21 @@ svg {
   color: #f1f1f1;
   border-color: #fea182;
 }
+.btn-primary:disabled {
+  background-color: #1b1d1e;
+  color: #473b6b;
+  border-color: #473b6b;
+}
+.table {
+  color: #f1f1f1;
+}
+
+.table th,
+.table td {
+  padding: 0;
+  border-top: 1px solid #473b6b;
+}
+
+.table thead th {
+  border-bottom: 2px solid #473b6b;
+}

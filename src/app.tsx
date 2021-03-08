@@ -2,7 +2,7 @@ import { h } from 'preact'
 
 import Map from './map'
 import InformationPanel from './map/information-panel'
-import CurrentSystem from './map/current-system'
+import Status from './map/status'
 
 import { Provider as StateProvider, useApplicationState } from './application-state'
 import { useEffect } from 'preact/hooks'
@@ -18,7 +18,8 @@ export const App = () => {
   useEffect(() => {
     // initial state
     mutate(initDynamics)
-    mutate(moveShip('ship2', 'earth', 0.7))
+    mutate(moveShip('ship2', 'spaceStation1', 0.7))
+    mutate(moveShip('ship3', 'spaceStation1', 0.7))
 
     const interval = setInterval(() => {
       mutate(chain(updateStarSystems, updateDynamics, updateMap))
@@ -30,7 +31,7 @@ export const App = () => {
     <div className="container-fluid">
       <div className="row">
         <div className="col">
-          <CurrentSystem />
+          <Status />
         </div>
       </div>
       <div className="row">

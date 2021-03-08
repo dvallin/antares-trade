@@ -7,6 +7,8 @@ import { useApplicationState } from '../application-state'
 
 import Location from './location'
 import { printTime } from '../time'
+import Trade from '../market/trade'
+import Cargo from '../ships/cargo'
 
 const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => (
   <div>
@@ -25,6 +27,7 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
   const position = state.dynamics.positions[selected]
   const movement = state.dynamics.movements[selected]
   const controllable = state.ships.controllable[selected]
+  const market = state.market.markets[selected]
   return (
     <div className="container">
       <div className="row">
@@ -52,7 +55,7 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
         )}
       </div>
       <div className="row">
-        {controllable !== undefined && controllable.by === 'player' ? (
+        {controllable?.by === 'player' ? (
           <div className="col-sm">
             <div>you own this ship</div>
             <div class="btn-group mr-2" role="group" aria-label="First group">
@@ -63,11 +66,13 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
                 dock at
               </button>
             </div>
+            <Cargo id={selected} />
           </div>
         ) : (
           <div className="col-sm">owned by {controllable?.by || 'noone'}</div>
         )}
       </div>
+      {market ? <Trade id={selected} /> : <Fragment />}
     </div>
   )
 }

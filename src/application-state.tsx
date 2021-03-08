@@ -6,6 +6,7 @@ import { State, Mutate, Mutation } from './state'
 
 import { starSystems } from './star-system/state'
 import { map } from './map/state'
+import { market } from './market/state'
 import { names } from './meta-data/state'
 import { bodies } from './body/state'
 import { ships } from './ships/state'
@@ -14,6 +15,7 @@ import { dynamics } from './dynamics/state'
 export const initialState: State = {
   starSystems,
   map,
+  market,
   names,
   bodies,
   dynamics,

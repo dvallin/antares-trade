@@ -43,16 +43,8 @@ export const dynamics: DynamicsState = {
       x: 398,
       y: 0,
     },
-    ship2: {
-      system: 'sol',
-      x: 756,
-      y: 50,
-    },
-    ship3: {
-      system: 'sol',
-      x: 498,
-      y: 20,
-    },
+    ship2: 'spaceStation1',
+    ship3: 'spaceStation1',
   },
 }
 
@@ -115,7 +107,7 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
     if (!isNamedLocation(to)) {
       attachOrbit(id, 0.00005, undefined)(state)
     } else if (canDockAt(state, id, to)) {
-      dockAt(to)
+      dockAt(id, to)(state)
     }
     state.dynamics.positions[id] = to
     delete state.dynamics.movements[id]
