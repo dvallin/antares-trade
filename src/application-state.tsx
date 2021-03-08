@@ -6,7 +6,7 @@ import { State, Mutate, Mutation } from './state'
 
 import { starSystems } from './star-system/state'
 import { map } from './map/state'
-import { names } from './name/state'
+import { names } from './meta-data/state'
 import { bodies } from './body/state'
 import { ships } from './ships/state'
 import { dynamics } from './dynamics/state'

@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact'
 
-import { moveSelectedShip, deselect, dockAt, moveTo } from './state'
-import { NearObjectsSelector } from './object-selector/selectors'
+import { moveSelectedShip, deselect, dockAtSelected, moveToSelected } from './state'
+import { DockableLocationsSelector } from './object-selector/selectors'
 import { Mutate, State } from '../state'
 import { useApplicationState } from '../application-state'
 
@@ -10,7 +10,7 @@ import { printTime } from '../time'
 
 const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => (
   <div>
-    <NearObjectsSelector
+    <DockableLocationsSelector
       onSelect={(id) => {
         mutate(moveSelectedShip(id, state.ships.specs[selected].speed))
       }}
@@ -56,10 +56,10 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
           <div className="col-sm">
             <div>you own this ship</div>
             <div class="btn-group mr-2" role="group" aria-label="First group">
-              <button class="btn btn-primary" onClick={() => mutate(moveTo())}>
+              <button class="btn btn-primary" onClick={() => mutate(moveToSelected())}>
                 move to
               </button>
-              <button class="btn btn-primary" onClick={() => mutate(dockAt())}>
+              <button class="btn btn-primary" onClick={() => mutate(dockAtSelected())}>
                 dock at
               </button>
             </div>

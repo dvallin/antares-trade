@@ -1,6 +1,7 @@
 import { distSquared } from '../geometry'
+import { isDockable } from '../ships/state'
 import { State } from '../state'
-import { getPosition, Position, Trajectory } from './state'
+import { getPosition, Trajectory } from './state'
 
 export function collectEntities(state: State, system: string): string[] {
   return Object.entries(state.dynamics.positions)
@@ -15,11 +16,13 @@ export function collectTrajectories(state: State, system: string): Trajectory[] 
     .filter(({ from, to }) => from.system === system || to.system === system)
 }
 
-export function collectNearEntities(state: State, center: Position): string[] {
+export function collectDockableLocations(state: State, ship: string): string[] {
+  const p = getPosition(state, ship)
   return Object.entries(state.dynamics.positions)
     .map(([id, l]) => ({ id, position: getPosition(state, l) }))
-    .filter(({ position }) => position.system === center.system)
-    .map(({ id, position }) => ({ id, dist: distSquared(position.x, position.y, center.x, center.y) }))
+    .filter(({ position }) => position.system === p.system)
+    .filter(({ id }) => isDockable(state, id))
+    .map(({ id, position }) => ({ id, dist: distSquared(position.x, position.y, p.x, p.y) }))
     .sort((l, r) => l.dist - r.dist)
     .map(({ id }) => id)
 }

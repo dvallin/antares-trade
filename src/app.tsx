@@ -9,7 +9,7 @@ import { useEffect } from 'preact/hooks'
 
 import { chain } from './state'
 import { updateStarSystems } from './star-system/state'
-import { updateDynamics } from './dynamics/state'
+import { initDynamics, updateDynamics } from './dynamics/state'
 import { updateMap } from './map/state'
 import { moveShip } from './ships/state'
 
@@ -17,6 +17,7 @@ export const App = () => {
   const [, mutate] = useApplicationState()
   useEffect(() => {
     // initial state
+    mutate(initDynamics)
     mutate(moveShip('ship2', 'earth', 0.7))
 
     const interval = setInterval(() => {

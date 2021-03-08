@@ -17,12 +17,12 @@ export function simplifyTime(time: Partial<Time>): Time {
     t.seconds %= 60
   }
   if (t.minutes >= 60) {
-    t.hours += t.hours / 60
+    t.hours += t.minutes / 60
     t.minutes %= 60
   }
   if (t.hours >= 24) {
-    t.days += t.days / 24
-    t.days %= 24
+    t.days += t.hours / 24
+    t.hours %= 24
   }
   return t
 }

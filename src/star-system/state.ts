@@ -49,6 +49,18 @@ const sol: StarSystem = {
     radius: 756,
     phi: 0,
     speed: 0.00005,
+    sub: {
+      phobos: {
+        radius: 0.031,
+        phi: 0,
+        speed: 0.01,
+      },
+      deimos: {
+        radius: 0.078,
+        phi: 0,
+        speed: 0.001,
+      },
+    },
   },
   asteroidBelt1: {
     innerRadius: 850,
@@ -58,26 +70,123 @@ const sol: StarSystem = {
     radius: 2592,
     phi: 0,
     speed: 0.00005,
+    sub: {
+      ganimed: {
+        radius: 3.57,
+        phi: 0,
+        speed: 0.01,
+      },
+      callisto: {
+        radius: 6.28,
+        phi: 0,
+        speed: 0.01,
+      },
+      io: {
+        radius: 1.47,
+        phi: 0,
+        speed: 0.01,
+      },
+      europa: {
+        radius: 2.25,
+        phi: 0,
+        speed: 0.01,
+      },
+    },
   },
   saturn: {
     radius: 4680,
     phi: 0,
     speed: 0.00005,
+    sub: {
+      titan: {
+        radius: 4.08,
+        phi: 0,
+        speed: 0.01,
+      },
+      rhea: {
+        radius: 1.75,
+        phi: 0,
+        speed: 0.01,
+      },
+      iapetus: {
+        radius: 11.87,
+        phi: 0,
+        speed: 0.01,
+      },
+      dione: {
+        radius: 1.25,
+        phi: 0,
+        speed: 0.01,
+      },
+      thethys: {
+        radius: 0.98,
+        phi: 0,
+        speed: 0.01,
+      },
+    },
   },
   uranus: {
     radius: 9720,
     phi: 0,
     speed: 0.00005,
+    sub: {
+      titania: {
+        radius: 1.45,
+        phi: 0,
+        speed: 0.01,
+      },
+      oberon: {
+        radius: 1.94,
+        phi: 0,
+        speed: 0.01,
+      },
+      umbriel: {
+        radius: 0.88,
+        phi: 0,
+        speed: 0.01,
+      },
+      ariel: {
+        radius: 0.63,
+        phi: 0,
+        speed: 0.01,
+      },
+    },
   },
   neptune: {
     radius: 14760,
     phi: 0,
     speed: 0.00005,
+    sub: {
+      triton: {
+        radius: 1.18,
+        phi: 0,
+        speed: 0.01,
+      },
+    },
   },
   pluto: {
     radius: 19800,
     phi: 0,
     speed: 0.00005,
+    sub: {
+      charon: {
+        radius: 0.06,
+        phi: 0,
+        speed: 0.01,
+      },
+    },
+  },
+  eris: {
+    radius: 48601,
+    phi: 0,
+    speed: 0.00005,
+    sub: {
+      dysnomia: {
+        radius: 0.12,
+        phi: 0,
+        speed: 0.01,
+      },
+    },
   },
 }
 
@@ -146,17 +255,18 @@ export const findAttachmentByChild = (d: Draft<State>, system: string, id: strin
   return findAttachmentByChildInSystem(d.starSystems.systems[system], id)
 }
 
-export const detachOrbit = (id: string, system: string): Mutation<State> => (d) => {
-  const attachment = findAttachmentByChild(d, system, id)
+export const detachOrbit = (id: string): Mutation<State> => (d) => {
+  const position = getPosition(d, id)
+  const attachment = findAttachmentByChild(d, position.system, id)
   if (attachment) {
     delete attachment[id]
   }
 }
 
-export const attachOrbit = (id: string, system: string, speed: number, parent: string | undefined): Mutation<State> => (d) => {
-  const attachment = findAttachmentByParent(d, system, parent)
+export const attachOrbit = (id: string, speed: number, parent: string | undefined): Mutation<State> => (d) => {
   const position = getPosition(d, id)
-  const center = parent !== undefined ? getPosition(d, parent) : { system, x: 0, y: 0 }
+  const attachment = findAttachmentByParent(d, position.system, parent)
+  const center = parent !== undefined ? getPosition(d, parent) : { system: position.system, x: 0, y: 0 }
   const polar = toPolar(position.x, position.y, center.x, center.y)
   attachment[id] = {
     radius: polar.radius,

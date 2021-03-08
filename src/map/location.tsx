@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact'
 
 import { isNamedLocation, Location } from '../dynamics/state'
-import { Name } from '../name/state'
+import { Name } from '../meta-data/state'
 import { toPolar } from '../polar'
 import { useApplicationState } from '../application-state'
 

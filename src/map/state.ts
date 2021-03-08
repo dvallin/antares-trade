@@ -40,12 +40,12 @@ export const deselect = (): Mutation<State> => (d) => {
   delete d.map.selected
   delete d.map.focused
 }
-export const moveTo = (): Mutation<State> => (d) => {
+export const moveToSelected = (): Mutation<State> => (d) => {
   d.map.state = 'move_to'
   d.map.subState = 'select_navigable_location'
   delete d.map.focused
 }
-export const dockAt = (): Mutation<State> => (d) => {
+export const dockAtSelected = (): Mutation<State> => (d) => {
   d.map.state = 'dock_at'
   d.map.subState = 'select_dockable_location'
   delete d.map.focused

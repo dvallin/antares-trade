@@ -2,8 +2,7 @@ import { h } from 'preact'
 
 import ObjectSelector from '.'
 
-import { collectEntities, collectNearEntities } from '../../dynamics'
-import { getPosition } from '../../dynamics/state'
+import { collectEntities, collectDockableLocations } from '../../dynamics'
 import { useApplicationState } from '../../application-state'
 
 export interface Props {
@@ -15,10 +14,9 @@ export const AllObjectsSelector = (props: Props) => {
   return <ObjectSelector onSelect={props.onSelect} objects={collectEntities(state, state.starSystems.currentSystem)} />
 }
 
-export const NearObjectsSelector = (props: Props) => {
+export const DockableLocationsSelector = (props: Props) => {
   const [state] = useApplicationState()
   const selected = state.map.selected || ''
-  const position = getPosition(state, selected)
-  const entities = position ? collectNearEntities(state, position) : []
+  const entities = collectDockableLocations(state, selected)
   return <ObjectSelector onSelect={props.onSelect} objects={entities.filter((e) => e !== selected)} />
 }

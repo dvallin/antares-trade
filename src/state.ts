@@ -2,7 +2,7 @@ import { Draft } from 'immer'
 
 import { StarSystemState } from './star-system/state'
 import { MapState } from './map/state'
-import { NameState } from './name/state'
+import { NameState } from './meta-data/state'
 import { BodyState } from './body/state'
 import { ShipsState } from './ships/state'
 import { DynamicsState } from './dynamics/state'

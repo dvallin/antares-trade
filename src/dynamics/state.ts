@@ -1,5 +1,6 @@
 import { Draft } from 'immer'
 import { fromPolar } from '../polar'
+import { canDockAt, dockAt } from '../ships/state'
 import { isBand, StarSystem } from '../star-system'
 import { attachOrbit } from '../star-system/state'
 import { Mutation } from '../state'
@@ -31,66 +32,12 @@ export const dynamics: DynamicsState = {
   lastUpdate: Date.now(),
   movements: {},
   positions: {
-    sol: {
-      system: 'sol',
-      x: 0,
-      y: 0,
-    },
-    mercury: {
-      system: 'sol',
-      x: 192,
-      y: 0,
-    },
-    venus: {
-      system: 'sol',
-      x: 360,
-      y: 0,
-    },
-    earth: {
-      system: 'sol',
-      x: 498,
-      y: 0,
-    },
-    moon: {
-      system: 'sol',
-      x: 499.3,
-      y: 0,
-    },
     spaceStation1: {
       system: 'sol',
       x: 498.3,
       y: 0,
     },
-    mars: {
-      system: 'sol',
-      x: 756,
-      y: 0,
-    },
-    jupiter: {
-      system: 'sol',
-      x: 2592,
-      y: 0,
-    },
-    saturn: {
-      system: 'sol',
-      x: 4680,
-      y: 0,
-    },
-    uranus: {
-      system: 'sol',
-      x: 9720,
-      y: 0,
-    },
-    neptune: {
-      system: 'sol',
-      x: 14760,
-      y: 0,
-    },
-    pluto: {
-      system: 'sol',
-      x: 19800,
-      y: 0,
-    },
+    heavyWeapons: 'mars',
     ship1: {
       system: 'sol',
       x: 398,
@@ -149,7 +96,7 @@ export const applyStarSystem = (state: Draft<State>, dt: number, system: StarSys
 }
 
 export const getPosition = (state: State, location: Location): Position =>
-  isNamedLocation(location) ? getPosition(state, state.dynamics.positions[location]) : location
+  isNamedLocation(location) ? getPosition(state, state.dynamics.positions[location] || { system: 'unknown', x: 0, y: 0 }) : location
 
 export const applyMovement = (state: Draft<State>, dt: number, id: string, to: string | Position, v: number): void => {
   if (dt <= 0) {
@@ -166,7 +113,9 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
   const stepLength = v * dt
   if (dist < stepLength) {
     if (!isNamedLocation(to)) {
-      attachOrbit(id, to.system, 0.00005, undefined)(state)
+      attachOrbit(id, 0.00005, undefined)(state)
+    } else if (canDockAt(state, id, to)) {
+      dockAt(to)
     }
     state.dynamics.positions[id] = to
     delete state.dynamics.movements[id]
@@ -187,4 +136,22 @@ export const updateDynamics = (state: Draft<State>): void => {
 
   Object.entries(state.dynamics.movements).forEach(([id, movement]) => applyMovement(state, dt, id, movement.to, movement.v))
   Object.values(state.starSystems.systems).forEach((system) => applyStarSystem(state, dt, system))
+}
+
+export const initStarSystem = (state: Draft<State>, systemName: string, system: StarSystem, cx = 0, cy = 0): void => {
+  Object.entries(system).map(([id, part]) => {
+    if (!isBand(part)) {
+      const [x, y] = fromPolar(part, cx, cy)
+
+      if (part.sub) {
+        initStarSystem(state, systemName, part.sub, x, y)
+      }
+
+      state.dynamics.positions[id] = { system: systemName, x, y }
+    }
+  })
+}
+
+export const initDynamics = (state: Draft<State>): void => {
+  Object.entries(state.starSystems.systems).forEach(([key, value]) => initStarSystem(state, key, value))
 }
