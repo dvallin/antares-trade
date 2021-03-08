@@ -6,6 +6,7 @@ import { useApplicationState } from '../application-state'
 import { useRef, useState } from 'preact/hooks'
 import { dragViewBox, zoomViewBox } from '../view-box'
 import { getPosition } from '../dynamics/state'
+import { dist } from '../geometry'
 
 const colorScheme = {
   foreground: '#f1f1f1',
@@ -145,10 +146,23 @@ export const ObjectsSvg = () => {
   )
 }
 
+type Drag = [number, number][]
+
+function dragFromMouseEvent(e: MouseEvent): Drag {
+  return [[e.clientX, e.clientY]]
+}
+function dragFromTouchEvent(e: TouchEvent): Drag {
+  const drag: Drag = []
+  for (let i = 0; i < e.touches.length; i++) {
+    const touch = e.touches[i]
+    drag.push([touch.clientX, touch.clientY])
+  }
+  return drag
+}
+
 export default () => {
   const [state, mutate] = useApplicationState()
-  const [drag, setDrag] = useState(false)
-  const [lastDragPosition, setLastDragPosition] = useState<[number, number] | undefined>(undefined)
+  const [drag, setDrag] = useState<Drag | undefined>(undefined)
 
   const svg = useRef<SVGSVGElement>(null)
   const box = state.map.viewBox
@@ -164,7 +178,7 @@ export default () => {
         e.preventDefault()
       }}
       onClick={(e) => {
-        if (!lastDragPosition && state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
+        if (!drag && state.map.subState !== undefined && state.map.subState === 'select_navigable_location') {
           const pt = svg.current.createSVGPoint()
           pt.x = e.x
           pt.y = e.y
@@ -183,54 +197,52 @@ export default () => {
             )
           }
         }
-        setLastDragPosition(undefined)
+        setDrag(undefined)
       }}
-      onTouchStart={() => {
-        setDrag(true)
+      onTouchStart={(e) => {
+        setDrag(dragFromTouchEvent(e))
       }}
       onTouchMove={(e) => {
-        if (drag) {
-          if (e.touches.length > 0) {
+        if (drag && e.touches.length > 0) {
+          if (e.touches.length === 1 && drag.length === 1) {
             const touch = e.touches[0]
-            if (lastDragPosition) {
-              if (e.touches.length === 1) {
-                mutate(setViewBox(dragViewBox(box, touch.clientX - lastDragPosition[0], touch.clientY - lastDragPosition[1])))
-              } else {
-                mutate(
-                  setViewBox(
-                    zoomViewBox(
-                      box,
-                      touch.clientY - lastDragPosition[1],
-                      touch.clientX,
-                      touch.clientY,
-                      svg.current.clientWidth,
-                      svg.current.clientHeight
-                    )
-                  )
+            mutate(setViewBox(dragViewBox(box, touch.clientX - drag[0][0], touch.clientY - drag[0][1])))
+          } else if (e.touches.length > 1 && drag.length === e.touches.length) {
+            const touch1 = e.touches[0]
+            const touch2 = e.touches[1]
+            const lastDistance = dist(drag[0][0], drag[0][1], drag[1][0], drag[1][1])
+            const currentDistance = dist(touch1.clientX, touch1.clientY, touch2.clientX, touch2.clientY)
+            mutate(
+              setViewBox(
+                zoomViewBox(
+                  box,
+                  lastDistance - currentDistance,
+                  touch1.clientX,
+                  touch1.clientY,
+                  svg.current.clientWidth,
+                  svg.current.clientHeight
                 )
-              }
-            }
-            setLastDragPosition([touch.clientX, touch.clientY])
+              )
+            )
           }
+          setDrag(dragFromTouchEvent(e))
           e.preventDefault()
         }
       }}
-      onTouchCancel={() => setDrag(false)}
-      onTouchEnd={() => setDrag(false)}
-      onMouseDown={() => {
-        setDrag(true)
+      onTouchCancel={() => setDrag(undefined)}
+      onTouchEnd={() => setDrag(undefined)}
+      onMouseDown={(e) => {
         if (state.map.state === undefined) {
           mutate(deselect())
         }
+        setDrag(dragFromMouseEvent(e))
       }}
-      onMouseUp={() => {
-        setDrag(false)
-      }}
-      onMouseLeave={() => setDrag(false)}
+      onMouseUp={() => setDrag(undefined)}
+      onMouseLeave={() => setDrag(undefined)}
       onMouseMove={(e) => {
         if (drag) {
-          setLastDragPosition([e.clientX, e.clientY])
           mutate(setViewBox(dragViewBox(box, e.movementX, e.movementY)))
+          setDrag(dragFromMouseEvent(e))
         }
       }}
     >
