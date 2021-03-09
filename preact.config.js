@@ -1,3 +1,4 @@
+const Critters = require('critters-webpack-plugin')
 const publicPath = '/antares-trade'
 
 export default {
@@ -11,6 +12,10 @@ export default {
    * @param {object} options - this is mainly relevant for plugins (will always be empty in the config), default to an empty object
    **/
   webpack(config, _env, _helpers, _options) {
+    config.plugins = config.plugins.filter((plugin) => {
+      const isCritters = plugin instanceof Critters
+      return !isCritters
+    })
     config.output.publicPath = `${publicPath}/`
     if (config.devServer) {
       config.devServer = {

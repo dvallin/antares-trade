@@ -40,7 +40,7 @@ export default (props: Props) => {
   const [filter, setFilter] = useState<(Body['type'] | Specs['type'])[]>(['fighter', 'freighter', 'station'])
   return (
     <div class="list-group">
-      <div class="btn-group" role="group" aria-label="Basic example">
+      <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-primary" onClick={() => setFilter(['fighter', 'freighter', 'station'])}>
           relevant
         </button>
