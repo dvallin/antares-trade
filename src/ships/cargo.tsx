@@ -1,7 +1,7 @@
 import { h } from 'preact'
 
 import { useApplicationState } from '../application-state'
-import { getUsedCargo } from './state'
+import { getComodityAmount, getUsedCargo } from './state'
 
 export default () => {
   const [state] = useApplicationState()
@@ -17,10 +17,10 @@ export default () => {
       </h2>
       <table class="table">
         <tbody>
-          {Object.entries(cargo.stock).map(([comodity, amount]) => (
+          {Object.keys(cargo.stock).map((comodity) => (
             <tr key={comodity}>
               <td scope="row">{comodity}</td>
-              <td scope="row">{amount}</td>
+              <td scope="row">{getComodityAmount(cargo, comodity)}</td>
             </tr>
           ))}
         </tbody>

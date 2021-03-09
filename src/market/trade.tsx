@@ -4,15 +4,11 @@ import { memo } from 'preact/compat'
 import { useState } from 'preact/hooks'
 
 import { useApplicationState } from '../application-state'
-import { Cargo, getDockedShipsOf } from '../ships/state'
+import { Cargo, getComodityAmount, getDockedShipsOf } from '../ships/state'
 import { Trade, performTrade, getTotal, validateTrade, Market } from './state'
 
 function getOperation(amount: number, sellerSide = true): 'sell' | 'buy' {
   return (sellerSide ? amount > 0 : amount <= 0) ? 'sell' : 'buy'
-}
-
-function getComodityAmount(cargo: Cargo, comodity: string): number {
-  return Math.floor(cargo.stock[comodity] || 0)
 }
 
 export const TradeSlider = (props: {
