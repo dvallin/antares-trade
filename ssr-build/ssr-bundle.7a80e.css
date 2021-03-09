@@ -10240,22 +10240,11 @@ a.text-dark:hover, a.text-dark:focus {
 }
 /*# sourceMappingURL=bootstrap.css.map */
 body {
-  margin: 0;
-  padding: 0 5vw;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   background-color: #261f39;
-  min-height: 100vh;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-      flex-direction: column;
-  -ms-flex-align: center;
-      align-items: center;
-  -ms-flex-pack: center;
-      justify-content: center;
   color: #f1f1f1;
 }
 
@@ -10344,4 +10333,4 @@ a:hover {
 }
 
 
-/*# sourceMappingURL=ssr-bundle.5ae24.css.map*/
+/*# sourceMappingURL=ssr-bundle.7a80e.css.map*/
