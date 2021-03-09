@@ -279,6 +279,9 @@ export const updateStarSystems = (state: Draft<State>): void => {
   const now = Date.now()
   const dt = (now - state.starSystems.lastUpdate) / 1000
   state.starSystems.lastUpdate = now
+  if (dt <= 0) {
+    return
+  }
 
   Object.values(state.starSystems.systems).forEach((system) => updateStarSystem(dt, system))
 }

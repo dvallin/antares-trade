@@ -8,6 +8,7 @@ import { Provider as StateProvider, useApplicationState } from './application-st
 import { useEffect } from 'preact/hooks'
 
 import { chain } from './state'
+import { updateMarkets } from './market/state'
 import { updateStarSystems } from './star-system/state'
 import { initDynamics, updateDynamics } from './dynamics/state'
 import { selectEntity, updateMap } from './map/state'
@@ -22,7 +23,7 @@ export const App = () => {
     mutate(moveShip('ship3', 'spaceStation1', 0.7))
 
     const interval = setInterval(() => {
-      mutate(chain(updateStarSystems, updateDynamics, updateMap))
+      mutate(chain(updateStarSystems, updateDynamics, updateMap, updateMarkets))
     }, 10)
     return () => clearInterval(interval)
   }, [mutate])

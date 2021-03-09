@@ -11,6 +11,10 @@ function getOperation(amount: number, sellerSide = true): 'sell' | 'buy' {
   return (sellerSide ? amount > 0 : amount <= 0) ? 'sell' : 'buy'
 }
 
+function getComodityAmount(cargo: Cargo, comodity: string): number {
+  return Math.floor(cargo.stock[comodity] || 0)
+}
+
 export const TradeSlider = (props: {
   comodity: string
   shipCargo: Cargo
@@ -30,8 +34,8 @@ export const TradeSlider = (props: {
         <input
           type="range"
           class="form-range"
-          min={-(props.shipCargo.stock[props.comodity] || 0)}
-          max={props.stationCargo.stock[props.comodity] || 0}
+          min={-getComodityAmount(props.shipCargo, props.comodity)}
+          max={getComodityAmount(props.stationCargo, props.comodity)}
           step="1"
           value={selection}
           id={`${props.comodity}-slider`}
@@ -164,7 +168,7 @@ export default () => {
           {Object.entries(market.trading).map(([comodity, pricing]) => (
             <tr key={comodity}>
               <td scope="row">{comodity}</td>
-              <td scope="row">{cargo.stock[comodity]}</td>
+              <td scope="row">{getComodityAmount(cargo, comodity)}</td>
               <td scope="row">{pricing.buy || ''}</td>
               <td scope="row">{pricing.sell || ''}</td>
             </tr>

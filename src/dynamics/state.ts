@@ -91,10 +91,6 @@ export const getPosition = (state: State, location: Location): Position =>
   isNamedLocation(location) ? getPosition(state, state.dynamics.positions[location] || { system: 'unknown', x: 0, y: 0 }) : location
 
 export const applyMovement = (state: Draft<State>, dt: number, id: string, to: string | Position, v: number): void => {
-  if (dt <= 0) {
-    return
-  }
-
   const p1 = getPosition(state, id)
   const p2 = getPosition(state, to)
 
@@ -125,6 +121,9 @@ export const updateDynamics = (state: Draft<State>): void => {
   const now = Date.now()
   const dt = (now - state.dynamics.lastUpdate) / 1000
   state.dynamics.lastUpdate = now
+  if (dt <= 0) {
+    return
+  }
 
   Object.entries(state.dynamics.movements).forEach(([id, movement]) => applyMovement(state, dt, id, movement.to, movement.v))
   Object.values(state.starSystems.systems).forEach((system) => applyStarSystem(state, dt, system))
