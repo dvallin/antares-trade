@@ -30,12 +30,41 @@ svg {
   stroke: #f1f1f1;
 }
 
+a {
+  color: #f1f1f1;
+}
+a:hover {
+  background-color: #473b6b;
+  color: #f1f1f1;
+}
+.nav-link:focus {
+  border-color: #fea182;
+}
+.nav-tabs {
+  border-bottom: 2px solid #473b6b;
+}
+.nav-tabs .nav-link:hover {
+  background-color: #473b6b;
+  color: #f1f1f1;
+  border-color: #fea182;
+}
+.nav-tabs .nav-link:active {
+  background-color: #473b6b;
+  color: #f1f1f1;
+  border-color: #fea182;
+}
+
 .list-group-item {
   background-color: #261f39;
   color: #f1f1f1;
   border-color: #473b6b;
 }
 .list-group-item-action:hover {
+  background-color: #473b6b;
+  color: #f1f1f1;
+  border: 1px solid #fea182;
+}
+.list-group-item-action:focus {
   background-color: #473b6b;
   color: #f1f1f1;
 }

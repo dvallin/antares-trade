@@ -7,6 +7,10 @@ import { useApplicationState } from '../application-state'
 import { Cargo, getDockedShipsOf } from '../ships/state'
 import { Trade, performTrade, getTotal, validateTrade, Market } from './state'
 
+function getOperation(amount: number, sellerSide = true): 'sell' | 'buy' {
+  return (sellerSide ? amount > 0 : amount <= 0) ? 'sell' : 'buy'
+}
+
 export const TradeSlider = (props: {
   comodity: string
   shipCargo: Cargo
@@ -15,7 +19,7 @@ export const TradeSlider = (props: {
   onInput: (selection: number) => void
 }) => {
   const [selection, setSelection] = useState(0)
-  const operation = selection > 0 ? 'sell' : 'buy'
+  const operation = getOperation(selection)
   const cost = (props.market.trading[props.comodity][operation] || 0) * selection
   return (
     <div className="row">
@@ -40,7 +44,7 @@ export const TradeSlider = (props: {
       </div>
 
       <div className="col">
-        {selection > 0 ? 'buy' : 'sell'} {Math.abs(selection)} {Math.sign(cost) > 0 ? 'costing' : 'earning'} {Math.abs(cost)}
+        {getOperation(selection, false)} {Math.abs(selection)} {Math.sign(cost) > 0 ? 'costing' : 'earning'} {Math.abs(cost)}
       </div>
     </div>
   )
@@ -66,7 +70,9 @@ export const TradeWithShip = (props: { id: string; ship: string }) => {
           onInput={(amount) => {
             setTrade(
               produce(trade, (t) => {
-                t[comodity] = { amount, price: (market.trading[comodity][amount > 0 ? 'sell' : 'buy'] || 0) * amount }
+                const operation = getOperation(amount)
+                const pricePerUnit = market.trading[comodity][operation] || 0
+                t[comodity] = { amount, price: pricePerUnit * amount }
               })
             )
           }}
@@ -111,26 +117,37 @@ export const ShipSelector = memo(
 
 export const TradeWith = (props: { id: string }) => {
   const [state] = useApplicationState()
+  const [ship, setShip] = useState<string | undefined>(undefined)
+
   const playerShips = getDockedShipsOf(state, props.id, 'player')
-  const [ship, setShip] = useState(playerShips[0])
-  return playerShips.length > 0 ? (
-    <Fragment>
-      <ShipSelector
-        ship={ship}
-        setShip={setShip}
-        ships={playerShips.map((key) => ({ key, name: state.names.names[key]?.name || 'unknown ship' }))}
-      />
-      <TradeWithShip id={props.id} ship={ship} />
-    </Fragment>
-  ) : (
-    <span>no ships docked to trade with</span>
-  )
+  const noSelection = <span>no ships docked to trade with</span>
+  if (playerShips.length === 0) {
+    return noSelection
+  } else if (ship === undefined) {
+    setShip(playerShips[0])
+    return noSelection
+  } else {
+    return (
+      <Fragment>
+        <ShipSelector
+          ship={ship}
+          setShip={setShip}
+          ships={playerShips.map((key) => ({ key, name: state.names.names[key]?.name || 'unknown ship' }))}
+        />
+        <TradeWithShip id={props.id} ship={ship} />
+      </Fragment>
+    )
+  }
 }
 
-export default (props: { id: string }) => {
+export default () => {
   const [state] = useApplicationState()
-  const market = state.market.markets[props.id]
-  const cargo = state.ships.cargo[props.id]
+  const selected = state.map.selected
+  if (!selected) {
+    return <div>nothing selected</div>
+  }
+  const market = state.market.markets[selected]
+  const cargo = state.ships.cargo[selected]
   return (
     <div>
       <h2>Trading Comodities</h2>
@@ -155,7 +172,7 @@ export default (props: { id: string }) => {
         </tbody>
       </table>
       <h2>Trade With</h2>
-      <TradeWith id={props.id} />
+      <TradeWith id={selected} />
     </div>
   )
 }

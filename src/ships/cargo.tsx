@@ -3,9 +3,13 @@ import { h } from 'preact'
 import { useApplicationState } from '../application-state'
 import { getUsedCargo } from './state'
 
-export default (props: { id: string }) => {
+export default () => {
   const [state] = useApplicationState()
-  const cargo = state.ships.cargo[props.id]
+  const selected = state.map.selected
+  if (!selected) {
+    return <div>nothing selected</div>
+  }
+  const cargo = state.ships.cargo[selected]
   return (
     <div>
       <h2>

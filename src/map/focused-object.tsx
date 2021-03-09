@@ -1,14 +1,12 @@
 import { Fragment, h } from 'preact'
 
-import { moveSelectedShip, deselect, dockAtSelected, moveToSelected } from './state'
+import { moveSelectedShip, dockAtSelected, moveToSelected } from './state'
 import { DockableLocationsSelector } from './object-selector/selectors'
 import { Mutate, State } from '../state'
 import { useApplicationState } from '../application-state'
 
 import Location from './location'
 import { printTime } from '../time'
-import Trade from '../market/trade'
-import Cargo from '../ships/cargo'
 
 const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => (
   <div>
@@ -27,15 +25,9 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
   const position = state.dynamics.positions[selected]
   const movement = state.dynamics.movements[selected]
   const controllable = state.ships.controllable[selected]
-  const market = state.market.markets[selected]
   return (
-    <div className="container">
-      <div className="row">
-        <h1 className="col-sm-auto" onClick={() => mutate(deselect())} style={{ cursor: 'pointer' }}>
-          {'<<'}
-        </h1>
-        {name ? <h1 className="col-sm">{name.name}</h1> : <Fragment />}
-      </div>
+    <div>
+      <div className="row">{name ? <h2 className="col-sm">{name.name}</h2> : <Fragment />}</div>
       <div className="row">
         {position ? (
           <p class="lead col-sm">
@@ -66,13 +58,11 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
                 dock at
               </button>
             </div>
-            <Cargo id={selected} />
           </div>
         ) : (
           <div className="col-sm">owned by {controllable?.by || 'noone'}</div>
         )}
       </div>
-      {market ? <Trade id={selected} /> : <Fragment />}
     </div>
   )
 }
