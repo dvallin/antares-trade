@@ -1,31 +1,14 @@
-import produce, { Draft } from 'immer'
-import { getUsedCargo } from '../ships/state'
-import { Mutation, State, Storage } from '../state'
-
-export type Trading = {
-  [comodity: string]: {
-    buy?: number
-    sell?: number
-  }
-}
-export type Stock = { [comodity: string]: number }
-
-export interface Production {
-  consumes: Stock
-  produces: Stock
-}
-export function scaleProduction(production: Production, scale: number): Production {
-  return produce(production, (p) => {
-    Object.entries(p.consumes).forEach(([k, v]) => (p.consumes[k] = v * scale))
-    Object.entries(p.produces).forEach(([k, v]) => (p.produces[k] = v * scale))
-  })
-}
+import { Draft } from 'immer'
+import { getUsedCargo } from '../ships/cargo'
+import { Mutation, State, Storage, withDeltaTime } from '../state'
+import { canConsumeFromCargo, canProduceIntoCargo, Production, scaleProduction } from './production'
+import { Rates } from './rates'
+import { getTotal, Trade } from './trade'
 
 export interface Market {
   production: Production[]
-  trading: Trading
+  rates: Rates
 }
-export type Trade = { [comodity: string]: { amount: number; price: number } }
 
 export interface MarketState {
   lastUpdate: number
@@ -38,7 +21,7 @@ export const market: MarketState = {
   markets: {
     spaceStation1: {
       production: [],
-      trading: {
+      rates: {
         clothing: { buy: 2, sell: 3 },
         food: { buy: 1, sell: 2 },
         energyCells: { buy: 3, sell: 4 },
@@ -55,7 +38,7 @@ export const market: MarketState = {
           produces: {},
         },
       ],
-      trading: {
+      rates: {
         clothing: { buy: 10 },
         food: { buy: 8 },
         energyCells: { buy: 8 },
@@ -66,10 +49,6 @@ export const market: MarketState = {
     },
   },
   balances: { player: 100, ai: 2000 },
-}
-
-export function getTotal(trade: Trade): { amount: number; price: number } {
-  return Object.values(trade).reduce((a, b) => ({ amount: a.amount + b.amount, price: a.price + b.price }), { amount: 0, price: 0 })
 }
 
 export const validateTrade = (state: State, from: string, to: string, trade: Trade): string[] => {
@@ -117,9 +96,7 @@ export const applyProduction = (state: Draft<State>, dt: number, id: string, pro
 
   if (cargo) {
     const scaledProduction = scaleProduction(production, dt / 3600)
-    const isStockEmpty = () => Object.entries(scaledProduction.consumes).find(([k, v]) => cargo.stock[k] < v)
-    const isCargoFull = () => getUsedCargo(cargo) + Object.values(scaledProduction.produces).reduce((a, b) => a + b, 0) > cargo.total
-    if (!isStockEmpty() && !isCargoFull()) {
+    if (canConsumeFromCargo(scaledProduction, cargo) && canProduceIntoCargo(scaledProduction, cargo)) {
       Object.entries(scaledProduction.consumes).forEach(([k, v]) => {
         cargo.stock[k] -= v
       })
@@ -131,16 +108,11 @@ export const applyProduction = (state: Draft<State>, dt: number, id: string, pro
 }
 
 export const updateMarkets = (state: Draft<State>): void => {
-  const now = Date.now()
-  const dt = (now - state.market.lastUpdate) / 1000
-  state.market.lastUpdate = now
-  if (dt <= 0) {
-    return
-  }
-
-  Object.entries(state.market.markets).forEach(([id, market]) => {
-    Object.values(market.production).forEach((production) => {
-      applyProduction(state, dt, id, production)
+  withDeltaTime(state.market, (dt) => {
+    Object.entries(state.market.markets).forEach(([id, market]) => {
+      Object.values(market.production).forEach((production) => {
+        applyProduction(state, dt, id, production)
+      })
     })
   })
 }

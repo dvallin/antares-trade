@@ -4,12 +4,11 @@ import { memo } from 'preact/compat'
 import { useState } from 'preact/hooks'
 
 import { useApplicationState } from '../application-state'
-import { Cargo, getComodityAmount, getDockedShipsOf } from '../ships/state'
-import { Trade, performTrade, getTotal, validateTrade, Market } from './state'
-
-function getOperation(amount: number, sellerSide = true): 'sell' | 'buy' {
-  return (sellerSide ? amount > 0 : amount <= 0) ? 'sell' : 'buy'
-}
+import { Cargo, getComodityAmount } from '../ships/cargo'
+import { getDockedShipsOfLocation, isControlledBy } from '../ships/state'
+import { Trade, getTotal } from './trade'
+import { performTrade, validateTrade, Market } from './state'
+import { getPrice, getRateType } from './rates'
 
 export const TradeSlider = (props: {
   comodity: string
@@ -19,8 +18,7 @@ export const TradeSlider = (props: {
   onInput: (selection: number) => void
 }) => {
   const [selection, setSelection] = useState(0)
-  const operation = getOperation(selection)
-  const cost = (props.market.trading[props.comodity][operation] || 0) * selection
+  const price = getPrice(props.market.rates, props.comodity, selection)
   return (
     <div className="row">
       <div className="col">
@@ -44,7 +42,7 @@ export const TradeSlider = (props: {
       </div>
 
       <div className="col">
-        {getOperation(selection, false)} {Math.abs(selection)} {Math.sign(cost) > 0 ? 'costing' : 'earning'} {Math.abs(cost)}
+        {getRateType(selection, false)} {Math.abs(selection)} {Math.sign(price) > 0 ? 'costing' : 'earning'} {Math.abs(price)}
       </div>
     </div>
   )
@@ -60,7 +58,7 @@ export const TradeWithShip = (props: { id: string; ship: string }) => {
   const errors = validateTrade(state, props.id, props.ship, trade)
   return (
     <Fragment>
-      {Object.entries(market.trading).map(([comodity]) => (
+      {Object.entries(market.rates).map(([comodity]) => (
         <TradeSlider
           key={comodity}
           comodity={comodity}
@@ -70,9 +68,7 @@ export const TradeWithShip = (props: { id: string; ship: string }) => {
           onInput={(amount) => {
             setTrade(
               produce(trade, (t) => {
-                const operation = getOperation(amount)
-                const pricePerUnit = market.trading[comodity][operation] || 0
-                t[comodity] = { amount, price: pricePerUnit * amount }
+                t[comodity] = { amount, price: getPrice(market.rates, comodity, amount) }
               })
             )
           }}
@@ -119,13 +115,12 @@ export const TradeWith = (props: { id: string }) => {
   const [state] = useApplicationState()
   const [ship, setShip] = useState<string | undefined>(undefined)
 
-  const playerShips = getDockedShipsOf(state, props.id, 'player')
-  const noSelection = <span>no ships docked to trade with</span>
+  const playerShips = getDockedShipsOfLocation(state, props.id).filter((s) => isControlledBy(state, s, 'player'))
   if (playerShips.length === 0) {
-    return noSelection
+    return <span>no ships docked to trade with</span>
   } else if (ship === undefined) {
     setShip(playerShips[0])
-    return noSelection
+    return <span>no ships docked to trade with</span>
   } else {
     return (
       <Fragment>
@@ -161,7 +156,7 @@ export default () => {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(market.trading).map(([comodity, pricing]) => (
+          {Object.entries(market.rates).map(([comodity, pricing]) => (
             <tr key={comodity}>
               <td scope="row">{comodity}</td>
               <td scope="row">{getComodityAmount(cargo, comodity)}</td>

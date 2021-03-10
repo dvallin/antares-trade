@@ -4,8 +4,8 @@ import { useApplicationState } from './application-state'
 
 import Map from './map'
 import FocusedObject from './map/focused-object'
-import Trade from './market/trade'
-import Cargo from './ships/cargo'
+import TradeView from './market/trade-view'
+import CargoSummary from './ships/cargo-summary'
 
 export type Focus = 'map' | 'info' | 'trading' | 'cargo'
 
@@ -45,12 +45,12 @@ export default () => {
       break
     case 'trading':
       if (tradingAvailable) {
-        currentView = <Trade />
+        currentView = <TradeView />
       }
       break
     case 'cargo':
       if (cargoAvailable) {
-        currentView = <Cargo />
+        currentView = <CargoSummary />
       }
       break
   }

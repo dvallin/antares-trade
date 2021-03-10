@@ -1,9 +1,9 @@
 import { Draft } from 'immer'
 import { fromPolar } from '../polar'
-import { canDockAt, dockAt } from '../ships/state'
+import { canDockAtLocation, dockAt } from '../ships/state'
 import { isBand, StarSystem } from '../star-system'
 import { attachOrbit } from '../star-system/state'
-import { Mutation } from '../state'
+import { Mutation, withDeltaTime } from '../state'
 import { State, Storage } from '../state'
 
 export interface Movement {
@@ -102,7 +102,7 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
   if (dist < stepLength) {
     if (!isNamedLocation(to)) {
       attachOrbit(id, 0.00005, undefined)(state)
-    } else if (canDockAt(state, id, to)) {
+    } else if (canDockAtLocation(state, id, to)) {
       dockAt(id, to)(state)
     }
     state.dynamics.positions[id] = to
@@ -118,15 +118,10 @@ export const applyMovement = (state: Draft<State>, dt: number, id: string, to: s
 }
 
 export const updateDynamics = (state: Draft<State>): void => {
-  const now = Date.now()
-  const dt = (now - state.dynamics.lastUpdate) / 1000
-  state.dynamics.lastUpdate = now
-  if (dt <= 0) {
-    return
-  }
-
-  Object.entries(state.dynamics.movements).forEach(([id, movement]) => applyMovement(state, dt, id, movement.to, movement.v))
-  Object.values(state.starSystems.systems).forEach((system) => applyStarSystem(state, dt, system))
+  withDeltaTime(state.dynamics, (dt) => {
+    Object.entries(state.dynamics.movements).forEach(([id, movement]) => applyMovement(state, dt, id, movement.to, movement.v))
+    Object.values(state.starSystems.systems).forEach((system) => applyStarSystem(state, dt, system))
+  })
 }
 
 export const initStarSystem = (state: Draft<State>, systemName: string, system: StarSystem, cx = 0, cy = 0): void => {

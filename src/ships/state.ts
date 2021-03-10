@@ -1,7 +1,8 @@
 import { isNamedLocation, Movement, setMovement } from '../dynamics/state'
-import { Stock } from '../market/state'
 import { detachOrbit } from '../star-system/state'
 import { chain, Mutation, State, Storage } from '../state'
+import { Cargo } from './cargo'
+import { canDockAt, Docks, isDockable } from './docks'
 
 export interface Specs {
   type: 'freighter' | 'station' | 'fighter'
@@ -13,24 +14,13 @@ export interface Controllable {
   by: string
 }
 
-export interface Docks {
-  total: number
-  docked: string[]
-}
-
-export interface Cargo {
-  total: number
-  stock: Stock
-}
-
-const docks = (total: number): Docks => ({ total, docked: [] })
-
 export interface ShipsState {
   controllable: Storage<Controllable>
   specs: Storage<Specs>
   cargo: Storage<Cargo>
 }
 
+const docks = (total: number): Docks => ({ total, docked: [] })
 export const ships: ShipsState = {
   controllable: {
     ship1: { by: 'ai' },
@@ -70,25 +60,19 @@ export const ships: ShipsState = {
   },
 }
 
-export const isDockable = (state: State, location: string): boolean => {
+export function isDockableLocation(state: State, location: string): boolean {
   const docks = state.ships.specs[location]?.docks
-  if (docks?.total > 0) {
-    return true
-  }
-  return false
+  return docks ? isDockable(docks) : false
 }
 
-export const canDockAt = (state: State, _ship: string, location: string): boolean => {
+export const canDockAtLocation = (state: State, _ship: string, location: string): boolean => {
   const docks = state.ships.specs[location]?.docks
-  if (!docks) {
-    return false
-  }
-  const free = docks.total - docks.docked.length
-  if (free > 0) {
-    return true
-  }
-  return false
+  return docks ? canDockAt(docks) : false
 }
+
+export const getDockedShipsOfLocation = (state: State, location: string): string[] => state.ships.specs[location]?.docks.docked || []
+
+export const isControlledBy = (state: State, ship: string, player: string): boolean => state.ships.controllable[ship]?.by === player
 
 export const dockAt = (id: string, location: string): Mutation<State> => (d) => {
   const docks = d.ships.specs[location]?.docks
@@ -107,17 +91,5 @@ export const undockShip = (id: string): Mutation<State> => (d) => {
   }
 }
 
-export const getDockedShipsOf = (state: State, id: string, player: string): string[] => {
-  return state.ships.specs[id]?.docks.docked.filter((ship) => state.ships.controllable[ship]?.by === player)
-}
-
 export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<State> =>
   chain(undockShip(ship), detachOrbit(ship), setMovement(ship, to, v))
-
-export function getUsedCargo(cargo: Cargo): number {
-  return Object.values(cargo.stock).reduce((a, b) => a + b, 0)
-}
-
-export function getComodityAmount(cargo: Cargo, comodity: string): number {
-  return Math.floor(cargo.stock[comodity] || 0)
-}

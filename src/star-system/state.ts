@@ -1,8 +1,8 @@
 import { Draft } from 'immer'
-import { isBand, StarSystem } from '.'
+import { isBand, StarSystem, findAttachmentByParentInSystem, findAttachmentByChildInSystem } from '.'
 import { getPosition } from '../dynamics/state'
 import { toPolar } from '../polar'
-import { Mutation, State } from '../state'
+import { Mutation, State, withDeltaTime } from '../state'
 
 export interface StarSystemState {
   lastUpdate: number
@@ -207,22 +207,6 @@ export const updateStarSystem = (dt: number, system: Draft<StarSystem>): void =>
   })
 }
 
-export const findAttachmentByParentInSystem = (system: Draft<StarSystem>, parent: string): Draft<{ sub?: StarSystem }> | undefined => {
-  for (const [key, part] of Object.entries(system)) {
-    if (!isBand(part)) {
-      if (key === parent) {
-        return part
-      }
-      if (part.sub) {
-        const attachment = findAttachmentByParentInSystem(part.sub, parent)
-        if (attachment) {
-          return attachment
-        }
-      }
-    }
-  }
-}
-
 export const findAttachmentByParent = (d: Draft<State>, system: string, parent: string | undefined): Draft<StarSystem> => {
   let attachment = d.starSystems.systems[system]
   if (parent !== undefined) {
@@ -235,20 +219,6 @@ export const findAttachmentByParent = (d: Draft<State>, system: string, parent: 
     }
   }
   return attachment
-}
-
-export const findAttachmentByChildInSystem = (system: Draft<StarSystem>, id: string): Draft<StarSystem> | undefined => {
-  if (Object.keys(system).find((k) => k === id)) {
-    return system
-  }
-  for (const part of Object.values(system)) {
-    if (!isBand(part) && part.sub) {
-      const attachment = findAttachmentByChildInSystem(part.sub, id)
-      if (attachment !== undefined) {
-        return attachment
-      }
-    }
-  }
 }
 
 export const findAttachmentByChild = (d: Draft<State>, system: string, id: string): Draft<StarSystem> | undefined => {
@@ -276,12 +246,7 @@ export const attachOrbit = (id: string, speed: number, parent: string | undefine
 }
 
 export const updateStarSystems = (state: Draft<State>): void => {
-  const now = Date.now()
-  const dt = (now - state.starSystems.lastUpdate) / 1000
-  state.starSystems.lastUpdate = now
-  if (dt <= 0) {
-    return
-  }
-
-  Object.values(state.starSystems.systems).forEach((system) => updateStarSystem(dt, system))
+  withDeltaTime(state.starSystems, (dt) => {
+    Object.values(state.starSystems.systems).forEach((system) => updateStarSystem(dt, system))
+  })
 }

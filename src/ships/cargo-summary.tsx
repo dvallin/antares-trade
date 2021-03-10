@@ -1,7 +1,7 @@
 import { h } from 'preact'
 
 import { useApplicationState } from '../application-state'
-import { getComodityAmount, getUsedCargo } from './state'
+import { getComodityAmount, getUsedCargo } from './cargo'
 
 export default () => {
   const [state] = useApplicationState()

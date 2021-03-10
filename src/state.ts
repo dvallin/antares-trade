@@ -17,6 +17,15 @@ export function chain(...mutations: Mutation<State>[]): Mutation<State> {
   }
 }
 
+export function withDeltaTime(d: Draft<{ lastUpdate: number }>, fn: (dt: number) => void): void {
+  const now = Date.now()
+  const dt = (now - d.lastUpdate) / 1000
+  d.lastUpdate = now
+  if (dt > 0) {
+    fn(dt)
+  }
+}
+
 export interface Storage<C> {
   [entity: string]: C
 }
