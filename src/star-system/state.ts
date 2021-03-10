@@ -1,6 +1,6 @@
 import { Draft } from 'immer'
 import { isBand, StarSystem, findAttachmentByParentInSystem, findAttachmentByChildInSystem } from '.'
-import { getPosition } from '../dynamics/state'
+import { getPosition } from '../dynamics/getters'
 import { toPolar } from '../polar'
 import { Mutation, State, withDeltaTime } from '../state'
 

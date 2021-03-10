@@ -1,7 +1,23 @@
 import { distSquared } from '../geometry'
 import { isDockableLocation } from '../ships/state'
 import { State } from '../state'
-import { getPosition, Trajectory } from './state'
+import { getPosition } from './getters'
+
+export interface Movement {
+  to: Location
+  v: number
+  eta: number
+}
+export type Trajectory = { id: string; from: Position; to: Position }
+
+export type Location = string | Position
+export const isNamedLocation = (l: Location): l is string => typeof l === 'string'
+
+export interface Position {
+  system: string
+  x: number
+  y: number
+}
 
 export function collectEntities(state: State, system: string): string[] {
   return Object.entries(state.dynamics.positions)

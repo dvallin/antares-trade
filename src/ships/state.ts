@@ -1,4 +1,5 @@
-import { isNamedLocation, Movement, setMovement } from '../dynamics/state'
+import { isNamedLocation, Movement } from '../dynamics'
+import { setMovement } from '../dynamics/mutations'
 import { detachOrbit } from '../star-system/state'
 import { chain, Mutation, State, Storage } from '../state'
 import { Cargo } from './cargo'
@@ -20,7 +21,7 @@ export interface ShipsState {
   cargo: Storage<Cargo>
 }
 
-const docks = (total: number): Docks => ({ total, docked: [] })
+export const docks = (total: number): Docks => ({ total, docked: [] })
 export const ships: ShipsState = {
   controllable: {
     ship1: { by: 'ai' },

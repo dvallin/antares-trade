@@ -10,7 +10,7 @@ import { useEffect } from 'preact/hooks'
 import { chain } from './state'
 import { updateMarkets } from './market/state'
 import { updateStarSystems } from './star-system/state'
-import { initDynamics, updateDynamics } from './dynamics/state'
+import { initDynamics, updateDynamics } from './dynamics/mutations'
 import { selectEntity, updateMap } from './map/state'
 import { moveShip } from './ships/state'
 

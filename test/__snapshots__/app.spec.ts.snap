@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App renders 1`] = `
+<div
+  className="container-fluid"
+>
+  <div
+    className="row"
+  >
+    <div
+      className="col"
+    >
+      <Component />
+    </div>
+  </div>
+  <div
+    className="row"
+  >
+    <div
+      className="col-lg-3 "
+    >
+      <AllObjectsSelector
+        onSelect={[Function]}
+      />
+    </div>
+    <div
+      className="col-lg-9"
+    >
+      <Component />
+    </div>
+  </div>
+</div>
+`;
