@@ -1,9 +1,8 @@
 import produce from 'immer'
 import { Fragment, h } from 'preact'
-import { memo } from 'preact/compat'
 import { useState } from 'preact/hooks'
 
-import { useApplicationState } from '../application-state'
+import { memoConnect, useApplicationState } from '../application-state'
 import { Cargo, getComodityAmount } from '../ships/cargo'
 import { getDockedShipsOfLocation, isControlledBy } from '../ships/state'
 import { Trade, getTotal } from './trade'
@@ -96,44 +95,42 @@ export const TradeWithShip = (props: { id: string; ship: string }) => {
   )
 }
 
-export const ShipSelector = memo(
-  (props: { ships: { key: string; name: string }[]; ship: string; setShip: (ship: string) => void }) => {
-    return (
-      <select class="form-select" onChange={(e) => props.setShip((e.target as HTMLSelectElement).value)}>
-        {props.ships.map(({ key, name }) => (
-          <option key={key} value={key}>
-            {name}
-          </option>
-        ))}
-      </select>
-    )
-  },
-  (p1, p2) => p1.ships.length === p2.ships.length
-)
-
-export const TradeWith = (props: { id: string }) => {
-  const [state] = useApplicationState()
-  const [ship, setShip] = useState<string | undefined>(undefined)
-
-  const playerShips = getDockedShipsOfLocation(state, props.id).filter((s) => isControlledBy(state, s, 'player'))
-  if (playerShips.length === 0) {
-    return <span>no ships docked to trade with</span>
-  } else if (ship === undefined) {
-    setShip(playerShips[0])
-    return <span>no ships docked to trade with</span>
-  } else {
-    return (
-      <Fragment>
-        <ShipSelector
-          ship={ship}
-          setShip={setShip}
-          ships={playerShips.map((key) => ({ key, name: state.names.names[key]?.name || 'unknown ship' }))}
-        />
-        <TradeWithShip id={props.id} ship={ship} />
-      </Fragment>
-    )
-  }
+export const ShipSelector = (props: { ships: { key: string; name: string }[]; ship: string; setShip: (ship: string) => void }) => {
+  return (
+    <select class="form-select" onChange={(e) => props.setShip((e.target as HTMLSelectElement).value)}>
+      {props.ships.map(({ key, name }) => (
+        <option key={key} value={key}>
+          {name}
+        </option>
+      ))}
+    </select>
+  )
 }
+
+export const TradeWith = memoConnect<{ playerShips: { key: string; name: string }[] }, { id: string }>(
+  (props) => {
+    const [ship, setShip] = useState<string | undefined>(undefined)
+    if (props.playerShips.length === 0) {
+      return <span>no ships docked to trade with</span>
+    } else if (ship === undefined) {
+      setShip(props.playerShips[0].key)
+      return <span>no ships docked to trade with</span>
+    } else {
+      return (
+        <Fragment>
+          <ShipSelector ship={ship} setShip={setShip} ships={props.playerShips} />
+          <TradeWithShip id={props.id} ship={ship} />
+        </Fragment>
+      )
+    }
+  },
+  (s, props) => ({
+    playerShips: getDockedShipsOfLocation(s, props.id)
+      .filter((ship) => isControlledBy(s, ship, 'player'))
+      .map((key) => ({ key, name: s.names.names[key]?.name || 'unknown ship' })),
+  }),
+  (p1, p2) => p1.id === p2.id && p1.playerShips.length === p2.playerShips.length
+)
 
 export default () => {
   const [state] = useApplicationState()
