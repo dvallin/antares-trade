@@ -1,9 +1,11 @@
 import { Draft } from 'immer'
-import { getUsedCargo } from '../ships/cargo'
+import { isNamedLocation } from '../dynamics'
+import { getAvailableCargo, getComodityAmount, getUsedCargo } from '../ships/cargo'
+import { moveShip } from '../ships/state'
 import { Mutation, State, Storage } from '../state'
 import { canConsumeFromCargo, canProduceIntoCargo, Production, scaleProduction } from './production'
-import { Rates } from './rates'
-import { getTotal, Trade } from './trade'
+import { getRateSign, Rates } from './rates'
+import { getTotal, Trade, TradeItem } from './trade'
 import { TradeRoute } from './trade-route'
 
 export interface Market {
@@ -50,6 +52,54 @@ export const market: MarketState = {
   },
   balances: { player: 100, ai: 2000 },
   routes: {},
+}
+
+export const maximumPossibleTradeItem = (
+  state: State,
+  from: string,
+  to: string,
+  comodity: string,
+  operation: 'sell' | 'buy',
+  maximumAmount: number | undefined
+): TradeItem | undefined => {
+  const sign = getRateSign(operation)
+
+  const fromOwner = state.ships.controllable[from].by
+  const toOwner = state.ships.controllable[to].by
+
+  const rates = state.market.markets[from].rates
+  const rate = rates[comodity]?.[operation]
+  if (rate === undefined) {
+    return undefined
+  }
+  const price = sign * rate
+
+  const amounts = []
+  if (maximumAmount !== undefined) {
+    amounts.push(maximumAmount)
+  }
+  if (price < 0) {
+    amounts.push(Math.floor(state.market.balances[fromOwner] / -price))
+  } else {
+    amounts.push(Math.floor(state.market.balances[toOwner] / price))
+  }
+
+  const fromCargo = state.ships.cargo[from]
+  const toCargo = state.ships.cargo[to]
+  if (operation === 'sell') {
+    amounts.push(getComodityAmount(fromCargo, comodity))
+    amounts.push(getAvailableCargo(toCargo))
+  } else {
+    amounts.push(getComodityAmount(toCargo, comodity))
+    amounts.push(getAvailableCargo(fromCargo))
+  }
+
+  const amount = Math.min(...amounts)
+  if (amount === 0) {
+    return undefined
+  }
+
+  return { amount, price: amount * price }
 }
 
 export const validateTrade = (state: State, from: string, to: string, trade: Trade): string[] => {
@@ -117,5 +167,33 @@ export const updateMarkets = (dt: number): Mutation<State> => (d) => {
     Object.values(market.production).forEach((production) => {
       applyProduction(d, dt, id, production)
     })
+  })
+}
+
+export const updateTradeRoutes: Mutation<State> = (d) => {
+  Object.entries(d.market.routes).forEach(([id, route]) => {
+    if (route.steps.length <= 1) {
+      return
+    }
+
+    const position = d.dynamics.positions[id]
+    if (isNamedLocation(position)) {
+      const currentStep = route.steps.findIndex((step) => step.location === position)
+      if (currentStep >= 0) {
+        const transaction: Trade = {}
+        route.steps[currentStep].trades.forEach((item) => {
+          const fromOperation = item.operation === 'sell' ? 'buy' : 'sell'
+          const t = maximumPossibleTradeItem(d, position, id, item.comodity, fromOperation, item.amount)
+          if (t !== undefined) {
+            transaction[item.comodity] = t
+          }
+        })
+        performTrade(position, id, transaction)(d)
+      }
+
+      const speed = d.ships.specs[id].speed
+      const nextStep = route.steps[(currentStep + 1) % route.steps.length]
+      moveShip(id, nextStep.location, speed)(d)
+    }
   })
 }

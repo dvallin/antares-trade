@@ -6,7 +6,7 @@ import { NameState } from './meta-data/state'
 import { BodyState } from './body/state'
 import { ShipsState } from './ships/state'
 import { DynamicsState } from './dynamics/state'
-import { MarketState, setRoute, updateMarkets } from './market/state'
+import { MarketState, setRoute, updateMarkets, updateTradeRoutes } from './market/state'
 import { initDynamics, updateDynamics } from './dynamics/mutations'
 import { loadObjectIntoDraft, saveObject } from './local-storage'
 
@@ -50,11 +50,11 @@ export const init = (state: Draft<State>): void | State => {
     steps: [
       {
         location: 'spaceStation1',
-        trades: [{ operation: 'buy', amount: 'all', comodity: 'energyCells' }],
+        trades: [{ operation: 'buy', comodity: 'energyCells' }],
       },
       {
         location: 'heavyWeapons',
-        trades: [{ operation: 'sell', amount: 'all', comodity: 'energyCells' }],
+        trades: [{ operation: 'sell', comodity: 'energyCells' }],
       },
     ],
   })(state)
@@ -66,7 +66,7 @@ export const update = (state: Draft<State>): void => {
     const dtMs = Math.min(now - state.lastUpdate, updateMaximumDt)
     state.lastUpdate += dtMs
     const dt = dtMs / 1000
-    chain(updateStarSystems(dt), updateDynamics(dt), updateMap, updateMarkets(dt))(state)
+    chain(updateStarSystems(dt), updateDynamics(dt), updateMap, updateMarkets(dt), updateTradeRoutes)(state)
   }
   if (now - state.lastSave >= saveInterval) {
     state.lastSave = now

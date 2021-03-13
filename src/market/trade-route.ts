@@ -1,7 +1,7 @@
 export interface TradeRouteTrade {
   operation: 'buy' | 'sell'
-  amount: 'all' | number
   comodity: string
+  amount?: number
 }
 
 export interface TradeRouteStep {
