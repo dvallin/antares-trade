@@ -2,14 +2,12 @@ import { Location, Movement } from '.'
 import { Storage } from '../state'
 
 export interface DynamicsState {
-  lastUpdate: number
   initialized: boolean
   movements: Storage<Movement>
   positions: Storage<Location>
 }
 
 export const dynamics: DynamicsState = {
-  lastUpdate: Date.now(),
   initialized: false,
   movements: {},
   positions: {

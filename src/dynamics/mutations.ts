@@ -4,7 +4,7 @@ import { fromPolar } from '../polar'
 import { canDockAtLocation, dockAt } from '../ships/state'
 import { isBand, StarSystem } from '../star-system'
 import { attachOrbit } from '../star-system/state'
-import { Mutation, State, withDeltaTime } from '../state'
+import { Mutation, State } from '../state'
 import { getPosition } from './getters'
 
 export const setMovement = (id: string, to: Movement['to'], v: Movement['v']): Mutation<State> => (d) => {
@@ -62,9 +62,7 @@ export const initDynamics = (state: Draft<State>): void => {
   }
 }
 
-export const updateDynamics: Mutation<State> = (d) => {
-  withDeltaTime(d.dynamics, (dt) => {
-    Object.entries(d.starSystems.systems).forEach(([key, value]) => applyStarSystem(key, value)(d))
-    Object.keys(d.dynamics.movements).forEach((id) => applyMovement(dt, id)(d))
-  })
+export const updateDynamics = (dt: number): Mutation<State> => (d) => {
+  Object.entries(d.starSystems.systems).forEach(([key, value]) => applyStarSystem(key, value)(d))
+  Object.keys(d.dynamics.movements).forEach((id) => applyMovement(dt, id)(d))
 }

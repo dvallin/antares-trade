@@ -1,6 +1,6 @@
 import { Draft } from 'immer'
 import { getUsedCargo } from '../ships/cargo'
-import { Mutation, State, Storage, withDeltaTime } from '../state'
+import { Mutation, State, Storage } from '../state'
 import { canConsumeFromCargo, canProduceIntoCargo, Production, scaleProduction } from './production'
 import { Rates } from './rates'
 import { getTotal, Trade } from './trade'
@@ -11,13 +11,11 @@ export interface Market {
 }
 
 export interface MarketState {
-  lastUpdate: number
   markets: Storage<Market>
   balances: Storage<number>
 }
 
 export const market: MarketState = {
-  lastUpdate: Date.now(),
   markets: {
     spaceStation1: {
       production: [],
@@ -107,12 +105,10 @@ export const applyProduction = (state: Draft<State>, dt: number, id: string, pro
   }
 }
 
-export const updateMarkets = (state: Draft<State>): void => {
-  withDeltaTime(state.market, (dt) => {
-    Object.entries(state.market.markets).forEach(([id, market]) => {
-      Object.values(market.production).forEach((production) => {
-        applyProduction(state, dt, id, production)
-      })
+export const updateMarkets = (dt: number): Mutation<State> => (d) => {
+  Object.entries(d.market.markets).forEach(([id, market]) => {
+    Object.values(market.production).forEach((production) => {
+      applyProduction(d, dt, id, production)
     })
   })
 }

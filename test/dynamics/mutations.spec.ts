@@ -104,7 +104,7 @@ describe('dynamics mutations', () => {
 
   describe('initDynamics', () => {
     it('does not initialize twice', () => {
-      const newState = testMutation(chain(initDynamics, updateStarSystems), initialState)
+      const newState = testMutation(chain(initDynamics, updateStarSystems(1)), initialState)
       const anotherState = testMutation(initDynamics, newState)
       expect(newState.dynamics).toEqual(anotherState.dynamics)
     })

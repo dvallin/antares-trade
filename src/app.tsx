@@ -7,24 +7,14 @@ import { AllObjectsSelector } from './map/object-selector/selectors'
 import { Provider as StateProvider, useApplicationState } from './application-state'
 import { useEffect } from 'preact/hooks'
 
-import { chain } from './state'
-import { updateMarkets } from './market/state'
-import { updateStarSystems } from './star-system/state'
-import { initDynamics, updateDynamics } from './dynamics/mutations'
-import { selectEntity, updateMap } from './map/state'
-import { moveShip } from './ships/state'
+import { init, update } from './state'
+import { selectEntity } from './map/state'
 
 export const App = () => {
   const [, mutate] = useApplicationState()
   useEffect(() => {
-    // initial state
-    mutate(initDynamics)
-    mutate(moveShip('ship2', 'spaceStation1', 0.7))
-    mutate(moveShip('ship3', 'spaceStation1', 0.7))
-
-    const interval = setInterval(() => {
-      mutate(chain(updateStarSystems, updateDynamics, updateMap, updateMarkets))
-    }, 10)
+    mutate(init)
+    const interval = setInterval(() => mutate(update), 30)
     return () => clearInterval(interval)
   }, [mutate])
 

@@ -2,10 +2,9 @@ import { Draft } from 'immer'
 import { isBand, StarSystem, findAttachmentByParentInSystem, findAttachmentByChildInSystem } from '.'
 import { getPosition } from '../dynamics/getters'
 import { toPolar } from '../polar'
-import { Mutation, State, withDeltaTime } from '../state'
+import { Mutation, State } from '../state'
 
 export interface StarSystemState {
-  lastUpdate: number
   currentSystem: string
   systems: {
     [id: string]: StarSystem
@@ -191,7 +190,6 @@ const sol: StarSystem = {
 }
 
 export const starSystems: StarSystemState = {
-  lastUpdate: Date.now(),
   currentSystem: 'sol',
   systems: { sol },
 }
@@ -245,8 +243,6 @@ export const attachOrbit = (id: string, speed: number, parent: string | undefine
   }
 }
 
-export const updateStarSystems = (state: Draft<State>): void => {
-  withDeltaTime(state.starSystems, (dt) => {
-    Object.values(state.starSystems.systems).forEach((system) => updateStarSystem(dt, system))
-  })
+export const updateStarSystems = (dt: number): Mutation<State> => (d) => {
+  Object.values(d.starSystems.systems).forEach((system) => updateStarSystem(dt, system))
 }

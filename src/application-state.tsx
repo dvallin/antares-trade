@@ -1,4 +1,4 @@
-import { h, createContext, RenderableProps, FunctionComponent } from 'preact'
+import { h, createContext, RenderableProps } from 'preact'
 import { useContext, useReducer } from 'preact/hooks'
 import { produce } from 'immer'
 
@@ -14,6 +14,7 @@ import { dynamics } from './dynamics/state'
 import { memo } from 'preact/compat'
 
 export const initialState: State = {
+  lastUpdate: Date.now(),
   starSystems,
   map,
   market,
