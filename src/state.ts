@@ -4,9 +4,9 @@ import { StarSystemState, updateStarSystems } from './star-system/state'
 import { MapState, updateMap } from './map/state'
 import { NameState } from './meta-data/state'
 import { BodyState } from './body/state'
-import { moveShip, ShipsState } from './ships/state'
+import { ShipsState } from './ships/state'
 import { DynamicsState } from './dynamics/state'
-import { MarketState, updateMarkets } from './market/state'
+import { MarketState, setRoute, updateMarkets } from './market/state'
 import { initDynamics, updateDynamics } from './dynamics/mutations'
 import { loadObjectIntoDraft, saveObject } from './local-storage'
 
@@ -43,8 +43,21 @@ export interface State {
 export const init = (state: Draft<State>): void | State => {
   const loaded = loadObjectIntoDraft(state, 'state')
   if (!loaded) {
-    chain(initDynamics, moveShip('ship2', 'spaceStation1', 0.7), moveShip('ship3', 'spaceStation1', 0.7))(state)
+    chain(initDynamics)(state)
   }
+
+  setRoute('ship3', {
+    steps: [
+      {
+        location: 'spaceStation1',
+        trades: [{ operation: 'buy', amount: 'all', comodity: 'energyCells' }],
+      },
+      {
+        location: 'heavyWeapons',
+        trades: [{ operation: 'sell', amount: 'all', comodity: 'energyCells' }],
+      },
+    ],
+  })(state)
 }
 
 export const update = (state: Draft<State>): void => {

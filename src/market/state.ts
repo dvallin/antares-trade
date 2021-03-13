@@ -4,6 +4,7 @@ import { Mutation, State, Storage } from '../state'
 import { canConsumeFromCargo, canProduceIntoCargo, Production, scaleProduction } from './production'
 import { Rates } from './rates'
 import { getTotal, Trade } from './trade'
+import { TradeRoute } from './trade-route'
 
 export interface Market {
   production: Production[]
@@ -13,6 +14,7 @@ export interface Market {
 export interface MarketState {
   markets: Storage<Market>
   balances: Storage<number>
+  routes: Storage<TradeRoute>
 }
 
 export const market: MarketState = {
@@ -47,6 +49,7 @@ export const market: MarketState = {
     },
   },
   balances: { player: 100, ai: 2000 },
+  routes: {},
 }
 
 export const validateTrade = (state: State, from: string, to: string, trade: Trade): string[] => {
@@ -103,6 +106,10 @@ export const applyProduction = (state: Draft<State>, dt: number, id: string, pro
       })
     }
   }
+}
+
+export const setRoute = (id: string, route: TradeRoute): Mutation<State> => (d) => {
+  d.market.routes[id] = route
 }
 
 export const updateMarkets = (dt: number): Mutation<State> => (d) => {

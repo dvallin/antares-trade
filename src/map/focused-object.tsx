@@ -7,6 +7,7 @@ import { useApplicationState } from '../application-state'
 
 import Location from './location'
 import { printTime } from '../time'
+import TradeRouteView from '../market/trade-route-view'
 
 const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => (
   <div>
@@ -58,6 +59,7 @@ const renderDefault = (selected: string, state: State, mutate: Mutate<State>) =>
                 dock at
               </button>
             </div>
+            <TradeRouteView id={selected} />
           </div>
         ) : (
           <div className="col-sm">owned by {controllable?.by || 'noone'}</div>
