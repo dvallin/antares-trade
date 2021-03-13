@@ -15,6 +15,7 @@ import { memo } from 'preact/compat'
 
 export const initialState: State = {
   lastUpdate: Date.now(),
+  lastSave: Date.now(),
   starSystems,
   map,
   market,

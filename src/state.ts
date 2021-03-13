@@ -8,6 +8,13 @@ import { moveShip, ShipsState } from './ships/state'
 import { DynamicsState } from './dynamics/state'
 import { MarketState, updateMarkets } from './market/state'
 import { initDynamics, updateDynamics } from './dynamics/mutations'
+import { loadObjectIntoDraft, saveObject } from './local-storage'
+
+export const updateInterval = 30
+// update a maximum of 1 minutes at a time
+// so being offline makes you lose not more than a minute in an automation step
+export const updateMaximumDt = 60 * 1000
+export const saveInterval = 1000
 
 export type Mutation<State> = (draft: Draft<State>) => void
 export type Mutate<State> = (mutation: Mutation<State>) => void
@@ -23,6 +30,7 @@ export interface Storage<C> {
 }
 export interface State {
   lastUpdate: number
+  lastSave: number
   starSystems: StarSystemState
   map: MapState
   market: MarketState
@@ -32,17 +40,23 @@ export interface State {
   ships: ShipsState
 }
 
-export const init = (state: Draft<State>): void => {
-  chain(initDynamics, moveShip('ship2', 'spaceStation1', 0.7), moveShip('ship3', 'spaceStation1', 0.7))(state)
+export const init = (state: Draft<State>): void | State => {
+  const loaded = loadObjectIntoDraft(state, 'state')
+  if (!loaded) {
+    chain(initDynamics, moveShip('ship2', 'spaceStation1', 0.7), moveShip('ship3', 'spaceStation1', 0.7))(state)
+  }
 }
 
 export const update = (state: Draft<State>): void => {
   const now = Date.now()
   while (state.lastUpdate < now) {
-    const dtMs = Math.min(now - state.lastUpdate, 1000)
+    const dtMs = Math.min(now - state.lastUpdate, updateMaximumDt)
     state.lastUpdate += dtMs
-
     const dt = dtMs / 1000
     chain(updateStarSystems(dt), updateDynamics(dt), updateMap, updateMarkets(dt))(state)
+  }
+  if (now - state.lastSave >= saveInterval) {
+    state.lastSave = now
+    saveObject(state, 'state')
   }
 }

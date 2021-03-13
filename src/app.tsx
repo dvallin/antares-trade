@@ -7,14 +7,14 @@ import { AllObjectsSelector } from './map/object-selector/selectors'
 import { Provider as StateProvider, useApplicationState } from './application-state'
 import { useEffect } from 'preact/hooks'
 
-import { init, update } from './state'
+import { init, update, updateInterval } from './state'
 import { selectEntity } from './map/state'
 
 export const App = () => {
   const [, mutate] = useApplicationState()
   useEffect(() => {
     mutate(init)
-    const interval = setInterval(() => mutate(update), 30)
+    const interval = setInterval(() => mutate(update), updateInterval)
     return () => clearInterval(interval)
   }, [mutate])
 
