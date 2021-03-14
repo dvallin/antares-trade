@@ -1,9 +1,6 @@
-import { isNamedLocation, Movement } from '../dynamics'
-import { setMovement } from '../dynamics/mutations'
-import { detachOrbit } from '../star-system/state'
-import { chain, Mutation, State, Storage } from '../state'
+import { Storage } from '../state'
 import { Cargo } from './cargo'
-import { canDockAt, Docks, isDockable } from './docks'
+import { Docks } from './docks'
 
 export interface Specs {
   type: 'freighter' | 'station' | 'fighter'
@@ -60,37 +57,3 @@ export const ships: ShipsState = {
     },
   },
 }
-
-export function isDockableLocation(state: State, location: string): boolean {
-  const docks = state.ships.specs[location]?.docks
-  return docks ? isDockable(docks) : false
-}
-
-export const canDockAtLocation = (state: State, _ship: string, location: string): boolean => {
-  const docks = state.ships.specs[location]?.docks
-  return docks ? canDockAt(docks) : false
-}
-
-export const getDockedShipsOfLocation = (state: State, location: string): string[] => state.ships.specs[location]?.docks.docked || []
-
-export const isControlledBy = (state: State, ship: string, player: string): boolean => state.ships.controllable[ship]?.by === player
-
-export const dockAt = (id: string, location: string): Mutation<State> => (d) => {
-  const docks = d.ships.specs[location]?.docks
-  if (docks) {
-    docks.docked.push(id)
-  }
-}
-
-export const undockShip = (id: string): Mutation<State> => (d) => {
-  const p = d.dynamics.positions[id]
-  if (isNamedLocation(p)) {
-    const docks = d.ships.specs[p]?.docks
-    if (docks) {
-      docks.docked = docks.docked.filter((v) => v !== id)
-    }
-  }
-}
-
-export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<State> =>
-  chain(undockShip(ship), detachOrbit(ship), setMovement(ship, to, v))

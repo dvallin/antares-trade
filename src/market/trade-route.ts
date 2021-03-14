@@ -1,12 +1,8 @@
-export interface TradeRouteTrade {
+export interface TradeRouteStep {
+  location: string
   operation: 'buy' | 'sell'
   comodity: string
   amount?: number
-}
-
-export interface TradeRouteStep {
-  location: string
-  trades: TradeRouteTrade[]
 }
 
 export interface TradeRoute {

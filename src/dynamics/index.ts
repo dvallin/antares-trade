@@ -1,5 +1,6 @@
 import { distSquared } from '../geometry'
-import { isDockableLocation } from '../ships/state'
+import { isTradingLocation } from '../market/getters'
+import { isDockableLocation } from '../ships/getters'
 import { State } from '../state'
 import { getPosition } from './getters'
 
@@ -38,6 +39,17 @@ export function collectDockableLocations(state: State, ship: string): string[] {
     .map(([id, l]) => ({ id, position: getPosition(state, l) }))
     .filter(({ position }) => position.system === p.system)
     .filter(({ id }) => isDockableLocation(state, id))
+    .map(({ id, position }) => ({ id, dist: distSquared(position.x, position.y, p.x, p.y) }))
+    .sort((l, r) => l.dist - r.dist)
+    .map(({ id }) => id)
+}
+
+export function collectTradingLocations(state: State, ship: string): string[] {
+  const p = getPosition(state, ship)
+  return Object.entries(state.dynamics.positions)
+    .map(([id, l]) => ({ id, position: getPosition(state, l) }))
+    .filter(({ position }) => position.system === p.system)
+    .filter(({ id }) => isTradingLocation(state, id))
     .map(({ id, position }) => ({ id, dist: distSquared(position.x, position.y, p.x, p.y) }))
     .sort((l, r) => l.dist - r.dist)
     .map(({ id }) => id)

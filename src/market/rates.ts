@@ -18,3 +18,9 @@ export function getPrice(rates: Rates, comodity: string, amount: number, sellerS
   const pricePerUnit = rates[comodity][rateType] || 0
   return pricePerUnit * amount
 }
+
+export function getComodities(rates: Rates, operation: 'sell' | 'buy' | undefined): string[] {
+  return Object.entries(rates)
+    .filter(([, rate]) => operation === undefined || rate[operation] !== undefined)
+    .map(([key]) => key)
+}

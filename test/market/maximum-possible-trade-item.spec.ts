@@ -1,6 +1,6 @@
 import produce from 'immer'
 import { initialState } from '../../src/application-state'
-import { maximumPossibleTradeItem } from '../../src/market/state'
+import { maximumPossibleTradeItem } from '../../src/market/getters'
 import { Cargo } from '../../src/ships/cargo'
 
 const state = (rate: { buy?: number; sell?: number }, fromCargo: Cargo, toCargo: Cargo, fromBalance: number, toBalance: number) =>

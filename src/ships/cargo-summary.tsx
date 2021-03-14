@@ -15,7 +15,7 @@ export default () => {
       <h2>
         Cargo ({getUsedCargo(cargo)}/{cargo.total})
       </h2>
-      <table class="table">
+      <table class="table table-sm">
         <tbody>
           {Object.keys(cargo.stock).map((comodity) => (
             <tr key={comodity}>

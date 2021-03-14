@@ -6,8 +6,11 @@ import { NameState } from './meta-data/state'
 import { BodyState } from './body/state'
 import { ShipsState } from './ships/state'
 import { DynamicsState } from './dynamics/state'
-import { MarketState, setRoute, updateMarkets, updateTradeRoutes } from './market/state'
+import { MarketState } from './market/state'
+
+import { updateMarkets, updateTradeRoutes } from './market/mutations'
 import { initDynamics, updateDynamics } from './dynamics/mutations'
+
 import { loadObjectIntoDraft, saveObject } from './local-storage'
 
 export const updateInterval = 30
@@ -40,24 +43,13 @@ export interface State {
   ships: ShipsState
 }
 
+const stateVersion = '1'
+
 export const init = (state: Draft<State>): void | State => {
-  const loaded = loadObjectIntoDraft(state, 'state')
+  const loaded = loadObjectIntoDraft(state, stateVersion, 'state')
   if (!loaded) {
     chain(initDynamics)(state)
   }
-
-  setRoute('ship3', {
-    steps: [
-      {
-        location: 'spaceStation1',
-        trades: [{ operation: 'buy', comodity: 'energyCells' }],
-      },
-      {
-        location: 'heavyWeapons',
-        trades: [{ operation: 'sell', comodity: 'energyCells' }],
-      },
-    ],
-  })(state)
 }
 
 export const update = (state: Draft<State>): void => {
@@ -70,6 +62,6 @@ export const update = (state: Draft<State>): void => {
   }
   if (now - state.lastSave >= saveInterval) {
     state.lastSave = now
-    saveObject(state, 'state')
+    saveObject(state, stateVersion, 'state')
   }
 }
