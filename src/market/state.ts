@@ -46,5 +46,7 @@ export const market: MarketState = {
     },
   },
   balances: { player: 100, ai: 2000 },
-  routes: {},
+  routes: {
+    ship3: { currentStep: 0, steps: [] },
+  },
 }

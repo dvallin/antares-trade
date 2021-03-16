@@ -89,3 +89,9 @@ a:hover {
 .table thead th {
   border-bottom: 2px solid #473b6b;
 }
+
+select {
+  background-color: #261f39;
+  color: #f1f1f1;
+  border-color: #473b6b;
+}

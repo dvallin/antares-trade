@@ -1,15 +1,16 @@
+export type operation = 'sell' | 'buy'
+
 export interface Rates {
   [comodity: string]: {
-    buy?: number
-    sell?: number
+    [o in operation]?: number
   }
 }
 
-export function getRateType(amount: number, sellerSide = true): 'sell' | 'buy' {
+export function getRateType(amount: number, sellerSide = true): operation {
   return (sellerSide ? amount > 0 : amount <= 0) ? 'sell' : 'buy'
 }
 
-export function getRateSign(rateType: 'sell' | 'buy', sellerSide = true): number {
+export function getRateSign(rateType: operation, sellerSide = true): number {
   return (sellerSide ? 1 : -1) * (rateType === 'sell' ? 1 : -1)
 }
 
@@ -19,8 +20,18 @@ export function getPrice(rates: Rates, comodity: string, amount: number, sellerS
   return pricePerUnit * amount
 }
 
-export function getComodities(rates: Rates, operation: 'sell' | 'buy' | undefined): string[] {
+export function getComodities(rates: Rates, operation: operation | undefined): string[] {
   return Object.entries(rates)
     .filter(([, rate]) => operation === undefined || rate[operation] !== undefined)
     .map(([key]) => key)
+}
+
+export function getDefaultRate(rates: Rates): { operation: operation; comodity: string } {
+  let operation: 'buy' | 'sell' = 'buy'
+  let comodity = getComodities(rates, 'buy')[0]
+  if (!comodity) {
+    operation = 'sell'
+    comodity = getComodities(rates, 'sell')[0]
+  }
+  return { operation, comodity }
 }

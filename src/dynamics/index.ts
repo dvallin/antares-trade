@@ -54,3 +54,7 @@ export function collectTradingLocations(state: State, ship: string): string[] {
     .sort((l, r) => l.dist - r.dist)
     .map(({ id }) => id)
 }
+
+export function getNearestTradingLocation(state: State, ship: string): string {
+  return collectTradingLocations(state, ship)[0]
+}

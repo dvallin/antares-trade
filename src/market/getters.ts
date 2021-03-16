@@ -11,27 +11,20 @@ export const maximumPossibleTradeItem = (
   operation: 'sell' | 'buy',
   maximumAmount: number | undefined
 ): TradeItem | undefined => {
-  const sign = getRateSign(operation)
-
-  const fromOwner = state.ships.controllable[from].by
-  const toOwner = state.ships.controllable[to].by
+  const amounts = []
+  if (maximumAmount !== undefined) {
+    amounts.push(maximumAmount)
+  }
 
   const rates = state.market.markets[from].rates
   const rate = rates[comodity]?.[operation]
   if (rate === undefined) {
     return undefined
   }
+  const sign = getRateSign(operation)
   const price = sign * rate
-
-  const amounts = []
-  if (maximumAmount !== undefined) {
-    amounts.push(maximumAmount)
-  }
-  if (price < 0) {
-    amounts.push(Math.floor(state.market.balances[fromOwner] / -price))
-  } else {
-    amounts.push(Math.floor(state.market.balances[toOwner] / price))
-  }
+  const payer = state.ships.controllable[price < 0 ? from : to].by
+  amounts.push(Math.floor(state.market.balances[payer] / Math.abs(price)))
 
   const fromCargo = state.ships.cargo[from]
   const toCargo = state.ships.cargo[to]

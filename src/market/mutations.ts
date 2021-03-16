@@ -1,36 +1,29 @@
 import { Draft } from 'immer'
-import { collectTradingLocations, isNamedLocation } from '../dynamics'
+import { getNearestTradingLocation, isNamedLocation } from '../dynamics'
 import { moveShip } from '../ships/mutations'
 import { Mutation, State } from '../state'
 import { maximumPossibleTradeItem } from './getters'
 import { canConsumeFromCargo, canProduceIntoCargo, Production, scaleProduction } from './production'
-import { getComodities } from './rates'
+import { getDefaultRate } from './rates'
 import { getTotal, Trade } from './trade'
-import { TradeRouteStep } from './trade-route'
+import { getLastLocation, TradeRouteStep } from './trade-route'
 
 export const addStep = (id: string): Mutation<State> => (d) => {
   const route = d.market.routes[id]
-  let location: string
-  if (route.steps.length > 0) {
-    const lastStep = route.steps[route.steps.length - 1]
-    location = lastStep.location
-  } else {
-    location = collectTradingLocations(d, id)[0]
-  }
-  const rates = d.market.markets[location].rates
+  const location = getLastLocation(route) || getNearestTradingLocation(d, id)
 
-  let operation: 'buy' | 'sell' = 'buy'
-  let comodity = getComodities(rates, 'buy')[0]
-  if (!comodity) {
-    operation = 'sell'
-    comodity = getComodities(rates, 'sell')[0]
-  }
+  const rates = d.market.markets[location].rates
+  const { operation, comodity } = getDefaultRate(rates)
 
   route.steps.push({ location, operation, comodity })
 }
 
 export const removeStep = (id: string, index: number): Mutation<State> => (d) => {
-  d.market.routes[id].steps.splice(index, 1)
+  const route = d.market.routes[id]
+  route.steps.splice(index, 1)
+  if (route.currentStep >= route.steps.length) {
+    route.currentStep = 0
+  }
 }
 
 export const updateStep = (id: string, index: number, update: Partial<TradeRouteStep>): Mutation<State> => (d) => {
@@ -42,6 +35,7 @@ export const updateStep = (id: string, index: number, update: Partial<TradeRoute
 }
 
 export const performTrade = (from: string, to: string, trade: Trade): Mutation<State> => (d) => {
+  console.log('trade', from, to, trade)
   const total = getTotal(trade)
   const fromOwner = d.ships.controllable[from].by
   const toOwner = d.ships.controllable[to].by
@@ -82,25 +76,24 @@ export const updateMarkets = (dt: number): Mutation<State> => (d) => {
 
 export const updateTradeRoutes: Mutation<State> = (d) => {
   Object.entries(d.market.routes).forEach(([id, route]) => {
-    if (route.steps.length <= 1) {
+    if (route.steps.length <= 1 || route.steps[route.currentStep] === undefined) {
       return
     }
 
     const position = d.dynamics.positions[id]
     if (isNamedLocation(position)) {
-      const currentStep = route.steps.findIndex((step) => step.location === position)
-      if (currentStep >= 0) {
-        const step = route.steps[currentStep]
+      const step = route.steps[route.currentStep]
+      if (step.location === position) {
         const fromOperation = step.operation === 'sell' ? 'buy' : 'sell'
         const item = maximumPossibleTradeItem(d, position, id, step.comodity, fromOperation, step.amount)
         if (item !== undefined) {
           performTrade(position, id, { [step.comodity]: item })(d)
         }
+        route.currentStep = (route.currentStep + 1) % route.steps.length
+      } else {
+        const speed = d.ships.specs[id].speed
+        moveShip(id, step.location, speed)(d)
       }
-
-      const speed = d.ships.specs[id].speed
-      const nextStep = route.steps[(currentStep + 1) % route.steps.length]
-      moveShip(id, nextStep.location, speed)(d)
     }
   })
 }
