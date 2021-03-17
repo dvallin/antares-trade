@@ -4,12 +4,11 @@ import { useState } from 'preact/hooks'
 
 import { memoConnect, useApplicationState } from '../application-state'
 import { Cargo, getComodityAmount } from '../ships/cargo'
-import { getDockedShipsOfLocation, isControlledBy } from '../ships/getters'
-import { Trade, getTotal } from './trade'
+import { Trade, getTotal, validateTrade, performTrade } from './trade'
 import { Market } from './state'
-import { performTrade } from './mutations'
-import { validateTrade } from './getters'
 import { getPrice, getRateType } from './rates'
+import { getDockedShipsOfLocation } from '../ships/docks'
+import { isControlledBy } from '../ships/state'
 
 export const TradeSlider = (props: {
   comodity: string

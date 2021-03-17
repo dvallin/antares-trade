@@ -1,6 +1,7 @@
+export type Stock = { [comodity: string]: number }
 export interface Cargo {
   total: number
-  stock: { [comodity: string]: number }
+  stock: Stock
 }
 
 export function getUsedCargo(cargo: Cargo): number {

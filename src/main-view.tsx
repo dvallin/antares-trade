@@ -6,6 +6,7 @@ import Map from './map'
 import FocusedObject from './map/focused-object'
 import TradeView from './market/trade-view'
 import CargoSummary from './ships/cargo-summary'
+import { isControlledBy } from './ships/state'
 
 export type Focus = 'map' | 'info' | 'trading' | 'cargo'
 
@@ -25,7 +26,7 @@ export default () => {
 
   const infoAvailable = selected !== undefined
   const tradingAvailable = selected !== undefined && state.market.markets[selected] !== undefined
-  const cargoAvailable = selected !== undefined && state.ships.controllable[selected]?.by === 'player'
+  const cargoAvailable = selected !== undefined && isControlledBy(state, selected, 'player')
   if (infoAvailable) {
     navItems.push(renderNavLink('info', 'Info', focus, setFocus))
   }

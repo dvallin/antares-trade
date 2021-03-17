@@ -1,6 +1,8 @@
-import { Storage } from '../state'
+import { Movement, setMovement } from '../dynamics/movement'
+import { detachOrbit } from '../star-system/state'
+import { chain, Mutation, State, Storage } from '../state'
 import { Cargo } from './cargo'
-import { Docks } from './docks'
+import { Docks, undockShip } from './docks'
 
 export interface Specs {
   type: 'freighter' | 'station' | 'fighter'
@@ -57,3 +59,8 @@ export const ships: ShipsState = {
     },
   },
 }
+
+export const isControlledBy = (state: State, ship: string, player: string): boolean => state.ships.controllable[ship]?.by === player
+
+export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<State> =>
+  chain(undockShip(ship), detachOrbit(ship), setMovement(ship, to, v))

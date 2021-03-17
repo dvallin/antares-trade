@@ -5,8 +5,9 @@ import { deselect, moveSelectedShip, selectEntity, setViewBox } from './state'
 import { useApplicationState } from '../application-state'
 import { useRef, useState } from 'preact/hooks'
 import { dragViewBox, zoomViewBox } from '../view-box'
-import { getPosition } from '../dynamics/getters'
 import { dist } from '../geometry'
+import { getPosition } from '../dynamics/position'
+import { getCurrentStarSystem } from '../star-system/state'
 
 const colorScheme = {
   foreground: '#f1f1f1',
@@ -259,7 +260,7 @@ export default () => {
         />
       </pattern>
       <g>
-        <StarSystemSvg system={state.starSystems.systems[state.starSystems.currentSystem]} cx={0} cy={0} />
+        <StarSystemSvg system={getCurrentStarSystem(state)} cx={0} cy={0} />
         <ObjectsSvg />
         <TrajectoriesSvg />
       </g>

@@ -1,5 +1,5 @@
-import { Storage } from '../state'
-import { Production } from './production'
+import { Mutation, State, Storage } from '../state'
+import { applyProduction, Production } from './production'
 import { Rates } from './rates'
 import { TradeRoute } from './trade-route'
 
@@ -49,4 +49,16 @@ export const market: MarketState = {
   routes: {
     ship3: { currentStep: 0, steps: [] },
   },
+}
+
+export const updateMarkets = (dt: number): Mutation<State> => (d) => {
+  Object.entries(d.market.markets).forEach(([id, market]) => {
+    Object.values(market.production).forEach((production) => {
+      applyProduction(d, dt, id, production)
+    })
+  })
+}
+
+export function isTradingLocation(state: State, location: string): boolean {
+  return state.market.markets[location]?.rates !== undefined
 }

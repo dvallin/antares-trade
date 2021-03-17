@@ -1,6 +1,6 @@
 import produce from 'immer'
 import { initialState } from '../../src/application-state'
-import { maximumPossibleTradeItem } from '../../src/market/getters'
+import { maximumPossibleTradeItem } from '../../src/market/trade'
 import { Cargo } from '../../src/ships/cargo'
 
 const state = (rate: { buy?: number; sell?: number }, fromCargo: Cargo, toCargo: Cargo, fromBalance: number, toBalance: number) =>
@@ -45,6 +45,15 @@ describe('maximumPossibleTradeItem', () => {
   it('buys everything if possible', () => {
     const s = state({ buy: 2 }, emptyCargo, cargo(10), 20, 0)
     expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', undefined)).toEqual({ amount: 10, price: -20 })
+  })
+
+  it('sells only as much as wanted', () => {
+    const s = state({ sell: 2 }, cargo(10), emptyCargo, 0, 20)
+    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'sell', 5)).toEqual({ amount: 5, price: 10 })
+  })
+  it('buys only as much as wanted', () => {
+    const s = state({ buy: 2 }, emptyCargo, cargo(10), 20, 0)
+    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', 5)).toEqual({ amount: 5, price: -10 })
   })
 
   it('sells only as much as the cargo can hold', () => {

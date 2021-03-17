@@ -5,13 +5,12 @@ import { MapState, updateMap } from './map/state'
 import { NameState } from './meta-data/state'
 import { BodyState } from './body/state'
 import { ShipsState } from './ships/state'
-import { DynamicsState } from './dynamics/state'
-import { MarketState } from './market/state'
 
-import { updateMarkets, updateTradeRoutes } from './market/mutations'
-import { initDynamics, updateDynamics } from './dynamics/mutations'
+import { DynamicsState, initDynamics, updateDynamics } from './dynamics/state'
+import { MarketState, updateMarkets } from './market/state'
 
 import { loadObjectIntoDraft, saveObject } from './local-storage'
+import { updateTradeRoutes } from './market/trade-route'
 
 export const updateInterval = 30
 // update a maximum of 1 minutes at a time

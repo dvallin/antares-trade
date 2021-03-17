@@ -3,7 +3,7 @@ import { memo } from 'preact/compat'
 import { useApplicationState } from '../application-state'
 import { collectTradingLocations } from '../dynamics'
 import { getComodities } from './rates'
-import { addStep, removeStep, updateStep } from './mutations'
+import { addStep, removeStep, updateStep } from './trade-route'
 
 export const Select = memo(
   (props: { current: string; values: string[]; onChange: (value: string) => void }) => {

@@ -1,7 +1,7 @@
 import { Draft } from 'immer'
-import { Movement } from '../dynamics'
-import { getPosition } from '../dynamics/getters'
-import { moveShip } from '../ships/mutations'
+import { Movement } from '../dynamics/movement'
+import { getPosition } from '../dynamics/position'
+import { moveShip } from '../ships/state'
 import { chain, Mutation, State } from '../state'
 import { focusViewBox, ViewBox } from '../view-box'
 
