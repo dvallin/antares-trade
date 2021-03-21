@@ -1,4 +1,4 @@
-import { h } from 'preact'
+import { Fragment, h } from 'preact'
 import { isBand, StarSystem } from '../star-system'
 import { collectEntities, collectTrajectories } from '../dynamics'
 import { deselect, moveSelectedShip, selectEntity, setViewBox } from './state'
@@ -38,10 +38,10 @@ export const RingSvg = (props: { innerRadius: number; outerRadius: number; cx: n
     fill="url(#asteroids)"
     d={`
 M ${props.cx}, ${props.cy} 
-m 0 -${props.outerRadius}
+m 0 ${-props.outerRadius}
 a ${props.outerRadius} ${props.outerRadius} 0 1 0 1 0
 z
-m -1 ${props.outerRadius - props.innerRadius}    
+m 0 ${props.outerRadius - props.innerRadius}    
 a ${props.innerRadius} ${props.innerRadius} 0 1 1 -1 0     
 Z`}
     style={regularStyle}
@@ -108,6 +108,9 @@ export const ObjectsSvg = () => {
       {entities.map((id) => {
         const p = getPosition(state, id)
         const body = state.bodies.bodies[id]
+        if (body.type === 'belt') {
+          return <Fragment />
+        }
         return (
           <g key={id} id={id}>
             <circle

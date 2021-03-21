@@ -42,7 +42,7 @@ export interface State {
   ships: ShipsState
 }
 
-const stateVersion = '1'
+const stateVersion = '2'
 
 export const init = (state: Draft<State>): void | State => {
   const loaded = loadObjectIntoDraft(state, stateVersion, 'state')

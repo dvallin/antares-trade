@@ -32,6 +32,8 @@ export function getSymbol(state: State, id: string): string {
       return '♁'
     case 'star':
       return '☉'
+    case 'belt':
+      return '∘'
   }
 }
 
@@ -50,7 +52,7 @@ export default (props: Props) => {
         <button type="button" class="btn btn-primary" onClick={() => setFilter(['station'])}>
           stations
         </button>
-        <button type="button" class="btn btn-primary" onClick={() => setFilter(['star', 'gas-giant', 'moon', 'planet'])}>
+        <button type="button" class="btn btn-primary" onClick={() => setFilter(['star', 'gas-giant', 'moon', 'planet', 'belt'])}>
           bodies
         </button>
       </div>

@@ -1,5 +1,5 @@
 import { Draft } from 'immer'
-import { isBand, StarSystem, findAttachmentByParentInSystem, findAttachmentByChildInSystem } from '.'
+import { isBand, StarSystem, findAttachmentByParentInSystem, findAttachmentByChildInSystem, Band } from '.'
 import { getPosition } from '../dynamics/position'
 import { toPolar } from '../polar'
 import { Mutation, State } from '../state'
@@ -21,6 +21,11 @@ const sol: StarSystem = {
     radius: 192,
     phi: 0,
     speed: 0.00005,
+  },
+  solarPanel: {
+    radius: 250,
+    phi: 0,
+    speed: 0.0001,
   },
   venus: {
     radius: 360,
@@ -61,32 +66,47 @@ const sol: StarSystem = {
       },
     },
   },
-  asteroidBelt1: {
+  asteroidBelt: {
     innerRadius: 850,
     outerRadius: 2200,
+  },
+  ceres: {
+    radius: 1486,
+    phi: 0,
+    speed: 0.00005,
   },
   jupiter: {
     radius: 2592,
     phi: 0,
     speed: 0.00005,
     sub: {
-      ganimed: {
+      io: {
+        radius: 1.47,
+        phi: 0,
+        speed: 0.01,
+      },
+      fluxTube: {
+        radius: 1,
+        phi: 0,
+        speed: 0.01,
+      },
+      advancedMaterials: {
+        radius: 2,
+        phi: 0,
+        speed: 0.01,
+      },
+      europa: {
+        radius: 2.25,
+        phi: 0,
+        speed: 0.01,
+      },
+      ganymed: {
         radius: 3.57,
         phi: 0,
         speed: 0.01,
       },
       callisto: {
         radius: 6.28,
-        phi: 0,
-        speed: 0.01,
-      },
-      io: {
-        radius: 1.47,
-        phi: 0,
-        speed: 0.01,
-      },
-      europa: {
-        radius: 2.25,
         phi: 0,
         speed: 0.01,
       },
@@ -97,6 +117,10 @@ const sol: StarSystem = {
     phi: 0,
     speed: 0.00005,
     sub: {
+      saturnRings: {
+        innerRadius: 0.25,
+        outerRadius: 0.4,
+      },
       titan: {
         radius: 4.08,
         phi: 0,
@@ -249,4 +273,22 @@ export const updateStarSystems = (dt: number): Mutation<State> => (d) => {
 
 export const getCurrentStarSystem = (state: State): StarSystem => {
   return state.starSystems.systems[state.starSystems.currentSystem]
+}
+
+export function getBandsFromSystem(state: State, starSystem: StarSystem): { id: string; band: Band }[] {
+  const result: { id: string; band: Band }[] = []
+  Object.entries(starSystem).forEach(([id, part]) => {
+    if (isBand(part)) {
+      result.push({ id, band: part })
+    } else {
+      if (part.sub) {
+        result.concat(getBandsFromSystem(state, part.sub))
+      }
+    }
+  })
+  return result
+}
+
+export const getBands = (state: State, system: string): { id: string; band: Band }[] => {
+  return getBandsFromSystem(state, state.starSystems.systems[system])
 }

@@ -16,6 +16,44 @@ export interface MarketState {
 
 export const market: MarketState = {
   markets: {
+    fluxTube: {
+      production: [
+        {
+          resource: ['magnetism'],
+          consumes: {},
+          produces: { energyCells: 100 },
+        },
+      ],
+      rates: {
+        energyCells: { sell: 1 },
+      },
+    },
+    solarPanel: {
+      production: [
+        {
+          resource: ['luminocity'],
+          consumes: {},
+          produces: { energyCells: 100 },
+        },
+      ],
+      rates: {
+        energyCells: { sell: 1 },
+      },
+    },
+    advancedMaterials: {
+      production: [
+        {
+          resource: ['radiation'],
+          consumes: { energyCells: 2, metals: 2 },
+          produces: { advancedMaterials: 10 },
+        },
+      ],
+      rates: {
+        energyCells: { buy: 3 },
+        metals: { buy: 3 },
+        advancedMaterials: { sell: 10 },
+      },
+    },
     spaceStation1: {
       production: [],
       rates: {
@@ -27,10 +65,12 @@ export const market: MarketState = {
     heavyWeapons: {
       production: [
         {
+          resource: [],
           consumes: { energyCells: 5, uranium: 1 },
           produces: { toxicWaste: 1, heavyWeapons: 1 },
         },
         {
+          resource: [],
           consumes: { clothing: 1, food: 2 },
           produces: {},
         },

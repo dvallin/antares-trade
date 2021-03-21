@@ -8,6 +8,9 @@ import { useApplicationState } from '../application-state'
 import Location from './location'
 import { printTime } from '../time'
 import TradeRouteView from '../market/trade-route-view'
+import { getLocation, isNamedLocation } from '../dynamics/position'
+import Resources from './resources'
+import EscapeVelocity from './escape-velocity'
 
 const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => (
   <div>
@@ -23,20 +26,30 @@ const renderMoveTo = <div>select a navigable location from the map</div>
 
 const renderDefault = (selected: string, state: State, mutate: Mutate<State>) => {
   const name = state.names.names[selected]
-  const position = state.dynamics.positions[selected]
+  const location = getLocation(state, selected)
   const movement = state.dynamics.movements[selected]
   const controllable = state.ships.controllable[selected]
   return (
     <div>
       <div className="row">{name ? <h2 className="col-sm">{name.name}</h2> : <Fragment />}</div>
       <div className="row">
-        {position ? (
+        {location ? (
           <p class="lead col-sm">
-            <Location location={position} />
+            <Location location={location} />
           </p>
         ) : (
           <Fragment />
         )}
+      </div>
+      <div className="row">
+        <div className="col">
+          <EscapeVelocity id={isNamedLocation(location) ? location : selected} />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <Resources id={selected} />
+        </div>
       </div>
       <div className="row">
         {movement ? (

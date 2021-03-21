@@ -13,6 +13,7 @@ export const isNamedLocation = (l: Location): l is string => typeof l === 'strin
 
 export const getPosition = (state: State, location: Location): Position =>
   isNamedLocation(location) ? getPosition(state, state.dynamics.positions[location] || { system: 'unknown', x: 0, y: 0 }) : location
+export const getLocation = (state: State, id: string): Location => state.dynamics.positions[id]
 
 export const applyStarSystem = (systemName: string, system: StarSystem, cx = 0, cy = 0): Mutation<State> => (d) => {
   Object.entries(system).map(([id, part]) => {
@@ -24,6 +25,8 @@ export const applyStarSystem = (systemName: string, system: StarSystem, cx = 0, 
       }
 
       d.dynamics.positions[id] = { system: systemName, x, y }
+    } else {
+      d.dynamics.positions[id] = { system: systemName, x: cx, y: cy }
     }
   })
 }

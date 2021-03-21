@@ -28,6 +28,9 @@ export const ships: ShipsState = {
     ship3: { by: 'player' },
     spaceStation1: { by: 'ai' },
     heavyWeapons: { by: 'ai' },
+    solarPanel: { by: 'ai' },
+    advancedMaterials: { by: 'ai' },
+    fluxTube: { by: 'ai' },
   },
   specs: {
     ship1: { type: 'fighter', speed: 0.7, docks: docks(0) },
@@ -35,6 +38,9 @@ export const ships: ShipsState = {
     ship3: { type: 'freighter', speed: 0.2, docks: docks(2) },
     spaceStation1: { type: 'station', speed: 0.01, docks: docks(100) },
     heavyWeapons: { type: 'station', speed: 0.0, docks: docks(4) },
+    solarPanel: { type: 'station', speed: 0.0, docks: docks(4) },
+    advancedMaterials: { type: 'station', speed: 0.0, docks: docks(4) },
+    fluxTube: { type: 'station', speed: 0.0, docks: docks(4) },
   },
   cargo: {
     ship1: {
@@ -56,6 +62,18 @@ export const ships: ShipsState = {
     spaceStation1: {
       total: 20000,
       stock: { clothing: 20, food: 100, energyCells: 100 },
+    },
+    solarPanel: {
+      total: 20000,
+      stock: {},
+    },
+    advancedMaterials: {
+      total: 20000,
+      stock: { energyCells: 100, metals: 100 },
+    },
+    fluxTube: {
+      total: 20000,
+      stock: {},
     },
   },
 }
