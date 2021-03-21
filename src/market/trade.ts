@@ -54,7 +54,6 @@ export const maximumPossibleTradeItem = (
 }
 
 export const performTrade = (from: string, to: string, trade: Trade): Mutation<State> => (d) => {
-  console.log('trade', from, to, trade)
   const total = getTotal(trade)
   const fromOwner = d.ships.controllable[from].by
   const toOwner = d.ships.controllable[to].by

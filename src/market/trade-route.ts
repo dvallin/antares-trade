@@ -24,7 +24,6 @@ export function getLastLocation(route: TradeRoute): string | undefined {
 export const addStep = (id: string): Mutation<State> => (d) => {
   const route = d.market.routes[id]
   const location = getLastLocation(route) || getNearestTradingLocation(d, id)
-
   const rates = d.market.markets[location].rates
   const { operation, comodity } = getDefaultRate(rates)
 

@@ -47,7 +47,7 @@ export function getResource(state: State, resource: keyof Resources, id: string)
       const body = state.bodies.bodies[id]
       if (body.type === 'belt') {
         position = produce(position, (p) => {
-          p.x = body.radius
+          p.x += body.radius
         })
       }
 
