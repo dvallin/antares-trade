@@ -45,4 +45,6 @@ export const canDockAtLocation = (state: State, _ship: string, location: string)
   return docks ? canDockAt(docks) : false
 }
 
-export const getDockedShipsOfLocation = (state: State, location: string): string[] => state.ships.specs[location]?.docks.docked || []
+export const getDockedShipsOfLocation = (state: State, location: string): string[] => {
+  return state.ships.specs[location]?.docks.docked || []
+}

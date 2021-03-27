@@ -1,3 +1,4 @@
+import { getName } from '../meta-data/state'
 import { getAvailableCargo, getComodityAmount, getUsedCargo } from '../ships/cargo'
 import { Mutation, State } from '../state'
 import { getRateSign, operation } from './rates'
@@ -84,10 +85,10 @@ export const validateTrade = (state: State, from: string, to: string, trade: Tra
   const fromCargo = state.ships.cargo[from]
   const toCargo = state.ships.cargo[to]
   if (getUsedCargo(fromCargo) - total.amount > fromCargo.total) {
-    errors.push(`${state.names.names[from]?.name || 'unknown ship'} has insufficient storage capacity`)
+    errors.push(`${getName(state, from, 'unkown ship')} has insufficient storage capacity`)
   }
   if (getUsedCargo(toCargo) + total.amount > toCargo.total) {
-    errors.push(`${state.names.names[to]?.name || 'unknown ship'} has insufficient storage capacity`)
+    errors.push(`${getName(state, to, 'unkown ship')} has insufficient storage capacity`)
   }
 
   return errors

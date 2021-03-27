@@ -1,6 +1,6 @@
 import { Fragment, h } from 'preact'
 
-import { Name } from '../meta-data/state'
+import { getName, Name } from '../meta-data/state'
 import { toPolar } from '../polar'
 import { useApplicationState } from '../application-state'
 import { isNamedLocation, Location } from '../dynamics/position'
@@ -13,7 +13,7 @@ export interface Props {
 export default (props: Props) => {
   if (isNamedLocation(props.location)) {
     const [state] = useApplicationState()
-    return <span>{state.names.names[props.location]?.name || 'unkown location'}</span>
+    return <span>{getName(state, props.location, 'unkown location')}</span>
   } else {
     const polar = toPolar(props.location.x, props.location.y)
     return (

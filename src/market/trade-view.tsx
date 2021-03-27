@@ -2,21 +2,24 @@ import produce from 'immer'
 import { Fragment, h } from 'preact'
 import { useState } from 'preact/hooks'
 
-import { memoConnect, useApplicationState } from '../application-state'
+import { useApplicationState } from '../application-state'
 import { Cargo, getComodityAmount } from '../ships/cargo'
 import { Trade, getTotal, validateTrade, performTrade } from './trade'
 import { Market } from './state'
 import { getPrice, getRateType } from './rates'
 import { getDockedShipsOfLocation } from '../ships/docks'
 import { isControlledBy } from '../ships/state'
+import { Select } from './trade-route-view'
+import { getName } from '../meta-data/state'
 
-export const TradeSlider = (props: {
+export interface TradeSliderProps {
   comodity: string
   shipCargo: Cargo
   stationCargo: Cargo
   market: Market
   onInput: (selection: number) => void
-}) => {
+}
+export const TradeSlider = (props: TradeSliderProps) => {
   const [selection, setSelection] = useState(0)
   const price = getPrice(props.market.rates, props.comodity, selection)
   return (
@@ -57,7 +60,7 @@ export const TradeWithShip = (props: { id: string; ship: string }) => {
   const total = getTotal(trade).price
   const errors = validateTrade(state, props.id, props.ship, trade)
   return (
-    <Fragment>
+    <div>
       {Object.entries(market.rates).map(([comodity]) => (
         <TradeSlider
           key={comodity}
@@ -83,6 +86,7 @@ export const TradeWithShip = (props: { id: string; ship: string }) => {
         </div>
       ))}
       <button
+        data-testid="performTrade"
         class="btn btn-primary"
         onClick={() => {
           mutate(performTrade(props.id, props.ship, trade))
@@ -92,46 +96,31 @@ export const TradeWithShip = (props: { id: string; ship: string }) => {
       >
         trade
       </button>
-    </Fragment>
+    </div>
   )
 }
 
-export const ShipSelector = (props: { ships: { key: string; name: string }[]; ship: string; setShip: (ship: string) => void }) => {
-  return (
-    <select class="form-select" onChange={(e) => props.setShip((e.target as HTMLSelectElement).value)}>
-      {props.ships.map(({ key, name }) => (
-        <option key={key} value={key}>
-          {name}
-        </option>
-      ))}
-    </select>
-  )
-}
+export const TradeWith = (props: { id: string }) => {
+  const [state] = useApplicationState()
+  const playerShips = getDockedShipsOfLocation(state, props.id)
+    .filter((ship) => isControlledBy(state, ship, 'player'))
+    .map((key) => ({ key, name: getName(state, key, 'unkown ship') }))
 
-export const TradeWith = memoConnect<{ playerShips: { key: string; name: string }[] }, { id: string }>(
-  (props) => {
-    const [ship, setShip] = useState<string | undefined>(undefined)
-    if (props.playerShips.length === 0) {
-      return <span>no ships docked to trade with</span>
-    } else if (ship === undefined) {
-      setShip(props.playerShips[0].key)
-      return <span>no ships docked to trade with</span>
-    } else {
-      return (
-        <Fragment>
-          <ShipSelector ship={ship} setShip={setShip} ships={props.playerShips} />
-          <TradeWithShip id={props.id} ship={ship} />
-        </Fragment>
-      )
-    }
-  },
-  (s, props) => ({
-    playerShips: getDockedShipsOfLocation(s, props.id)
-      .filter((ship) => isControlledBy(s, ship, 'player'))
-      .map((key) => ({ key, name: s.names.names[key]?.name || 'unknown ship' })),
-  }),
-  (p1, p2) => p1.id === p2.id && p1.playerShips.length === p2.playerShips.length
-)
+  const [ship, setShip] = useState<string | undefined>(undefined)
+  if (playerShips.length === 0) {
+    return <span>no ships docked to trade with</span>
+  } else if (ship === undefined) {
+    setShip(playerShips[0].key)
+    return <span>no ships docked to trade with</span>
+  } else {
+    return (
+      <Fragment>
+        <Select current={ship} onChange={setShip} values={playerShips} />
+        <TradeWithShip id={props.id} ship={ship} />
+      </Fragment>
+    )
+  }
+}
 
 export default () => {
   const [state] = useApplicationState()

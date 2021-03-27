@@ -1,0 +1,451 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ObjectSelector filters relevant objects 1`] = `
+<div
+  className="list-group"
+>
+  <div
+    aria-label="Basic example"
+    className="btn-group flex-wrap"
+    role="group"
+  >
+    <button
+      className="btn btn-primary"
+      data-testid="filterRelevant"
+      onClick={[Function]}
+      type="button"
+    >
+      relevant
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterShips"
+      onClick={[Function]}
+      type="button"
+    >
+      ships
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterStations"
+      onClick={[Function]}
+      type="button"
+    >
+      stations
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterBodies"
+      onClick={[Function]}
+      type="button"
+    >
+      bodies
+    </button>
+  </div>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="fighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ≛
+     
+    fighter
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="freighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ⊔
+     
+    freighter
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="station"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ⌂
+     
+    station
+  </a>
+</div>
+`;
+
+exports[`ObjectSelector filters relevant objects initially 1`] = `
+<div
+  className="list-group"
+>
+  <div
+    aria-label="Basic example"
+    className="btn-group flex-wrap"
+    role="group"
+  >
+    <button
+      className="btn btn-primary"
+      data-testid="filterRelevant"
+      onClick={[Function]}
+      type="button"
+    >
+      relevant
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterShips"
+      onClick={[Function]}
+      type="button"
+    >
+      ships
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterStations"
+      onClick={[Function]}
+      type="button"
+    >
+      stations
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterBodies"
+      onClick={[Function]}
+      type="button"
+    >
+      bodies
+    </button>
+  </div>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="fighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ≛
+     
+    fighter
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="freighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ⊔
+     
+    freighter
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="station"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ⌂
+     
+    station
+  </a>
+</div>
+`;
+
+exports[`ObjectSelector filters ships 1`] = `
+<div
+  className="list-group"
+>
+  <div
+    aria-label="Basic example"
+    className="btn-group flex-wrap"
+    role="group"
+  >
+    <button
+      className="btn btn-primary"
+      data-testid="filterRelevant"
+      onClick={[Function]}
+      type="button"
+    >
+      relevant
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterShips"
+      onClick={[Function]}
+      type="button"
+    >
+      ships
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterStations"
+      onClick={[Function]}
+      type="button"
+    >
+      stations
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterBodies"
+      onClick={[Function]}
+      type="button"
+    >
+      bodies
+    </button>
+  </div>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="fighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ≛
+     
+    fighter
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="freighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ⊔
+     
+    freighter
+  </a>
+</div>
+`;
+
+exports[`ObjectSelector filters ships 2`] = `
+<div
+  className="list-group"
+>
+  <div
+    aria-label="Basic example"
+    className="btn-group flex-wrap"
+    role="group"
+  >
+    <button
+      className="btn btn-primary"
+      data-testid="filterRelevant"
+      onClick={[Function]}
+      type="button"
+    >
+      relevant
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterShips"
+      onClick={[Function]}
+      type="button"
+    >
+      ships
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterStations"
+      onClick={[Function]}
+      type="button"
+    >
+      stations
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterBodies"
+      onClick={[Function]}
+      type="button"
+    >
+      bodies
+    </button>
+  </div>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="fighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ≛
+     
+    fighter
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="freighter"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ⊔
+     
+    freighter
+  </a>
+</div>
+`;
+
+exports[`ObjectSelector filters ships 3`] = `
+<div
+  className="list-group"
+>
+  <div
+    aria-label="Basic example"
+    className="btn-group flex-wrap"
+    role="group"
+  >
+    <button
+      className="btn btn-primary"
+      data-testid="filterRelevant"
+      onClick={[Function]}
+      type="button"
+    >
+      relevant
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterShips"
+      onClick={[Function]}
+      type="button"
+    >
+      ships
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterStations"
+      onClick={[Function]}
+      type="button"
+    >
+      stations
+    </button>
+    <button
+      className="btn btn-primary"
+      data-testid="filterBodies"
+      onClick={[Function]}
+      type="button"
+    >
+      bodies
+    </button>
+  </div>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="planet"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ♁
+     
+    planet
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="belt"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ∘
+     
+    belt
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="gas-giant"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ♄
+     
+    gas-giant
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="moon"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ☽︎
+     
+    moon
+  </a>
+  <a
+    className="list-group-item list-group-item-action font-weight-normal"
+    href="#"
+    key="star"
+    onClick={[Function]}
+    style={
+      Object {
+        "cursor": "pointer",
+      }
+    }
+  >
+    ☉
+     
+    star
+  </a>
+</div>
+`;

@@ -2,19 +2,20 @@ import { Fragment, h } from 'preact'
 import { memo } from 'preact/compat'
 import { useApplicationState } from '../application-state'
 import { collectTradingLocations } from '../dynamics'
+import { getName } from '../meta-data/state'
 import { getComodities } from './rates'
 import { addStep, removeStep, updateStep } from './trade-route'
 
 export const Select = memo(
-  (props: { current: string; values: string[]; onChange: (value: string) => void }) => {
-    if (props.values.length > 0 && !props.values.includes(props.current)) {
-      props.onChange(props.values[0])
+  (props: { current: string; values: { key: string; name: string }[]; onChange: (value: string) => void }) => {
+    if (props.values.length > 0 && !props.values.map((v) => v.key).includes(props.current)) {
+      props.onChange(props.values[0].key)
     }
     return (
       <select class="form-select" onChange={(e) => props.onChange((e.target as HTMLSelectElement).value)}>
         {props.values.map((v) => (
-          <option key={v} value={v} selected={v === props.current}>
-            {v}
+          <option key={v} value={v.key} selected={v.key === props.current}>
+            {v.name}
           </option>
         ))}
       </select>
@@ -53,14 +54,17 @@ export default (props: { id: string }) => {
                   <td scope="row">
                     <Select
                       current={step.location}
-                      values={locations}
+                      values={locations.map((key) => ({ key, name: getName(state, key) }))}
                       onChange={(v) => mutate(updateStep(props.id, index, { location: v }))}
                     />
                   </td>
                   <td scope="row">
                     <Select
                       current={step.operation}
-                      values={['buy', 'sell']}
+                      values={[
+                        { key: 'buy', name: 'buy' },
+                        { key: 'sell', name: 'sell' },
+                      ]}
                       onChange={(v) => mutate(updateStep(props.id, index, { operation: v as 'buy' | 'sell' }))}
                     />
                   </td>
@@ -79,7 +83,14 @@ export default (props: { id: string }) => {
                   <td scope="row">
                     <Select
                       current={step.comodity}
-                      values={rates !== undefined ? getComodities(rates, step.operation === 'buy' ? 'sell' : 'buy') : []}
+                      values={
+                        rates !== undefined
+                          ? getComodities(rates, step.operation === 'buy' ? 'sell' : 'buy').map((key) => ({
+                              key,
+                              name: getName(state, key),
+                            }))
+                          : []
+                      }
                       onChange={(v) => mutate(updateStep(props.id, index, { comodity: v }))}
                     />
                   </td>

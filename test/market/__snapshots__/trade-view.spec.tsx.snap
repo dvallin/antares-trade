@@ -1,0 +1,124 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TradeView renders if nothing selected 1`] = `
+<div>
+  nothing selected
+</div>
+`;
+
+exports[`TradeView renders market info of selected 1`] = `
+<div>
+  <h2>
+    Trading Comodities
+  </h2>
+  <table
+    className="table table-sm"
+  >
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          commodity
+        </th>
+        <th
+          scope="col"
+        >
+          available
+        </th>
+        <th
+          scope="col"
+        >
+          buys at
+        </th>
+        <th
+          scope="col"
+        >
+          sells at
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        key="a"
+      >
+        <td
+          scope="row"
+        >
+          a
+        </td>
+        <td
+          scope="row"
+        >
+          4
+        </td>
+        <td
+          scope="row"
+        />
+        <td
+          scope="row"
+        >
+          1
+        </td>
+      </tr>
+      <tr
+        key="b"
+      >
+        <td
+          scope="row"
+        >
+          b
+        </td>
+        <td
+          scope="row"
+        >
+          3
+        </td>
+        <td
+          scope="row"
+        >
+          2
+        </td>
+        <td
+          scope="row"
+        >
+          23
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>
+    Trade With
+  </h2>
+  <TradeWith
+    id="station"
+  />
+</div>
+`;
+
+exports[`TradeWith renders no ships docked 1`] = `
+<span>
+  no ships docked to trade with
+</span>
+`;
+
+exports[`TradeWith renders ship selector 1`] = `
+Array [
+  <Memo()
+    current="ship"
+    onChange={[Function]}
+    values={
+      Array [
+        Object {
+          "key": "ship",
+          "name": "millenium falcon",
+        },
+      ]
+    }
+  />,
+  <TradeWithShip
+    id="station"
+    ship="ship"
+  />,
+]
+`;

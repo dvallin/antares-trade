@@ -11,7 +11,6 @@ import { names } from './meta-data/state'
 import { bodies } from './body/state'
 import { ships } from './ships/state'
 import { dynamics } from './dynamics/state'
-import { memo } from 'preact/compat'
 
 export const initialState: State = {
   lastUpdate: Date.now(),
@@ -47,22 +46,4 @@ export function Provider<T>(props: RenderableProps<T> & ProviderProps) {
 
 export function useApplicationState(): [State, Mutate<State>] {
   return useContext(ApplicationState)
-}
-
-export function connect<S, P = {}>(
-  C: (p: P & S & { mutate: Mutate<State> }) => JSX.Element,
-  select: (state: State, p: P) => S
-): (p: P) => JSX.Element {
-  return (p) => {
-    const [state, mutate] = useApplicationState()
-    return <C {...p} {...select(state, p)} mutate={mutate} />
-  }
-}
-
-export function memoConnect<S, P>(
-  C: (p: P & S) => JSX.Element,
-  select: (state: State, p: P) => S,
-  equals: (p1: P & S, p2: P & S) => boolean
-): (p: P) => JSX.Element {
-  return connect(memo(C, equals), select)
 }

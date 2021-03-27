@@ -11,6 +11,7 @@ import TradeRouteView from '../market/trade-route-view'
 import { getLocation, isNamedLocation } from '../dynamics/position'
 import Resources from './resources'
 import EscapeVelocity from './escape-velocity'
+import { getName } from '../meta-data/state'
 
 const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => (
   <div>
@@ -25,13 +26,13 @@ const renderDockAt = (selected: string, state: State, mutate: Mutate<State>) => 
 const renderMoveTo = <div>select a navigable location from the map</div>
 
 const renderDefault = (selected: string, state: State, mutate: Mutate<State>) => {
-  const name = state.names.names[selected]
+  const name = getName(state, selected)
   const location = getLocation(state, selected)
   const movement = state.dynamics.movements[selected]
   const controllable = state.ships.controllable[selected]
   return (
     <div>
-      <div className="row">{name ? <h2 className="col-sm">{name.name}</h2> : <Fragment />}</div>
+      <div className="row">{name ? <h2 className="col-sm">{name}</h2> : <Fragment />}</div>
       <div className="row">
         {location ? (
           <p class="lead col-sm">

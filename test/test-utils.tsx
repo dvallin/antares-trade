@@ -21,7 +21,7 @@ export function mockApplicationState(state: State = initialState, onChange: (s: 
   let currentState = state
   jest.spyOn(ApplicationState, 'useApplicationState').mockImplementation(() => [
     currentState,
-    (mutation) => {
+    (mutation: Mutation<State>) => {
       currentState = produce(currentState, (d) => {
         mutation(d)
       })

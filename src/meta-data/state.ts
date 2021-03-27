@@ -1,4 +1,4 @@
-import { Storage } from '../state'
+import { State, Storage } from '../state'
 
 export interface Name {
   name: string
@@ -20,7 +20,7 @@ export const names: NameState = {
     mars: name('Mars'),
     phobos: name('Phobos (Mars)'),
     deimos: name('Deimos (Mars)'),
-    asteroidBelt1: name('Kuiper Belt'),
+    asteroidBelt: name('Asteroid Belt'),
     ceres: name('Ceres'),
     jupiter: name('Jupiter'),
     ganymed: name('Ganymed (Jupiter)'),
@@ -28,6 +28,7 @@ export const names: NameState = {
     io: name('Io (Jupiter)'),
     europa: name('Europa (Jupiter)'),
     saturn: name('Saturn'),
+    saturnRings: name('Saturn Rings'),
     titan: name('Titan (Saturn)'),
     rhea: name('Rhea (Saturn)'),
     iapetus: name('Iapetus (Saturn)'),
@@ -53,4 +54,8 @@ export const names: NameState = {
     advancedMaterials: name('Advanced Materials Factory'),
     fluxTube: name('Flux Tube'),
   },
+}
+
+export const getName = (state: State, id: string, defaultValue?: string): string => {
+  return state.names.names[id]?.name || defaultValue || id
 }

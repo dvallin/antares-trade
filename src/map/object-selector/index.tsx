@@ -3,6 +3,7 @@ import { useState } from 'preact/hooks'
 
 import { useApplicationState } from '../../application-state'
 import { Body } from '../../body/state'
+import { getName } from '../../meta-data/state'
 import { Specs } from '../../ships/state'
 import { State } from '../../state'
 
@@ -37,22 +38,27 @@ export function getSymbol(state: State, id: string): string {
   }
 }
 
+export type Filter = (Body['type'] | Specs['type'])[]
 export default (props: Props) => {
   const [state] = useApplicationState()
-  const [filter, setFilter] = useState<(Body['type'] | Specs['type'])[]>(['fighter', 'freighter', 'station'])
+  const relevant: Filter = ['fighter', 'freighter', 'station']
+  const ships: Filter = ['fighter', 'freighter']
+  const stations: Filter = ['station']
+  const bodies: Filter = ['star', 'gas-giant', 'moon', 'planet', 'belt']
+  const [filter, setFilter] = useState<Filter>(relevant)
   return (
     <div class="list-group">
       <div class="btn-group flex-wrap" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-primary" onClick={() => setFilter(['fighter', 'freighter', 'station'])}>
+        <button type="button" class="btn btn-primary" data-testid="filterRelevant" onClick={() => setFilter(relevant)}>
           relevant
         </button>
-        <button type="button" class="btn btn-primary" onClick={() => setFilter(['fighter', 'freighter'])}>
+        <button type="button" class="btn btn-primary" data-testid="filterShips" onClick={() => setFilter(ships)}>
           ships
         </button>
-        <button type="button" class="btn btn-primary" onClick={() => setFilter(['station'])}>
+        <button type="button" class="btn btn-primary" data-testid="filterStations" onClick={() => setFilter(stations)}>
           stations
         </button>
-        <button type="button" class="btn btn-primary" onClick={() => setFilter(['star', 'gas-giant', 'moon', 'planet', 'belt'])}>
+        <button type="button" class="btn btn-primary" data-testid="filterBodies" onClick={() => setFilter(bodies)}>
           bodies
         </button>
       </div>
@@ -71,7 +77,7 @@ export default (props: Props) => {
               onClick={() => props.onSelect(id)}
               style={{ cursor: 'pointer' }}
             >
-              {getSymbol(state, id)} {state.names.names[id]?.name || id}
+              {getSymbol(state, id)} {getName(state, id)}
             </a>
           )
         })}
