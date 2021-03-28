@@ -86,9 +86,7 @@ export const market: MarketState = {
     },
   },
   balances: { player: 100, ai: 2000 },
-  routes: {
-    ship3: { currentStep: 0, steps: [] },
-  },
+  routes: {},
 }
 
 export const updateMarkets = (dt: number): Mutation<State> => (d) => {
@@ -101,4 +99,8 @@ export const updateMarkets = (dt: number): Mutation<State> => (d) => {
 
 export function isTradingLocation(state: State, location: string): boolean {
   return state.market.markets[location]?.rates !== undefined
+}
+
+export const initTradeRouting = (id: string): Mutation<State> => (s) => {
+  s.market.routes[id] = { currentStep: 0, steps: [] }
 }

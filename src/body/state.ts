@@ -1,4 +1,5 @@
-import { Storage } from '../state'
+import { Specs } from '../ships/state'
+import { Mutation, State, Storage } from '../state'
 
 export interface Body {
   type: 'planet' | 'star' | 'moon' | 'gas-giant' | 'artificial' | 'belt'
@@ -21,8 +22,7 @@ export interface BodyState {
 }
 
 const ship: Body = { type: 'artificial', radius: 0.00001 }
-const spaceStation: Body = { type: 'artificial', radius: 0.0001 }
-const planetStation: Body = { type: 'artificial', radius: 0.0001 }
+const station: Body = { type: 'artificial', radius: 0.0001 }
 
 export const bodies: BodyState = {
   bodies: {
@@ -59,14 +59,11 @@ export const bodies: BodyState = {
     charon: { type: 'moon', radius: 0.002, escapeVelocity: 0.7 },
     eris: { type: 'planet', radius: 0.004, escapeVelocity: 1.2 },
     dysnomia: { type: 'moon', radius: 0.002, escapeVelocity: 0.7 },
-    ship1: ship,
-    ship2: ship,
-    ship3: ship,
-    spaceStation1: spaceStation,
-    heavyWeapons: planetStation,
-    solarPanel: planetStation,
-    fluxTube: planetStation,
-    advancedMaterials: planetStation,
+    spaceStation1: station,
+    heavyWeapons: station,
+    solarPanel: station,
+    fluxTube: station,
+    advancedMaterials: station,
   },
   resources: {
     sol: {
@@ -106,4 +103,8 @@ export const bodies: BodyState = {
       gases: 10,
     },
   },
+}
+
+export const addBodyForShip = (id: string, type: Specs['type']): Mutation<State> => (s) => {
+  s.bodies.bodies[id] = type === 'station' ? station : ship
 }

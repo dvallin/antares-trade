@@ -1,7 +1,8 @@
+import location from '../map/location'
 import { canDockAtLocation, dockAt } from '../ships/docks'
 import { attachOrbit } from '../star-system/state'
 import { Mutation, State } from '../state'
-import { getPosition, isNamedLocation, Location, Position } from './position'
+import { getPosition, isNamedLocation, Location, Position, setLocation } from './position'
 
 export interface Movement {
   to: Location
@@ -27,11 +28,7 @@ export const applyMovement = (dt: number, id: string): Mutation<State> => (d) =>
 
   const stepLength = v * dt
   if (dist <= stepLength) {
-    if (!isNamedLocation(to)) {
-      attachOrbit(id, 0.00005, undefined)(d)
-    } else if (canDockAtLocation(d, id, to)) {
-      dockAt(id, to)(d)
-    }
+    positionObjectAt(id, to)(d)
     d.dynamics.positions[id] = to
     delete d.dynamics.movements[id]
   } else {
@@ -41,5 +38,14 @@ export const applyMovement = (dt: number, id: string): Mutation<State> => (d) =>
       y: p1.y + (dy / dist) * stepLength,
     }
     movement.eta = (dist - stepLength) / v
+  }
+}
+
+export const positionObjectAt = (id: string, location: Location): Mutation<State> => (s) => {
+  setLocation(id, location)(s)
+  if (!isNamedLocation(location)) {
+    attachOrbit(id, 0.00005, undefined)(s)
+  } else if (canDockAtLocation(s, id, location)) {
+    dockAt(id, location)(s)
   }
 }

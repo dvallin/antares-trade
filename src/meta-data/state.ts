@@ -1,4 +1,4 @@
-import { State, Storage } from '../state'
+import { Mutation, State, Storage } from '../state'
 
 export interface Name {
   name: string
@@ -45,9 +45,6 @@ export const names: NameState = {
     charon: name('Charon (Pluto)'),
     eris: name('Eris'),
     dysnomia: name('Dysnomia (Eris)'),
-    ship1: name('Pirate Interceptor'),
-    ship2: name('Frigate Mk1'),
-    ship3: name('Heavy Freighter Mk2'),
     spaceStation1: name('Earth Trading Station'),
     heavyWeapons: name('Heavy Weapons Factory'),
     solarPanel: name('Solar Panel'),
@@ -58,4 +55,8 @@ export const names: NameState = {
 
 export const getName = (state: State, id: string, defaultValue?: string): string => {
   return state.names.names[id]?.name || defaultValue || id
+}
+
+export const setName = (id: string, name: string): Mutation<State> => (s) => {
+  s.names.names[id] = { name }
 }

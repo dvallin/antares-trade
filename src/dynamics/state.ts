@@ -14,13 +14,6 @@ export const dynamics: DynamicsState = {
   movements: {},
   positions: {
     heavyWeapons: 'mars',
-    ship1: {
-      system: 'sol',
-      x: 398,
-      y: 0,
-    },
-    ship2: 'ceres',
-    ship3: 'spaceStation1',
   },
 }
 
