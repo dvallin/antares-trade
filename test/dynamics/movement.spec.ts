@@ -6,6 +6,7 @@ import { dist } from '../../src/geometry'
 import { applyMovement, setMovement } from '../../src/dynamics/movement'
 import { getAsPosition, initialStateWithDynamics as state } from '../test-state'
 import { getCurrentStarSystem } from '../../src/star-system/state'
+import { toPolar } from '../../src/polar'
 
 describe('setMovement', () => {
   it('sets movement in state', () => {
@@ -56,9 +57,10 @@ describe('applyMovement', () => {
     const mutation = chain(setMovement('testShip', target, 1), applyMovement(1, 'testShip'))
     const newState = testMutation(mutation, testShipState)
 
-    expect(getCurrentStarSystem(newState)).toEqual(
+    const p = toPolar(1.5, 0.3)
+    expect(getCurrentStarSystem(newState)['sol']).toEqual(
       expect.objectContaining({
-        testShip: { phi: 0, radius: 2, speed: 0.00005 },
+        sub: { testShip: { phi: p.phi, radius: p.radius, speed: 0.00005 } },
       })
     )
   })

@@ -1,4 +1,4 @@
-import location from '../map/location'
+import { findStrongestParent } from '../body/state'
 import { canDockAtLocation, dockAt } from '../ships/docks'
 import { attachOrbit } from '../star-system/state'
 import { Mutation, State } from '../state'
@@ -44,7 +44,10 @@ export const applyMovement = (dt: number, id: string): Mutation<State> => (d) =>
 export const positionObjectAt = (id: string, location: Location): Mutation<State> => (s) => {
   setLocation(id, location)(s)
   if (!isNamedLocation(location)) {
-    attachOrbit(id, 0.00005, undefined)(s)
+    const parent = findStrongestParent(s, location)
+    if (parent) {
+      attachOrbit(id, 0.00005, parent)(s)
+    }
   } else if (canDockAtLocation(s, id, location)) {
     dockAt(id, location)(s)
   }

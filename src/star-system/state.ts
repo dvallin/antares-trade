@@ -1,7 +1,7 @@
 import { Draft } from 'immer'
 import { isBand, StarSystem, findAttachmentByParentInSystem, findAttachmentByChildInSystem, Band } from '.'
-import { getPosition } from '../dynamics/position'
-import { toPolar } from '../polar'
+import { getPosition, Position } from '../dynamics/position'
+import { fromPolar, toPolar } from '../polar'
 import { Mutation, State } from '../state'
 
 export interface StarSystemState {
@@ -22,11 +22,6 @@ const sol: StarSystem = {
     phi: 0,
     speed: 0.00005,
   },
-  solarPanel: {
-    radius: 250,
-    phi: 0,
-    speed: 0.0001,
-  },
   venus: {
     radius: 360,
     phi: 0,
@@ -37,11 +32,6 @@ const sol: StarSystem = {
     phi: 0,
     speed: 0.0001,
     sub: {
-      spaceStation1: {
-        radius: 0.3,
-        phi: 0,
-        speed: 0.01,
-      },
       moon: {
         radius: 1.3,
         phi: 0,
@@ -82,16 +72,6 @@ const sol: StarSystem = {
     sub: {
       io: {
         radius: 1.47,
-        phi: 0,
-        speed: 0.01,
-      },
-      fluxTube: {
-        radius: 1,
-        phi: 0,
-        speed: 0.01,
-      },
-      advancedMaterials: {
-        radius: 2,
         phi: 0,
         speed: 0.01,
       },
@@ -229,16 +209,14 @@ export const updateStarSystem = (dt: number, system: Draft<StarSystem>): void =>
   })
 }
 
-export const findAttachmentByParent = (d: Draft<State>, system: string, parent: string | undefined): Draft<StarSystem> => {
+export const findAttachmentByParent = (d: Draft<State>, system: string, parent: string): Draft<StarSystem> => {
   let attachment = d.starSystems.systems[system]
-  if (parent !== undefined) {
-    const a = findAttachmentByParentInSystem(attachment, parent)
-    if (a !== undefined) {
-      if (a.sub === undefined) {
-        a.sub = {}
-      }
-      attachment = a.sub
+  const a = findAttachmentByParentInSystem(attachment, parent)
+  if (a !== undefined) {
+    if (a.sub === undefined) {
+      a.sub = {}
     }
+    attachment = a.sub
   }
   return attachment
 }
@@ -255,7 +233,7 @@ export const detachOrbit = (id: string): Mutation<State> => (d) => {
   }
 }
 
-export const attachOrbit = (id: string, speed: number, parent: string | undefined): Mutation<State> => (d) => {
+export const attachOrbit = (id: string, speed: number, parent: string): Mutation<State> => (d) => {
   const position = getPosition(d, id)
   const attachment = findAttachmentByParent(d, position.system, parent)
   const center = parent !== undefined ? getPosition(d, parent) : { system: position.system, x: 0, y: 0 }
@@ -265,6 +243,12 @@ export const attachOrbit = (id: string, speed: number, parent: string | undefine
     phi: polar.phi,
     speed,
   }
+}
+
+export const getOrbitPosition = (state: State, parent: string, radius: number, phi: number): Position => {
+  const position = getPosition(state, parent)
+  const [x, y] = fromPolar({ radius, phi }, position.x, position.y)
+  return { x, y, system: position.system }
 }
 
 export const updateStarSystems = (dt: number): Mutation<State> => (d) => {

@@ -2,22 +2,47 @@ import produce from 'immer'
 import { initialState } from '../../src/application-state'
 import { maximumPossibleTradeItem } from '../../src/market/trade'
 import { Cargo } from '../../src/ships/cargo'
+import { createShip } from '../../src/ships/state'
+import { chain } from '../../src/state'
 
 const state = (rate: { buy?: number; sell?: number }, fromCargo: Cargo, toCargo: Cargo, fromBalance: number, toBalance: number) =>
-  produce(initialState, (d) => {
-    d.market.markets['from'] = {
-      production: [],
-      rates: {
-        a: rate,
+  produce(
+    initialState,
+    chain(
+      (d) => {
+        d.market.balances['p1'] = fromBalance
+        d.market.balances['p2'] = toBalance
       },
-    }
-    d.ships.cargo['from'] = fromCargo
-    d.ships.cargo['to'] = toCargo
-    d.ships.controllable['from'] = { by: 'p1' }
-    d.ships.controllable['to'] = { by: 'p2' }
-    d.market.balances['p1'] = fromBalance
-    d.market.balances['p2'] = toBalance
-  })
+      createShip({
+        id: 'from',
+        owner: 'p1',
+        type: 'station',
+        name: 'from',
+        speed: 0,
+        location: '',
+        totalDocks: 0,
+        totalCargo: fromCargo.total,
+        stock: fromCargo.stock,
+        market: {
+          production: [],
+          rates: {
+            a: rate,
+          },
+        },
+      }),
+      createShip({
+        id: 'to',
+        owner: 'p2',
+        type: 'freighter',
+        name: 'to',
+        speed: 0,
+        location: '',
+        totalDocks: 0,
+        totalCargo: toCargo.total,
+        stock: toCargo.stock,
+      })
+    )
+  )
 
 describe('maximumPossibleTradeItem', () => {
   const emptyCargo: Cargo = { total: 100, stock: {} }

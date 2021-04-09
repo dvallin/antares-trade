@@ -12,9 +12,7 @@ export interface DynamicsState {
 export const dynamics: DynamicsState = {
   initialized: false,
   movements: {},
-  positions: {
-    heavyWeapons: 'mars',
-  },
+  positions: {},
 }
 
 export const initDynamics = (state: Draft<State>): void => {

@@ -3,6 +3,7 @@ import { useState } from 'preact/hooks'
 
 import { useApplicationState } from '../../application-state'
 import { Body } from '../../body/state'
+import { filterEntities, relevant, ships, bodies, stations } from '../../dynamics'
 import { getName } from '../../meta-data/state'
 import { Specs } from '../../ships/state'
 import { State } from '../../state'
@@ -41,10 +42,6 @@ export function getSymbol(state: State, id: string): string {
 export type Filter = (Body['type'] | Specs['type'])[]
 export default (props: Props) => {
   const [state] = useApplicationState()
-  const relevant: Filter = ['fighter', 'freighter', 'station']
-  const ships: Filter = ['fighter', 'freighter']
-  const stations: Filter = ['station']
-  const bodies: Filter = ['star', 'gas-giant', 'moon', 'planet', 'belt']
   const [filter, setFilter] = useState<Filter>(relevant)
   return (
     <div class="list-group">
@@ -62,10 +59,7 @@ export default (props: Props) => {
           bodies
         </button>
       </div>
-      {props.objects
-        .filter(
-          (id) => filter.length === 0 || filter.includes(state.bodies.bodies[id].type) || filter.includes(state.ships.specs[id]?.type)
-        )
+      {filterEntities(state, props.objects, filter)
         .sort((id) => (state.ships.controllable[id]?.by === 'player' ? 1 : 2))
         .map((id) => {
           const font = state.ships.controllable[id]?.by === 'player' ? 'font-weight-bold' : 'font-weight-normal'

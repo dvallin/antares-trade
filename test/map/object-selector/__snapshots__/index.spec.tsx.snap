@@ -300,7 +300,7 @@ exports[`ObjectSelector filters ships 2`] = `
   <a
     className="list-group-item list-group-item-action font-weight-normal"
     href="#"
-    key="fighter"
+    key="station"
     onClick={[Function]}
     style={
       Object {
@@ -308,24 +308,9 @@ exports[`ObjectSelector filters ships 2`] = `
       }
     }
   >
-    ≛
+    ⌂
      
-    fighter
-  </a>
-  <a
-    className="list-group-item list-group-item-action font-weight-normal"
-    href="#"
-    key="freighter"
-    onClick={[Function]}
-    style={
-      Object {
-        "cursor": "pointer",
-      }
-    }
-  >
-    ⊔
-     
-    freighter
+    station
   </a>
 </div>
 `;

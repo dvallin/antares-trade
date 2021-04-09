@@ -1,3 +1,6 @@
+import { collectEntities, filterEntities, orbitable } from '../dynamics'
+import { getPosition, Location, Position } from '../dynamics/position'
+import { distSquared } from '../geometry'
 import { Specs } from '../ships/state'
 import { Mutation, State, Storage } from '../state'
 
@@ -59,8 +62,6 @@ export const bodies: BodyState = {
     charon: { type: 'moon', radius: 0.002, escapeVelocity: 0.7 },
     eris: { type: 'planet', radius: 0.004, escapeVelocity: 1.2 },
     dysnomia: { type: 'moon', radius: 0.002, escapeVelocity: 0.7 },
-    spaceStation1: station,
-    heavyWeapons: station,
     solarPanel: station,
     fluxTube: station,
     advancedMaterials: station,
@@ -107,4 +108,24 @@ export const bodies: BodyState = {
 
 export const addBodyForShip = (id: string, type: Specs['type']): Mutation<State> => (s) => {
   s.bodies.bodies[id] = type === 'station' ? station : ship
+}
+
+export const gravityAt = (state: State, id: string, position: Position): number => {
+  const p1 = getPosition(state, id)
+  const body = state.bodies.bodies[id]
+  const vescape = body.escapeVelocity || 1
+  // vescape = (2GM/R)^0.5 -> MG = (vescape^2*R)/(2)
+  const mg = (vescape * vescape * body.radius) / 2
+  return mg / distSquared(p1.x, p1.y, position.x, position.y)
+}
+
+export const findStrongestParent = (s: State, location: Location): string | undefined => {
+  const position = getPosition(s, location)
+  const allOrderedByGravity = filterEntities(s, collectEntities(s, position.system), orbitable)
+    .map((entity) => ({
+      entity,
+      gravity: gravityAt(s, entity, position),
+    }))
+    .sort((a, b) => (a.gravity < b.gravity ? 1 : -1))
+  return allOrderedByGravity[0]?.entity
 }

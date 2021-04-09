@@ -11,7 +11,8 @@
     "start": "webpack serve",
     "lint": "eslint '{src,test}/**/*.{js,jsx,ts,tsx}'",
     "format": "npm run lint -- --fix",
-    "test": "jest --detectOpenHandles --coverage"
+    "test": "jest --detectOpenHandles --coverage",
+    "test:watch": "jest --watch"
   },
   "lint-staged": {
     "*.{css,md,scss}": "prettier",

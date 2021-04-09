@@ -45,11 +45,6 @@ export const names: NameState = {
     charon: name('Charon (Pluto)'),
     eris: name('Eris'),
     dysnomia: name('Dysnomia (Eris)'),
-    spaceStation1: name('Earth Trading Station'),
-    heavyWeapons: name('Heavy Weapons Factory'),
-    solarPanel: name('Solar Panel'),
-    advancedMaterials: name('Advanced Materials Factory'),
-    fluxTube: name('Flux Tube'),
   },
 }
 

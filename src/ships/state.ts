@@ -1,7 +1,7 @@
 import { addBodyForShip } from '../body/state'
 import { Movement, positionObjectAt, setMovement } from '../dynamics/movement'
 import { Location } from '../dynamics/position'
-import { initTradeRouting } from '../market/state'
+import { initTradeRouting, Market, setMarket } from '../market/state'
 import { setName } from '../meta-data/state'
 import { detachOrbit } from '../star-system/state'
 import { chain, Mutation, State, Storage } from '../state'
@@ -26,42 +26,9 @@ export interface ShipsState {
 
 export const docks = (total: number): Docks => ({ total, docked: [] })
 export const ships: ShipsState = {
-  controllable: {
-    spaceStation1: { by: 'ai' },
-    heavyWeapons: { by: 'ai' },
-    solarPanel: { by: 'ai' },
-    advancedMaterials: { by: 'ai' },
-    fluxTube: { by: 'ai' },
-  },
-  specs: {
-    spaceStation1: { type: 'station', speed: 0.01, docks: docks(100) },
-    heavyWeapons: { type: 'station', speed: 0.0, docks: docks(4) },
-    solarPanel: { type: 'station', speed: 0.0, docks: docks(4) },
-    advancedMaterials: { type: 'station', speed: 0.0, docks: docks(4) },
-    fluxTube: { type: 'station', speed: 0.0, docks: docks(4) },
-  },
-  cargo: {
-    heavyWeapons: {
-      total: 20000,
-      stock: { clothing: 20, food: 100, energyCells: 100, uranium: 20 },
-    },
-    spaceStation1: {
-      total: 20000,
-      stock: { clothing: 20, food: 100, energyCells: 100 },
-    },
-    solarPanel: {
-      total: 20000,
-      stock: {},
-    },
-    advancedMaterials: {
-      total: 20000,
-      stock: { energyCells: 100, metals: 100 },
-    },
-    fluxTube: {
-      total: 20000,
-      stock: {},
-    },
-  },
+  controllable: {},
+  specs: {},
+  cargo: {},
 }
 
 export const addShip = (
@@ -100,13 +67,15 @@ export interface CreateShipProps {
   totalDocks: number
   totalCargo: number
   stock?: Stock
+  market?: Market
 }
 export const createShip = (props: CreateShipProps): Mutation<State> =>
   chain(
     addShip(props.id, props.owner, props.type, props.speed, props.totalDocks, props.totalCargo, props.stock || {}),
     addBodyForShip(props.id, props.type),
     setName(props.id, props.name),
-    positionObjectAt(props.id, props.location)
+    positionObjectAt(props.id, props.location),
+    setMarket(props.id, props.market)
   )
 
 export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<State> =>

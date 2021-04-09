@@ -1,9 +1,24 @@
 import { distSquared } from '../geometry'
+import { Body } from '../body/state'
 import { isTradingLocation } from '../market/state'
 import { isDockableLocation } from '../ships/docks'
+import { Specs } from '../ships/state'
 import { State } from '../state'
 import { Trajectory } from './movement'
 import { getPosition } from './position'
+
+export const relevant: Filter = ['fighter', 'freighter', 'station']
+export const ships: Filter = ['fighter', 'freighter']
+export const stations: Filter = ['station']
+export const bodies: Filter = ['star', 'gas-giant', 'moon', 'planet', 'belt']
+export const orbitable: Filter = ['star', 'gas-giant', 'moon', 'planet']
+export type Filter = (Body['type'] | Specs['type'])[]
+
+export function filterEntities(state: State, entities: string[], filter: Filter): string[] {
+  return entities.filter(
+    (id) => filter.length === 0 || filter.includes(state.bodies.bodies[id]?.type) || filter.includes(state.ships.specs[id]?.type)
+  )
+}
 
 export function collectEntities(state: State, system: string): string[] {
   return Object.entries(state.dynamics.positions)
@@ -40,6 +55,6 @@ export function collectTradingLocations(state: State, ship: string): string[] {
     .map(({ id }) => id)
 }
 
-export function getNearestTradingLocation(state: State, ship: string): string {
+export function getNearestTradingLocation(state: State, ship: string): string | undefined {
   return collectTradingLocations(state, ship)[0]
 }
