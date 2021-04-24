@@ -155,7 +155,7 @@ describe('updateTradeRoute', () => {
         }
       })
       produce(dockedShipWithRoute, updateTradeRoutes)
-      expect(performTrade).toHaveBeenCalledWith('station1', 'ship', { b: { amount: 5, price: -10 } })
+      expect(performTrade).toHaveBeenCalledWith('station1', 'ship', { b: { amount: -5, price: -10 } })
     })
 
     it('sells one', () => {
@@ -166,7 +166,7 @@ describe('updateTradeRoute', () => {
         }
       })
       produce(dockedShipWithRoute, updateTradeRoutes)
-      expect(performTrade).toHaveBeenCalledWith('station1', 'ship', { b: { amount: 1, price: -2 } })
+      expect(performTrade).toHaveBeenCalledWith('station1', 'ship', { b: { amount: -1, price: -2 } })
     })
   })
 })

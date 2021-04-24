@@ -1,3 +1,5 @@
+import { Mutation, State } from '../state'
+
 export type Stock = { [comodity: string]: number }
 export interface Cargo {
   total: number
@@ -14,4 +16,9 @@ export function getAvailableCargo(cargo: Cargo): number {
 
 export function getComodityAmount(cargo: Cargo, comodity: string): number {
   return Math.floor(cargo.stock[comodity] || 0)
+}
+
+export const updateStock = (id: string, comodity: string, delta: number): Mutation<State> => (s) => {
+  const stock = s.ships.cargo[id].stock
+  stock[comodity] = Math.max(0, (stock[comodity] || 0) + delta)
 }

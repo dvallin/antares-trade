@@ -1,6 +1,6 @@
 import produce, { Draft } from 'immer'
 import { Resources } from '../body/state'
-import { Cargo, getUsedCargo } from '../ships/cargo'
+import { Cargo, getAvailableCargo } from '../ships/cargo'
 import { State } from '../state'
 import { getResource } from './resources'
 
@@ -29,7 +29,9 @@ export function canConsumeFromCargo(production: Production, cargo: Cargo): boole
 }
 
 export function canProduceIntoCargo(production: Production, cargo: Cargo): boolean {
-  return getUsedCargo(cargo) + Object.values(production.produces).reduce((a, b) => a + b, 0) <= cargo.total
+  const totalConsumption = Object.values(production.consumes).reduce((a, b) => a + b, 0)
+  const totalProduction = Object.values(production.produces).reduce((a, b) => a + b, 0)
+  return totalProduction - totalConsumption <= getAvailableCargo(cargo)
 }
 
 export const applyProduction = (state: Draft<State>, dt: number, id: string, production: Production): void => {

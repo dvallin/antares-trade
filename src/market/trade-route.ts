@@ -1,5 +1,7 @@
+import { getEscapeVelocity } from '../body/state'
 import { getNearestTradingLocation } from '../dynamics'
 import { isNamedLocation } from '../dynamics/position'
+import { getComodityAmount } from '../ships/cargo'
 import { moveShip } from '../ships/state'
 import { Mutation, State } from '../state'
 import { getDefaultRate } from './rates'
@@ -32,6 +34,15 @@ export const addStep = (id: string): Mutation<State> => (d) => {
   }
 }
 
+export const restart = (id: string): Mutation<State> => (d) => {
+  const route = d.market.routes[id]
+  route.currentStep = 0
+
+  const step = route.steps[route.currentStep]
+  const speed = d.ships.specs[id].speed
+  moveShip(id, step.location, speed)(d)
+}
+
 export const removeStep = (id: string, index: number): Mutation<State> => (d) => {
   const route = d.market.routes[id]
   route.steps.splice(index, 1)
@@ -59,7 +70,11 @@ export const updateTradeRoutes: Mutation<State> = (d) => {
       const step = route.steps[route.currentStep]
       if (step.location === position) {
         const fromOperation = step.operation === 'sell' ? 'buy' : 'sell'
-        const item = maximumPossibleTradeItem(d, position, id, step.comodity, fromOperation, step.amount)
+        let maxAmount = step.amount
+        if (step.operation === 'sell' && step.comodity === 'energyCells') {
+          maxAmount = getComodityAmount(d.ships.cargo[id], 'energyCells') - (getEscapeVelocity(d, position) || 0)
+        }
+        const item = maximumPossibleTradeItem(d, position, id, step.comodity, fromOperation, maxAmount)
         if (item !== undefined) {
           performTrade(position, id, { [step.comodity]: item })(d)
         }

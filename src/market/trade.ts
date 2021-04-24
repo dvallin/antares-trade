@@ -27,14 +27,12 @@ export const maximumPossibleTradeItem = (
   }
 
   const rates = state.market.markets[from].rates
-  const rate = rates[comodity]?.[operation]
-  if (rate === undefined) {
+  const price = rates[comodity]?.[operation]
+  if (price === undefined) {
     return undefined
   }
-  const sign = getRateSign(operation)
-  const price = sign * rate
-  const payer = state.ships.controllable[price < 0 ? from : to].by
-  amounts.push(Math.floor(state.market.balances[payer] / Math.abs(price)))
+  const payer = state.ships.controllable[operation === 'buy' ? from : to].by
+  amounts.push(Math.floor(state.market.balances[payer] / price))
 
   const fromCargo = state.ships.cargo[from]
   const toCargo = state.ships.cargo[to]
@@ -47,11 +45,12 @@ export const maximumPossibleTradeItem = (
   }
 
   const amount = Math.min(...amounts)
-  if (amount === 0) {
+  if (amount <= 0) {
     return undefined
   }
 
-  return { amount, price: amount * price }
+  const sign = getRateSign(operation)
+  return { amount: amount * sign, price: amount * price * sign }
 }
 
 export const performTrade = (from: string, to: string, trade: Trade): Mutation<State> => (d) => {

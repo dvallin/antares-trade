@@ -69,7 +69,7 @@ describe('maximumPossibleTradeItem', () => {
   })
   it('buys everything if possible', () => {
     const s = state({ buy: 2 }, emptyCargo, cargo(10), 20, 0)
-    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', undefined)).toEqual({ amount: 10, price: -20 })
+    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', undefined)).toEqual({ amount: -10, price: -20 })
   })
 
   it('sells only as much as wanted', () => {
@@ -78,7 +78,7 @@ describe('maximumPossibleTradeItem', () => {
   })
   it('buys only as much as wanted', () => {
     const s = state({ buy: 2 }, emptyCargo, cargo(10), 20, 0)
-    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', 5)).toEqual({ amount: 5, price: -10 })
+    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', 5)).toEqual({ amount: -5, price: -10 })
   })
 
   it('sells only as much as the cargo can hold', () => {
@@ -87,7 +87,7 @@ describe('maximumPossibleTradeItem', () => {
   })
   it('buys only as much as the cargo can hold', () => {
     const s = state({ buy: 2 }, emptyCargo, cargo(5), 20, 0)
-    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', undefined)).toEqual({ amount: 5, price: -10 })
+    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', undefined)).toEqual({ amount: -5, price: -10 })
   })
 
   it('sells only as much as affordable', () => {
@@ -96,6 +96,6 @@ describe('maximumPossibleTradeItem', () => {
   })
   it('buys only as much as affordable', () => {
     const s = state({ buy: 2 }, emptyCargo, cargo(10), 10, 0)
-    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', undefined)).toEqual({ amount: 5, price: -10 })
+    expect(maximumPossibleTradeItem(s, 'from', 'to', 'a', 'buy', undefined)).toEqual({ amount: -5, price: -10 })
   })
 })

@@ -6,7 +6,7 @@ import { setName } from '../meta-data/state'
 import { detachOrbit } from '../star-system/state'
 import { chain, Mutation, State, Storage } from '../state'
 import { Cargo, Stock } from './cargo'
-import { Docks, undockShip } from './docks'
+import { canUndock, Docks, isDocked, undockShip } from './docks'
 
 export interface Specs {
   type: 'freighter' | 'station' | 'fighter'
@@ -78,5 +78,11 @@ export const createShip = (props: CreateShipProps): Mutation<State> =>
     setMarket(props.id, props.market)
   )
 
-export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<State> =>
-  chain(undockShip(ship), detachOrbit(ship), setMovement(ship, to, v))
+export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<State> => (state) => {
+  const move = setMovement(ship, to, v)
+  if (!isDocked(state, ship)) {
+    chain(detachOrbit(ship), move)(state)
+  } else if (canUndock(state, ship)) {
+    chain(undockShip(ship), move)(state)
+  }
+}

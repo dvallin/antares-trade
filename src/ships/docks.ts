@@ -1,5 +1,7 @@
-import { isNamedLocation } from '../dynamics/position'
+import { getEscapeVelocity } from '../body/state'
+import { getRootLocation, getRootOfNamedLocation, isNamedLocation } from '../dynamics/position'
 import { Mutation, State } from '../state'
+import { updateStock } from './cargo'
 
 export interface Docks {
   total: number
@@ -11,11 +13,7 @@ export function isDockable(docks: Docks): boolean {
 }
 
 export function canDockAt(docks: Docks): boolean {
-  const free = docks.total - docks.docked.length
-  if (free > 0) {
-    return true
-  }
-  return false
+  return docks.total > docks.docked.length
 }
 
 export const dockAt = (id: string, location: string): Mutation<State> => (d) => {
@@ -25,15 +23,31 @@ export const dockAt = (id: string, location: string): Mutation<State> => (d) => 
   }
 }
 
-export const undockShip = (id: string): Mutation<State> => (d) => {
-  const p = d.dynamics.positions[id]
+export function mapDock<T>(state: State, id: string, fn: (dock: Docks, location: string) => T): T | undefined {
+  const p = state.dynamics.positions[id]
   if (isNamedLocation(p)) {
-    const docks = d.ships.specs[p]?.docks
+    const docks = state.ships.specs[p]?.docks
     if (docks) {
-      docks.docked = docks.docked.filter((v) => v !== id)
+      return fn(docks, p)
     }
   }
+  return undefined
 }
+
+export const isDocked = (state: State, id: string): boolean => mapDock(state, id, (docks) => docks.docked.includes(id)) || false
+
+export const undockShip = (id: string): Mutation<State> => (state) =>
+  mapDock(state, id, (docks, location) => {
+    const escapeVelocity = getEscapeVelocity(state, location)
+    updateStock(id, 'energyCells', -(escapeVelocity || 0))(state)
+    docks.docked = docks.docked.filter((v) => v !== id)
+  })
+
+export const canUndock = (state: State, id: string): boolean =>
+  mapDock(state, id, (_, location) => {
+    const escapeVelocity = getEscapeVelocity(state, location)
+    return escapeVelocity !== undefined ? (state.ships.cargo[id].stock['energyCells'] || 0) >= escapeVelocity : true
+  }) || false
 
 export function isDockableLocation(state: State, location: string): boolean {
   const docks = state.ships.specs[location]?.docks

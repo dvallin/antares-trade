@@ -1,5 +1,5 @@
 import { collectEntities, filterEntities, orbitable } from '../dynamics'
-import { getPosition, Location, Position } from '../dynamics/position'
+import { getPosition, getRoot, Location, Position } from '../dynamics/position'
 import { distSquared } from '../geometry'
 import { Specs } from '../ships/state'
 import { Mutation, State, Storage } from '../state'
@@ -117,6 +117,11 @@ export const gravityAt = (state: State, id: string, position: Position): number 
   // vescape = (2GM/R)^0.5 -> MG = (vescape^2*R)/(2)
   const mg = (vescape * vescape * body.radius) / 2
   return mg / distSquared(p1.x, p1.y, position.x, position.y)
+}
+
+export const getEscapeVelocity = (state: State, id: string): number | undefined => {
+  const root = getRoot(state, id)
+  return state.bodies.bodies[root].escapeVelocity
 }
 
 export const findStrongestParent = (s: State, location: Location): string | undefined => {

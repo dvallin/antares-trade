@@ -6,16 +6,16 @@ export interface Rates {
   }
 }
 
-export function getRateType(amount: number, sellerSide = true): operation {
-  return (sellerSide ? amount > 0 : amount <= 0) ? 'sell' : 'buy'
+export function getRateType(amount: number, marketSide = true): operation {
+  return (marketSide ? amount > 0 : amount <= 0) ? 'sell' : 'buy'
 }
 
-export function getRateSign(rateType: operation, sellerSide = true): number {
-  return (sellerSide ? 1 : -1) * (rateType === 'sell' ? 1 : -1)
+export function getRateSign(rateType: operation, marketSide = true): number {
+  return (marketSide ? 1 : -1) * (rateType === 'sell' ? 1 : -1)
 }
 
-export function getPrice(rates: Rates, comodity: string, amount: number, sellerSide = true): number {
-  const rateType = getRateType(amount, sellerSide)
+export function getPrice(rates: Rates, comodity: string, amount: number, marketSide = true): number {
+  const rateType = getRateType(amount, marketSide)
   const pricePerUnit = rates[comodity][rateType] || 0
   return pricePerUnit * amount
 }

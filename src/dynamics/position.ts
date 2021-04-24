@@ -13,6 +13,10 @@ export const isNamedLocation = (l: Location): l is string => typeof l === 'strin
 
 export const getPosition = (state: State, location: Location): Position =>
   isNamedLocation(location) ? getPosition(state, state.dynamics.positions[location] || { system: 'unknown', x: 0, y: 0 }) : location
+export const getRoot = (state: State, id: string): string => getRootByLocation(state, id) || id
+export const getRootByLocation = (state: State, location: Location): string | undefined =>
+  isNamedLocation(location) ? getRootByLocation(state, state.dynamics.positions[location]) || location : undefined
+
 export const getLocation = (state: State, id: string): Location => state.dynamics.positions[id]
 export const setLocation = (id: string, location: Location): Mutation<State> => (s) => {
   s.dynamics.positions[id] = location
