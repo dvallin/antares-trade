@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact'
 import { memo } from 'preact/compat'
 import { useApplicationState } from '../application-state'
-import { collectTradingLocations } from '../dynamics'
+import { collectTradingLocationsSortedByDistance } from '../dynamics'
 import { getName } from '../meta-data/state'
 import { getComodities } from './rates'
 import { addStep, removeStep, restart, updateStep } from './trade-route'
@@ -32,7 +32,7 @@ export default (props: { id: string }) => {
   const [state, mutate] = useApplicationState()
   const hasTradeAutomation = state.ships.specs[props.id]?.type === 'freighter'
   const route = state.market.routes[props.id]
-  const locations = collectTradingLocations(state, props.id)
+  const locations = collectTradingLocationsSortedByDistance(state, props.id)
   if (!hasTradeAutomation || !route) {
     return <Fragment />
   }

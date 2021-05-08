@@ -40,10 +40,10 @@ function addBand(state: State, id: string, x: number): State {
 export const stateWithResources = produce(state, (s) => {
   s.bodies.resources = {}
   s.bodies.resources['sol'] = {
-    luminocity: 100000,
+    luminosity: 100000,
   }
   s.bodies.resources['jupiter'] = {
-    luminocity: 0.2,
+    luminosity: 0.2,
     radiation: 10,
     gases: 10,
     magnetism: 10,
@@ -74,7 +74,7 @@ function validateBodyResource(resource: 'gases' | 'metals' | 'water', referenceE
   })
 }
 
-function validateFieldResource(resource: 'luminocity' | 'magnetism' | 'radiation', referenceEntity: string, referenceValue: number) {
+function validateFieldResource(resource: 'luminosity' | 'magnetism' | 'radiation', referenceEntity: string, referenceValue: number) {
   const referencePosition = getPosition(stateWithResources, referenceEntity)
   describe(resource, () => {
     it('calculates for named object', () => {
@@ -100,7 +100,7 @@ function validateFieldResource(resource: 'luminocity' | 'magnetism' | 'radiation
 }
 
 describe('getResource', () => {
-  validateFieldResource('luminocity', 'sol', 100000)
+  validateFieldResource('luminosity', 'sol', 100000)
   validateFieldResource('magnetism', 'jupiter', 10)
   validateFieldResource('radiation', 'jupiter', 10)
   validateBodyResource('water', 'jupiter', 10)
@@ -110,7 +110,7 @@ describe('getResource', () => {
 
 describe('getResources', () => {
   it('collects all resources', () => {
-    expect(getResources(stateWithResources, 'sol').luminocity).toBeCloseTo(100000)
+    expect(getResources(stateWithResources, 'sol').luminosity).toBeCloseTo(100000)
     expect(getResources(stateWithResources, 'jupiter')).toEqual(
       expect.objectContaining({
         gases: 10,

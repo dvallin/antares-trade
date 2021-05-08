@@ -255,8 +255,12 @@ export const updateStarSystems = (dt: number): Mutation<State> => (d) => {
   Object.values(d.starSystems.systems).forEach((system) => updateStarSystem(dt, system))
 }
 
+export const getStarSystem = (state: State, system: string): StarSystem => {
+  return state.starSystems.systems[system]
+}
+
 export const getCurrentStarSystem = (state: State): StarSystem => {
-  return state.starSystems.systems[state.starSystems.currentSystem]
+  return getStarSystem(state, state.starSystems.currentSystem)
 }
 
 export function getBandsFromSystem(state: State, starSystem: StarSystem): { id: string; band: Band }[] {

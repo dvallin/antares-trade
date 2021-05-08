@@ -2,7 +2,7 @@ import { h } from 'preact'
 
 import ObjectSelector from '.'
 
-import { collectEntities, collectDockableLocations } from '../../dynamics'
+import { collectEntities, collectDockableLocationsSortedByDistance } from '../../dynamics'
 import { useApplicationState } from '../../application-state'
 
 export interface Props {
@@ -17,6 +17,6 @@ export const AllObjectsSelector = (props: Props) => {
 export const DockableLocationsSelector = (props: Props) => {
   const [state] = useApplicationState()
   const selected = state.map.selected || ''
-  const entities = collectDockableLocations(state, selected)
+  const entities = collectDockableLocationsSortedByDistance(state, selected)
   return <ObjectSelector onSelect={props.onSelect} objects={entities.filter((e) => e !== selected)} />
 }

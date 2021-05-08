@@ -1,12 +1,13 @@
-import { addBodyForShip } from '../body/state'
+import { addBodyForShip, getEscapeVelocity } from '../body/state'
 import { Movement, positionObjectAt, setMovement } from '../dynamics/movement'
-import { Location } from '../dynamics/position'
-import { initTradeRouting, Market, setMarket } from '../market/state'
+import { getLocation, isNamedLocation, Location } from '../dynamics/position'
+import { initTradeRouting, Market, setMarket, setTradeRoute } from '../market/state'
+import { TradeRoute } from '../market/trade-route'
 import { setName } from '../meta-data/state'
 import { detachOrbit } from '../star-system/state'
 import { chain, Mutation, State, Storage } from '../state'
-import { Cargo, Stock } from './cargo'
-import { canUndock, Docks, isDocked, undockShip } from './docks'
+import { Cargo, Stock, updateStock } from './cargo'
+import { Docks, isDocked, undockShip } from './docks'
 
 export interface Specs {
   type: 'freighter' | 'station' | 'fighter'
@@ -68,6 +69,7 @@ export interface CreateShipProps {
   totalCargo: number
   stock?: Stock
   market?: Market
+  tradeRoute?: TradeRoute
 }
 export const createShip = (props: CreateShipProps): Mutation<State> =>
   chain(
@@ -75,14 +77,38 @@ export const createShip = (props: CreateShipProps): Mutation<State> =>
     addBodyForShip(props.id, props.type),
     setName(props.id, props.name),
     positionObjectAt(props.id, props.location),
-    setMarket(props.id, props.market)
+    setMarket(props.id, props.market),
+    setTradeRoute(props.id, props.tradeRoute)
   )
+
+export const getEscapeEnergyCost = (state: State, location: string): number => {
+  return Math.floor(getEscapeVelocity(state, location) || 0)
+}
+
+export const escape = (id: string): Mutation<State> => (state) => {
+  const p = state.dynamics.positions[id]
+  if (isNamedLocation(p)) {
+    const needsEscape = getLocation(state, id) === getLocation(state, p)
+    if (needsEscape) {
+      updateStock(id, 'energyCells', -getEscapeEnergyCost(state, p))
+    }
+  }
+}
+
+export const canEscape = (state: State, id: string): boolean => {
+  const p = state.dynamics.positions[id]
+  if (isNamedLocation(p)) {
+    const cost = getEscapeEnergyCost(state, p)
+    return cost !== undefined ? (state.ships.cargo[id].stock['energyCells'] || 0) >= cost : true
+  }
+  return true
+}
 
 export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<State> => (state) => {
   const move = setMovement(ship, to, v)
   if (!isDocked(state, ship)) {
     chain(detachOrbit(ship), move)(state)
-  } else if (canUndock(state, ship)) {
-    chain(undockShip(ship), move)(state)
+  } else if (canEscape(state, ship)) {
+    chain(undockShip(ship), escape(ship), move)(state)
   }
 }

@@ -1,8 +1,7 @@
-import { getEscapeVelocity } from '../body/state'
 import { getNearestTradingLocation } from '../dynamics'
 import { isNamedLocation } from '../dynamics/position'
 import { getComodityAmount } from '../ships/cargo'
-import { moveShip } from '../ships/state'
+import { getEscapeEnergyCost, moveShip } from '../ships/state'
 import { Mutation, State } from '../state'
 import { getDefaultRate } from './rates'
 import { maximumPossibleTradeItem, performTrade } from './trade'
@@ -72,7 +71,7 @@ export const updateTradeRoutes: Mutation<State> = (d) => {
         const fromOperation = step.operation === 'sell' ? 'buy' : 'sell'
         let maxAmount = step.amount
         if (step.operation === 'sell' && step.comodity === 'energyCells') {
-          maxAmount = getComodityAmount(d.ships.cargo[id], 'energyCells') - (getEscapeVelocity(d, position) || 0)
+          maxAmount = getComodityAmount(d.ships.cargo[id], 'energyCells') - getEscapeEnergyCost(d, position)
         }
         const item = maximumPossibleTradeItem(d, position, id, step.comodity, fromOperation, maxAmount)
         if (item !== undefined) {

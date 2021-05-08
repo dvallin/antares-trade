@@ -13,7 +13,7 @@ export default () => {
   return (
     <div>
       <h2>
-        Cargo ({getUsedCargo(cargo)}/{cargo.total})
+        Cargo ({getUsedCargo(cargo).toFixed(0)}/{cargo.total})
       </h2>
       <table class="table table-sm">
         <tbody>

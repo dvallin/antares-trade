@@ -11,7 +11,7 @@ export interface Body {
 }
 
 export interface Resources {
-  luminocity: number
+  luminosity: number
   metals: number
   gases: number
   radiation: number
@@ -68,7 +68,7 @@ export const bodies: BodyState = {
   },
   resources: {
     sol: {
-      luminocity: 100000,
+      luminosity: 100000,
     },
     mercury: {
       metals: 1,
@@ -77,7 +77,7 @@ export const bodies: BodyState = {
       gases: 0.1,
     },
     jupiter: {
-      luminocity: 0.2,
+      luminosity: 0.2,
       radiation: 10,
       gases: 10,
       magnetism: 10,
@@ -109,6 +109,8 @@ export const bodies: BodyState = {
 export const addBodyForShip = (id: string, type: Specs['type']): Mutation<State> => (s) => {
   s.bodies.bodies[id] = type === 'station' ? station : ship
 }
+
+export const isArtificial = (state: State, id: string): boolean => state.bodies.bodies[id].type === 'artificial'
 
 export const gravityAt = (state: State, id: string, position: Position): number => {
   const p1 = getPosition(state, id)

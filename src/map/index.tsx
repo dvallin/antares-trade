@@ -8,6 +8,7 @@ import { dragViewBox, zoomViewBox } from '../view-box'
 import { dist } from '../geometry'
 import { getPosition } from '../dynamics/position'
 import { getCurrentStarSystem } from '../star-system/state'
+import { isArtificial } from '../body/state'
 
 const colorScheme = {
   foreground: '#f1f1f1',
@@ -59,7 +60,7 @@ export const StarSystemSvg = (props: { system: StarSystem; cx: number; cy: numbe
               <RingSvg innerRadius={part.innerRadius} outerRadius={part.outerRadius} cx={props.cx} cy={props.cy} />
             </g>
           )
-        } else {
+        } else if (!isArtificial(state, id) || state.map.selected === id) {
           const p = getPosition(state, id)
           return (
             <g id={id}>

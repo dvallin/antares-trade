@@ -1,7 +1,5 @@
-import { getEscapeVelocity } from '../body/state'
-import { getRootLocation, getRootOfNamedLocation, isNamedLocation } from '../dynamics/position'
+import { isNamedLocation } from '../dynamics/position'
 import { Mutation, State } from '../state'
-import { updateStock } from './cargo'
 
 export interface Docks {
   total: number
@@ -37,17 +35,9 @@ export function mapDock<T>(state: State, id: string, fn: (dock: Docks, location:
 export const isDocked = (state: State, id: string): boolean => mapDock(state, id, (docks) => docks.docked.includes(id)) || false
 
 export const undockShip = (id: string): Mutation<State> => (state) =>
-  mapDock(state, id, (docks, location) => {
-    const escapeVelocity = getEscapeVelocity(state, location)
-    updateStock(id, 'energyCells', -(escapeVelocity || 0))(state)
+  mapDock(state, id, (docks) => {
     docks.docked = docks.docked.filter((v) => v !== id)
   })
-
-export const canUndock = (state: State, id: string): boolean =>
-  mapDock(state, id, (_, location) => {
-    const escapeVelocity = getEscapeVelocity(state, location)
-    return escapeVelocity !== undefined ? (state.ships.cargo[id].stock['energyCells'] || 0) >= escapeVelocity : true
-  }) || false
 
 export function isDockableLocation(state: State, location: string): boolean {
   const docks = state.ships.specs[location]?.docks

@@ -5,7 +5,7 @@ import { isDockableLocation } from '../ships/docks'
 import { Specs } from '../ships/state'
 import { State } from '../state'
 import { Trajectory } from './movement'
-import { getPosition } from './position'
+import { getPosition, Position } from './position'
 
 export const relevant: Filter = ['fighter', 'freighter', 'station']
 export const ships: Filter = ['fighter', 'freighter']
@@ -33,7 +33,7 @@ export function collectTrajectories(state: State, system: string): Trajectory[] 
     .filter(({ from, to }) => from.system === system || to.system === system)
 }
 
-export function collectDockableLocations(state: State, ship: string): string[] {
+export function collectDockableLocationsSortedByDistance(state: State, ship: string): string[] {
   const p = getPosition(state, ship)
   return Object.entries(state.dynamics.positions)
     .map(([id, l]) => ({ id, position: getPosition(state, l) }))
@@ -44,17 +44,30 @@ export function collectDockableLocations(state: State, ship: string): string[] {
     .map(({ id }) => id)
 }
 
-export function collectTradingLocations(state: State, ship: string): string[] {
+export function collectTradingLocationsSortedByDistance(state: State, ship: string): string[] {
   const p = getPosition(state, ship)
-  return Object.entries(state.dynamics.positions)
-    .map(([id, l]) => ({ id, position: getPosition(state, l) }))
-    .filter(({ position }) => position.system === p.system)
-    .filter(({ id }) => isTradingLocation(state, id))
+  return collectTradingLocations(state, p.system)
     .map(({ id, position }) => ({ id, dist: distSquared(position.x, position.y, p.x, p.y) }))
     .sort((l, r) => l.dist - r.dist)
     .map(({ id }) => id)
 }
 
+export type IdWithPosition = { id: string; position: Position }
+
+export function collectLocations(state: State, system: string): IdWithPosition[] {
+  return Object.entries(state.dynamics.positions)
+    .map(([id, l]) => ({ id, position: getPosition(state, l) }))
+    .filter(({ position }) => position.system === system)
+}
+
+export function collectDockableLocations(state: State, system: string): IdWithPosition[] {
+  return collectLocations(state, system).filter(({ id }) => isDockableLocation(state, id))
+}
+
+export function collectTradingLocations(state: State, system: string): IdWithPosition[] {
+  return collectLocations(state, system).filter(({ id }) => isTradingLocation(state, id))
+}
+
 export function getNearestTradingLocation(state: State, ship: string): string | undefined {
-  return collectTradingLocations(state, ship)[0]
+  return collectTradingLocationsSortedByDistance(state, ship)[0]
 }

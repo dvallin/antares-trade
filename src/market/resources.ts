@@ -8,7 +8,7 @@ import { State } from '../state'
 
 export function getResources(state: State, id: string): Resources {
   return {
-    luminocity: getResource(state, 'luminocity', id),
+    luminosity: getResource(state, 'luminosity', id),
     magnetism: getResource(state, 'magnetism', id),
     radiation: getResource(state, 'radiation', id),
     metals: getResource(state, 'metals', id),
@@ -40,7 +40,7 @@ export function getResource(state: State, resource: keyof Resources, id: string)
         .reduce((a, b) => a + b, 0)
       return selfResource + bandResource
     }
-    case 'luminocity':
+    case 'luminosity':
     case 'magnetism':
     case 'radiation': {
       let position = getPosition(state, id)

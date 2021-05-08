@@ -1,5 +1,5 @@
 import { Mutation, State, Storage } from '../state'
-import { applyProduction, Production } from './production'
+import { applyProduction, getScaledProduction, Production } from './production'
 import { Rates } from './rates'
 import { TradeRoute } from './trade-route'
 
@@ -28,6 +28,19 @@ export const updateMarkets = (dt: number): Mutation<State> => (d) => {
   })
 }
 
+export function getDemandPerHour(state: State, location: string, comodity: string): number {
+  const production = state.market.markets[location]?.production || []
+  return production.map((p) => p.consumes[comodity] || 0).reduce((a, b) => a + b, 0)
+}
+
+export function getProductionPerHour(state: State, location: string, comodity: string): number {
+  const production = state.market.markets[location]?.production || []
+  return production
+    .map((p) => getScaledProduction(state, location, p))
+    .map((p) => p.produces[comodity] || 0)
+    .reduce((a, b) => a + b, 0)
+}
+
 export function isTradingLocation(state: State, location: string): boolean {
   return state.market.markets[location]?.rates !== undefined
 }
@@ -41,5 +54,13 @@ export const setMarket = (id: string, market?: Market): Mutation<State> => (s) =
     s.market.markets[id] = market
   } else {
     delete s.market.markets[id]
+  }
+}
+
+export const setTradeRoute = (id: string, tradeRoute?: TradeRoute): Mutation<State> => (s) => {
+  if (tradeRoute) {
+    s.market.routes[id] = tradeRoute
+  } else {
+    delete s.market.routes[id]
   }
 }

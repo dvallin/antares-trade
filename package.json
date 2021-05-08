@@ -34,7 +34,8 @@
   "dependencies": {
     "bootstrap": "^4.6.0",
     "immer": "^8.0.0",
-    "preact": "^10.5.12"
+    "preact": "^10.5.12",
+    "random-js": "^2.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
@@ -42,6 +43,7 @@
     "@babel/preset-typescript": "^7.12.7",
     "@types/enzyme": "^3.10.8",
     "@types/jest": "^26.0.20",
+    "@types/random-js": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^4.11.1",
     "@typescript-eslint/parser": "^4.11.1",
     "enzyme": "^3.11.0",

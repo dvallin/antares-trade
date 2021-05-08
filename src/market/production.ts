@@ -24,6 +24,12 @@ export function getResourceScalar(state: State, production: Production, id: stri
   return resources.length > 0 ? resources.reduce((previous, scale) => Math.min(previous, scale)) : 1
 }
 
+export function getScaledProduction(state: State, id: string, production: Production, dt = productionTimestep): Production {
+  const resourceScale = getResourceScalar(state, production, id)
+  const timeScale = dt / productionTimestep
+  return scaleProduction(production, resourceScale * timeScale)
+}
+
 export function canConsumeFromCargo(production: Production, cargo: Cargo): boolean {
   return Object.entries(production.consumes).every(([k, v]) => cargo.stock[k] >= v)
 }
@@ -38,9 +44,7 @@ export const applyProduction = (state: Draft<State>, dt: number, id: string, pro
   const cargo = state.ships.cargo[id]
 
   if (cargo) {
-    const resourceScale = getResourceScalar(state, production, id)
-    const timeScale = dt / productionTimestep
-    const scaledProduction = scaleProduction(production, resourceScale * timeScale)
+    const scaledProduction = getScaledProduction(state, id, production, dt)
     if (canConsumeFromCargo(scaledProduction, cargo) && canProduceIntoCargo(scaledProduction, cargo)) {
       Object.entries(scaledProduction.consumes).forEach(([k, v]) => {
         cargo.stock[k] -= v
