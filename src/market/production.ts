@@ -40,18 +40,34 @@ export function canProduceIntoCargo(production: Production, cargo: Cargo): boole
   return totalProduction - totalConsumption <= getAvailableCargo(cargo)
 }
 
-export const applyProduction = (state: Draft<State>, dt: number, id: string, production: Production): void => {
+export function calculateProductionUpdate(state: State, dt: number, id: string, production: Production): Production | undefined {
   const cargo = state.ships.cargo[id]
 
   if (cargo) {
     const scaledProduction = getScaledProduction(state, id, production, dt)
     if (canConsumeFromCargo(scaledProduction, cargo) && canProduceIntoCargo(scaledProduction, cargo)) {
-      Object.entries(scaledProduction.consumes).forEach(([k, v]) => {
-        cargo.stock[k] -= v
-      })
-      Object.entries(scaledProduction.produces).forEach(([k, v]) => {
-        cargo.stock[k] = (cargo.stock[k] || 0) + v
-      })
+      return scaledProduction
     }
+  }
+  return undefined
+}
+
+export function applyProductionUpdate(state: Draft<State>, id: string, production: Production): void {
+  const cargo = state.ships.cargo[id]
+
+  if (cargo) {
+    Object.entries(production.consumes).forEach(([k, v]) => {
+      cargo.stock[k] -= v
+    })
+    Object.entries(production.produces).forEach(([k, v]) => {
+      cargo.stock[k] = (cargo.stock[k] || 0) + v
+    })
+  }
+}
+
+export const applyProduction = (state: Draft<State>, dt: number, id: string, production: Production): void => {
+  const update = calculateProductionUpdate(state, dt, id, production)
+  if (update) {
+    applyProductionUpdate(state, id, update)
   }
 }

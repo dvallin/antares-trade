@@ -1,4 +1,5 @@
 const Critters = require('critters-webpack-plugin')
+const WorkerPlugin = require('worker-plugin')
 const publicPath = '/antares-trade'
 
 export default {
@@ -16,6 +17,7 @@ export default {
       const isCritters = plugin instanceof Critters
       return !isCritters
     })
+    config.plugins.push(new WorkerPlugin())
     config.output.publicPath = `${publicPath}/`
     if (config.devServer) {
       config.devServer = {

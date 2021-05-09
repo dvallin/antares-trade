@@ -1,5 +1,5 @@
 import { Mutation, State, Storage } from '../state'
-import { applyProduction, getScaledProduction, Production } from './production'
+import { getScaledProduction, Production } from './production'
 import { Rates } from './rates'
 import { TradeRoute } from './trade-route'
 
@@ -12,20 +12,14 @@ export interface MarketState {
   markets: Storage<Market>
   balances: Storage<number>
   routes: Storage<TradeRoute>
+  lastUpdate: number
 }
 
 export const market: MarketState = {
   markets: {},
   balances: { player: 100, ai: 200000000 },
   routes: {},
-}
-
-export const updateMarkets = (dt: number): Mutation<State> => (d) => {
-  Object.entries(d.market.markets).forEach(([id, market]) => {
-    Object.values(market.production).forEach((production) => {
-      applyProduction(d, dt, id, production)
-    })
-  })
+  lastUpdate: Date.now(),
 }
 
 export function getDemandPerHour(state: State, location: string, comodity: string): number {
