@@ -2066,7 +2066,6 @@ input[type="time"].form-control,
 input[type="datetime-local"].form-control,
 input[type="month"].form-control {
   -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
 }
 
@@ -3919,7 +3918,6 @@ input[type="button"].btn-block {
   border: 1px solid #ced4da;
   border-radius: 0.25rem;
   -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
 }
 
@@ -4046,7 +4044,6 @@ input[type="button"].btn-block {
   padding: 0;
   background-color: transparent;
   -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
 }
 
@@ -4112,7 +4109,6 @@ input[type="button"].btn-block {
   border-radius: 1rem;
   -moz-transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  -moz-appearance: none;
   appearance: none;
 }
 
@@ -5991,7 +5987,6 @@ a.close.disabled {
   display: block;
   height: calc(100vh - 1rem);
   height: -webkit-min-content;
-  height: -moz-min-content;
   height: min-content;
   content: "";
 }
@@ -6119,7 +6114,6 @@ a.close.disabled {
   .modal-dialog-centered::before {
     height: calc(100vh - 3.5rem);
     height: -webkit-min-content;
-    height: -moz-min-content;
     height: min-content;
   }
   .modal-sm {
@@ -10338,4 +10332,4 @@ select {
 }
 
 
-/*# sourceMappingURL=ssr-bundle.d2eb6.css.map*/
+/*# sourceMappingURL=ssr-bundle.d2635.css.map*/
