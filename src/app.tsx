@@ -7,7 +7,8 @@ import { AllObjectsSelector } from './map/object-selector/selectors'
 import { Provider as StateProvider, useApplicationState } from './application-state'
 import { useEffect } from 'preact/hooks'
 
-import { init, update, updateInterval } from './state'
+import { init } from './init-state'
+import { update, updateInterval } from './update-state'
 import { selectEntity } from './map/state'
 
 export const App = () => {
