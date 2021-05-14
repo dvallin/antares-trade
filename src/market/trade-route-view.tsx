@@ -45,7 +45,7 @@ export default (props: { id: string }) => {
             <tr>
               <th scope="col">location</th>
               <th scope="col">operation</th>
-              <th scope="col">amount</th>
+              <th scope="col">percentage</th>
               <th scope="col">comodity</th>
               <th scope="col">delete</th>
             </tr>
@@ -78,9 +78,10 @@ export default (props: { id: string }) => {
                       class="form-control"
                       placeholder="all"
                       maxLength={4}
+                      value={step.percentage}
                       onChange={(e) => {
                         const value = Number((e.target as HTMLSelectElement).value)
-                        mutate(updateStep(props.id, index, { amount: Number.isNaN(value) ? undefined : value }))
+                        mutate(updateStep(props.id, index, { percentage: Number.isNaN(value) ? undefined : value }))
                       }}
                     />
                   </td>

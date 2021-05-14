@@ -27,10 +27,10 @@ function sampleSolarPanel(): CreateShipProps {
     owner: 'player',
     name: 'Solar Panel',
     location: { x, y, system: 'sol' },
-    totalCargo: 20000,
+    totalCargo: 200000,
     totalDocks: 4,
     speed: 0.05,
-    stock: {},
+    stock: { energyCells: 100 },
     market: {
       production: [
         {
@@ -53,7 +53,7 @@ function sampleFloatingGardens(): CreateShipProps {
     owner: 'player',
     name: 'Venuvian floating gardens',
     location: 'venus',
-    totalCargo: 20000,
+    totalCargo: 200000,
     totalDocks: 4,
     speed: 0.0,
     stock: { energyCells: 100, metals: 100 },
@@ -66,7 +66,7 @@ function sampleFloatingGardens(): CreateShipProps {
         },
       ],
       rates: {
-        energyCells: { buy: 3 },
+        energyCells: { buy: 3, sell: 6 },
         biomass: { sell: 2 },
         food: { sell: 3 },
       },
@@ -74,7 +74,9 @@ function sampleFloatingGardens(): CreateShipProps {
   }
 }
 
-function freighterTradingBetween(source: string, targets: string[], comodity: string): CreateShipProps {
+type SellTarget = { id: string; amount: number }
+function freighterTradingBetween(source: string, targets: SellTarget[], comodity: string): CreateShipProps {
+  const totalAmount = targets.map((t) => t.amount).reduce((a, b) => a + b, 0)
   return {
     id: `freigter-${generateId()}`,
     type: 'freighter',
@@ -89,7 +91,12 @@ function freighterTradingBetween(source: string, targets: string[], comodity: st
       currentStep: 0,
       steps: [
         { location: source, operation: 'buy', comodity },
-        ...targets.map((target) => ({ location: target, operation: 'sell' as 'sell' | 'buy', comodity })),
+        ...targets.map((target) => ({
+          location: target.id,
+          percentage: target.amount / totalAmount,
+          operation: 'sell' as 'sell' | 'buy',
+          comodity,
+        })),
       ],
     },
   }
@@ -129,11 +136,11 @@ function createFreighterForEachSource(state: Draft<State>, sources: ProductionBy
   let targetFulfilled = 0
   let currentTarget = 0
   for (const source of sources) {
-    const selectedTargets: string[] = []
+    const selectedTargets: SellTarget[] = []
     let sourceRemaining = source.production
     while (sourceRemaining > 0 && currentTarget < targets.length) {
       const target = targets[currentTarget]
-      selectedTargets.push(target.id)
+      selectedTargets.push({ id: target.id, amount: target.demand })
       sourceRemaining -= target.demand - targetFulfilled
       targetFulfilled += source.production
       if (targetFulfilled > target.demand) {
@@ -227,7 +234,7 @@ export const init = (state: Draft<State>): void | State => {
           rates: {
             clothing: { buy: 10 },
             food: { buy: 8 },
-            energyCells: { buy: 8 },
+            energyCells: { buy: 8, sell: 20 },
             uranium: { buy: 100 },
             heavyWeapons: { sell: 3000 },
             toxicWaste: { sell: -1 },
@@ -282,9 +289,9 @@ export const init = (state: Draft<State>): void | State => {
             },
           ],
           rates: {
-            clothing: { buy: 6 },
-            food: { buy: 10 },
-            energyCells: { buy: 6 },
+            clothing: { buy: 6, sell: 12 },
+            food: { buy: 10, sell: 15 },
+            energyCells: { buy: 6, sell: 10 },
           },
         },
       }),
@@ -330,7 +337,7 @@ export const init = (state: Draft<State>): void | State => {
             },
           ],
           rates: {
-            energyCells: { buy: 3 },
+            energyCells: { buy: 8, sell: 20 },
             metals: { buy: 3 },
             advancedMaterials: { sell: 10 },
           },

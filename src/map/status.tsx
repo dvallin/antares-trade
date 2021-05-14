@@ -10,7 +10,7 @@ export default () => {
   const location = { system: state.starSystems.currentSystem, x: center[0], y: center[1] }
   return (
     <h1 className="text-center">
-      <Location location={location} /> | {state.market.balances['player']} credits
+      <Location location={location} /> | {state.market.balances['player'].toExponential(2)} credits
     </h1>
   )
 }

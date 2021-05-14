@@ -1,6 +1,6 @@
 import { addBodyForShip, getEscapeVelocity } from '../body/state'
 import { Movement, positionObjectAt, setMovement } from '../dynamics/movement'
-import { getLocation, isNamedLocation, Location } from '../dynamics/position'
+import { getRoot, getRootByLocation, isNamedLocation, Location } from '../dynamics/position'
 import { initTradeRouting, Market, setMarket, setTradeRoute } from '../market/state'
 import { TradeRoute } from '../market/trade-route'
 import { setName } from '../meta-data/state'
@@ -85,19 +85,18 @@ export const getEscapeEnergyCost = (state: State, location: string): number => {
   return Math.floor(getEscapeVelocity(state, location) || 0)
 }
 
-export const escape = (id: string): Mutation<State> => (state) => {
+export const needsEscape = (state: State, id: string, to: Location): boolean => getRoot(state, id) !== getRootByLocation(state, to)
+
+export const escape = (id: string, to: Location): Mutation<State> => (state) => {
   const p = state.dynamics.positions[id]
-  if (isNamedLocation(p)) {
-    const needsEscape = getLocation(state, id) === getLocation(state, p)
-    if (needsEscape) {
-      updateStock(id, 'energyCells', -getEscapeEnergyCost(state, p))
-    }
+  if (isNamedLocation(p) && needsEscape(state, id, to)) {
+    updateStock(id, 'energyCells', -getEscapeEnergyCost(state, p))(state)
   }
 }
 
-export const canEscape = (state: State, id: string): boolean => {
+export const canEscape = (state: State, id: string, to: Location): boolean => {
   const p = state.dynamics.positions[id]
-  if (isNamedLocation(p)) {
+  if (isNamedLocation(p) && needsEscape(state, id, to)) {
     const cost = getEscapeEnergyCost(state, p)
     return cost !== undefined ? (state.ships.cargo[id].stock['energyCells'] || 0) >= cost : true
   }
@@ -108,7 +107,7 @@ export const moveShip = (ship: string, to: Movement['to'], v: number): Mutation<
   const move = setMovement(ship, to, v)
   if (!isDocked(state, ship)) {
     chain(detachOrbit(ship), move)(state)
-  } else if (canEscape(state, ship)) {
-    chain(undockShip(ship), escape(ship), move)(state)
+  } else if (canEscape(state, ship, to)) {
+    chain(undockShip(ship), escape(ship, to), move)(state)
   }
 }

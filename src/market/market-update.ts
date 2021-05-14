@@ -24,5 +24,5 @@ export function applyMarketUpdate(state: Draft<State>, update: MarketUpdate): vo
 
 export const updateMarkets = (dt: number): Mutation<State> => (state) => {
   collectUpdates(state, dt).forEach((update) => applyMarketUpdate(state, update))
-  state.market.lastUpdate += dt
+  state.market.lastUpdate += dt * 1000
 }

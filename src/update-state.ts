@@ -19,8 +19,10 @@ export const saveInterval = 1000
 
 export const update = (state: Draft<State>): void => {
   const now = Date.now()
-  const dtMs = Math.min(now - state.lastUpdate, updateMaximumDt)
-  const isDeltaUpdate = Date.now() - now < 100
+  const delta = now - state.lastUpdate
+  const isDeltaUpdate = delta < 100
+
+  const dtMs = Math.min(delta, updateMaximumDt)
   const dt = dtMs / 1000
   if (isDeltaUpdate) {
     state.lastUpdate += dtMs

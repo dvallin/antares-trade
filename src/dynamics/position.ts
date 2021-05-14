@@ -1,6 +1,8 @@
 import { Mutation, State } from '../state'
 import { fromPolar } from '../polar'
 import { isBand, StarSystem } from '../star-system'
+import { distSquared } from '../geometry'
+import { getEscapeEnergyCost, needsEscape } from '../ships/state'
 
 export interface Position {
   system: string
@@ -20,6 +22,18 @@ export const getRootByLocation = (state: State, location: Location): string | un
 export const getLocation = (state: State, id: string): Location => state.dynamics.positions[id]
 export const setLocation = (id: string, location: Location): Mutation<State> => (s) => {
   s.dynamics.positions[id] = location
+}
+
+export function closedRouteEnergyCost(state: State, route: Location[]): number {
+  let cost = 0
+  for (let i = 0; i < route.length; i++) {
+    const left = getRootByLocation(state, route[i])
+    const right = getRootByLocation(state, route[(i + 1) % route.length])
+    if (left !== undefined && right !== undefined && needsEscape(state, left, right)) {
+      cost += getEscapeEnergyCost(state, left)
+    }
+  }
+  return cost
 }
 
 export const applyStarSystem = (systemName: string, system: StarSystem, cx = 0, cy = 0): Mutation<State> => (d) => {

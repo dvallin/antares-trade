@@ -17,7 +17,7 @@ export interface MarketState {
 
 export const market: MarketState = {
   markets: {},
-  balances: { player: 100, ai: 200000000 },
+  balances: { player: 100000, ai: 200000000 },
   routes: {},
   lastUpdate: Date.now(),
 }

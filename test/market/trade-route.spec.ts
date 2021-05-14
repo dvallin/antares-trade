@@ -2,31 +2,66 @@ import produce from 'immer'
 import { initialState } from '../../src/application-state'
 import * as trade from '../../src/market/trade'
 import { addStep, removeStep, TradeRouteStep, updateStep, updateTradeRoutes } from '../../src/market/trade-route'
+import { createShip } from '../../src/ships/state'
 import { chain } from '../../src/state'
 
 const buyAtStation1: TradeRouteStep = { location: 'station1', comodity: 'a', operation: 'buy' }
 const sellAtStation1: TradeRouteStep = { location: 'station1', comodity: 'b', operation: 'sell' }
-const buy1AtStation1: TradeRouteStep = { location: 'station1', comodity: 'a', operation: 'buy', amount: 1 }
-const sell1AtStation1: TradeRouteStep = { location: 'station1', comodity: 'b', operation: 'sell', amount: 1 }
+const buy10PercentAtStation1: TradeRouteStep = { location: 'station1', comodity: 'a', operation: 'buy', percentage: 0.1 }
+const sell10PercentAtStation1: TradeRouteStep = { location: 'station1', comodity: 'b', operation: 'sell', percentage: 0.1 }
 const buyAtStation2: TradeRouteStep = { location: 'station2', comodity: 'b', operation: 'buy' }
 
+const baseTestState = produce(
+  initialState,
+  chain(
+    createShip({
+      id: 'ship',
+      owner: 'player',
+      location: 'station1',
+      type: 'freighter',
+      name: '',
+      speed: 0.7,
+      totalCargo: 100,
+      totalDocks: 0,
+      tradeRoute: {
+        currentStep: 0,
+        steps: [],
+      },
+    }),
+    createShip({
+      id: 'station1',
+      owner: 'ai',
+      location: { system: 'sol', x: 10, y: 0 },
+      type: 'station',
+      name: '',
+      speed: 0.7,
+      totalCargo: 100,
+      totalDocks: 1,
+      market: {
+        rates: {},
+        production: [],
+      },
+    }),
+    createShip({
+      id: 'station2',
+      owner: 'ai',
+      location: { system: 'sol', x: 100, y: 0 },
+      type: 'station',
+      name: '',
+      speed: 0.7,
+      totalCargo: 100,
+      totalDocks: 1,
+      market: {
+        rates: {},
+        production: [],
+      },
+    })
+  )
+)
+
 describe('addStep', () => {
-  const testState = produce(initialState, (s) => {
-    s.dynamics.positions['ship'] = { system: s.starSystems.currentSystem, x: 0, y: 0 }
-    s.market.routes['ship'] = {
-      currentStep: 0,
-      steps: [],
-    }
-    s.dynamics.positions['station1'] = { system: s.starSystems.currentSystem, x: 10, y: 0 }
-    s.market.markets['station1'] = {
-      rates: { a: { sell: 1 }, b: { buy: 2, sell: 23 } },
-      production: [],
-    }
-    s.dynamics.positions['station2'] = { system: s.starSystems.currentSystem, x: 100, y: 0 }
-    s.market.markets['station2'] = {
-      rates: {},
-      production: [],
-    }
+  const testState = produce(baseTestState, (s) => {
+    s.market.markets['station1'].rates = { a: { sell: 1 }, b: { buy: 2, sell: 23 } }
   })
   it('add step with closest station', () => {
     const result = produce(testState, addStep('ship'))
@@ -49,7 +84,7 @@ describe('addStep', () => {
 })
 
 describe('removeStep', () => {
-  const testState = produce(initialState, (s) => {
+  const testState = produce(baseTestState, (s) => {
     s.market.routes['ship'] = {
       currentStep: 1,
       steps: [buyAtStation1, sellAtStation1, buyAtStation2],
@@ -77,7 +112,7 @@ describe('removeStep', () => {
 })
 
 describe('updateStep', () => {
-  const testState = produce(initialState, (s) => {
+  const testState = produce(baseTestState, (s) => {
     s.market.routes['ship'] = {
       currentStep: 1,
       steps: [buyAtStation1, sellAtStation1],
@@ -94,22 +129,14 @@ describe('updateStep', () => {
 })
 
 describe('updateTradeRoute', () => {
-  const testState = produce(initialState, (s) => {
+  const testState = produce(baseTestState, (s) => {
     s.market.routes['ship'] = {
       currentStep: 0,
       steps: [buyAtStation1, sellAtStation1, buyAtStation2],
     }
-    s.dynamics.positions['ship'] = 'station1'
-    s.ships.controllable['ship'] = { by: 'player' }
-    s.ships.cargo['ship'] = { total: 100, stock: { b: 5 } }
-    s.ships.specs['ship'] = { docks: { total: 0, docked: [] }, speed: 0.7, type: 'freighter' }
-    s.dynamics.positions['station1'] = { system: s.starSystems.currentSystem, x: 10, y: 0 }
-    s.market.markets['station1'] = {
-      rates: { a: { sell: 1 }, b: { buy: 2, sell: 23 } },
-      production: [],
-    }
-    s.ships.controllable['station1'] = { by: 'ai' }
-    s.ships.cargo['station1'] = { total: 100, stock: { a: 4, b: 3 } }
+    s.ships.cargo['ship'].stock['b'] = 5
+    s.market.markets['station1'].rates = { a: { sell: 1 }, b: { buy: 2, sell: 23 } }
+    s.ships.cargo['station1'].stock = { a: 4, b: 3 }
   })
 
   const performTrade = jest.spyOn(trade, 'performTrade')
@@ -140,7 +167,7 @@ describe('updateTradeRoute', () => {
       const dockedShipWithRoute = produce(testState, (s) => {
         s.market.routes['ship'] = {
           currentStep: 0,
-          steps: [buy1AtStation1, sellAtStation1],
+          steps: [buy10PercentAtStation1, sellAtStation1],
         }
       })
       produce(dockedShipWithRoute, updateTradeRoutes)
@@ -162,7 +189,7 @@ describe('updateTradeRoute', () => {
       const dockedShipWithRoute = produce(testState, (s) => {
         s.market.routes['ship'] = {
           currentStep: 0,
-          steps: [sell1AtStation1, buyAtStation1],
+          steps: [sell10PercentAtStation1, buyAtStation1],
         }
       })
       produce(dockedShipWithRoute, updateTradeRoutes)
